@@ -1,9 +1,11 @@
 fs = require('fs');
 util = require('util');
 
-esprima = require('esprima');
+acorn = require('acorn');
 
 'use strict';
+
+format = require('./format');
 
 function help() {
 	print('Usage: jsclean [options] files');
@@ -64,12 +66,15 @@ if (!files.length)
 	help();
 for (var file of files) {
 	try {
-		var a = esprima.parse(read(file), {
-			comment: true
+		var a = acorn.parse(read(file), {
+			ecmaVersion: 6,
+			preserveParens: true
 		});
 	} catch (e) {
-		print(file + ':' + e.lineNumber + ': ' + e.description);
+		console.log(file + ': ' + e.message);
 		process.exit(1);
 	}
 	print(a);
+	var s = format.format(a);
+	print(s)
 }
