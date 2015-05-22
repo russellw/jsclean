@@ -7,7 +7,7 @@ acorn = require('acorn');
 
 format = require('./format');
 
-function debug(a) {
+global.debug = function (a) {
 	console.log(util.inspect(a, {
 		colors: process.stdout.isTTY,
 		depth: null,

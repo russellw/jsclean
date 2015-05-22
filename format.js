@@ -1,4 +1,5 @@
 'use strict';
+var commenti;
 var ss;
 
 function put(s) {
@@ -27,12 +28,25 @@ function indent(level) {
 		put(options.indent)
 }
 
+function comment(a, level) {
+	while (commenti < comments.length && comments[commenti].start < a.start) {
+		var c = comments[commenti++];
+		indent(level)
+		if (c.type == 'Line')
+			put('//' + c.value)
+		else
+			put('/*' + c.value + '*/')
+		put('\n')
+	}
+}
+
 function block(a, level) {
 	put('{\n')
 	if (a.type == 'BlockStatement')
-		for (var b of a.body)
+		for (var b of a.body) {
+			comment(b)
 			stmt(b, level + 1)
-	else
+		} else
 		stmt(a, level + 1)
 	indent(level)
 	put('}')
@@ -301,8 +315,10 @@ function stmt(a, level) {
 		stmt(a.body, loop, a.label.name)
 		break
 	case 'Program':
-		for (var b of a.body)
+		for (var b of a.body) {
+			comment(b)
 			stmt(b, level)
+		}
 		break
 	case 'ReturnStatement':
 		indent(level)
@@ -372,6 +388,7 @@ function format(a, comments, options) {
 	global.options = options || {
 		indent: '\t'
 	}
+	commenti = 0
 	ss = []
 	stmt(a, 0)
 	if (hasBlank())
