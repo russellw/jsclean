@@ -193,6 +193,26 @@ function stmt(a, level) {
 		expr(a.expression, level)
 		put(';\n')
 		break
+	case 'ForInStatement':
+		indent(level)
+		put('for (')
+		expr(a.left, level)
+		put(' in ')
+		expr(a.right, level)
+		put(') ')
+		block(a.body, level)
+		put('\n')
+		break
+	case 'ForOfStatement':
+		indent(level)
+		put('for (')
+		expr(a.left, level)
+		put(' of ')
+		expr(a.right, level)
+		put(') ')
+		block(a.body, level)
+		put('\n')
+		break
 	case 'ForStatement':
 		indent(level)
 		put('for (')
