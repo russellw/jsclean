@@ -8,17 +8,15 @@ acorn = require('acorn');
 format = require('./format');
 
 function debug(a) {
-	if (typeof (a) === 'object')
-		a = util.inspect(a, {
-			colors: process.stdout.isTTY,
-			depth: null,
-		});
-	console.log(a);
+	console.log(util.inspect(a, {
+		colors: process.stdout.isTTY,
+		depth: null,
+	}));
 }
 
 function help() {
 	console.log('Usage: jsclean [options] files');
-	console.log('');
+	console.log();
 	console.log('-h  Show help');
 	console.log('-v  Show version');
 	process.exit(0);
@@ -69,7 +67,6 @@ for (var file of files) {
 		console.log(file + ': ' + e.message);
 		process.exit(1);
 	}
-	debug(a);
 	var output = format.format(a);
 	if (input == output)
 		continue

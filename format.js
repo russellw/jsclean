@@ -5,6 +5,23 @@ function put(s) {
 	ss.push(s)
 }
 
+function endsWith(s, t) {
+	return s[s.length - 1] == t
+}
+
+function hasBlank() {
+	if (!ss.length)
+		return false
+	if (ss.length == 1)
+		return ss[ss.length - 1] == '\n'
+	return endsWith(ss[ss.length - 2], '\n') && ss[ss.length - 1] == '\n'
+}
+
+function blank() {
+	if (!hasBlank())
+		put('\n')
+}
+
 function indent(level) {
 	while (level--)
 		put('\t')
@@ -24,6 +41,10 @@ function block(a, level) {
 function expr(a, level) {
 	switch (a.type) {
 	case 'ArrayExpression':
+		if (!a.elements.length) {
+			put('[]')
+			break
+		}
 		put('[\n')
 		for (var b of a.elements) {
 			indent(level + 1)
@@ -106,6 +127,10 @@ function expr(a, level) {
 		}
 		break
 	case 'ObjectExpression':
+		if (!a.properties.length) {
+			put('{}')
+			break
+		}
 		put('{\n')
 		for (var b of a.properties) {
 			indent(level + 1)
@@ -238,6 +263,7 @@ function stmt(a, level) {
 		put('\n')
 		break
 	case 'FunctionDeclaration':
+		blank()
 		indent(level)
 		put('function ' + a.id.name + '(')
 		for (var i = 0; i < a.params.length; i++) {
@@ -248,6 +274,7 @@ function stmt(a, level) {
 		put(') ')
 		block(a.body, level)
 		put('\n')
+		blank()
 		break
 	case 'IfStatement':
 		indent(level)
@@ -334,6 +361,8 @@ function stmt(a, level) {
 function format(a) {
 	ss = []
 	stmt(a, 0)
+	if (hasBlank())
+		ss.pop()
 	return ss.join('')
 }
 exports.format = format
