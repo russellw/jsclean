@@ -14,20 +14,20 @@ function block(a, level) {
 	put('{\n')
 	if (a.type == 'BlockStatement')
 		for (var b of a.body)
-			rec(b, level + 1)
+			stmt(b, level + 1)
 	else
-		rec(a, level + 1)
+		stmt(a, level + 1)
 	indent(level)
 	put('}')
 }
 
-function rec(a, level) {
+function expr(a, level) {
 	switch (a.type) {
 	case 'ArrayExpression':
 		put('[\n')
 		for (var b of a.elements) {
 			indent(level + 1)
-			rec(b, level + 1)
+			expr(b, level + 1)
 			put(',\n')
 		}
 		indent(level)
@@ -36,13 +36,107 @@ function rec(a, level) {
 	case 'AssignmentExpression':
 	case 'BinaryExpression':
 	case 'LogicalExpression':
-		rec(a.left)
+		expr(a.left, level)
 		put(' ' + a.operator + ' ')
-		rec(a.right)
+		expr(a.right, level)
 		break
+	case 'CallExpression':
+		expr(a.callee, level)
+		put('(')
+		for (var i = 0; i < a.arguments.length; i++) {
+			if (i)
+				put(', ')
+			expr(a.arguments[i], level)
+		}
+		put(')')
+		break
+	case 'ConditionalExpression':
+		expr(a.test, level)
+		put(' ? ')
+		expr(a.consequent, level)
+		put(' : ')
+		expr(a.alternate, level)
+		break
+	case 'FunctionExpression':
+		f.push(convert(a))
+		break
+	case 'Identifier':
+		put(a.name)
+		break
+	case 'Literal':
+		put(a.raw)
+		break
+	case 'MemberExpression':
+		expr(a.object, level)
+		if (a.computed) {
+			put('[')
+			expr(a.property, level)
+			put(']')
+		} else {
+			put('.')
+			expr(a.property, level)
+		}
+		break
+	case 'ObjectExpression':
+		put('{\n')
+		for (var b of a.properties) {
+			indent(level + 1)
+			expr(b, level + 1)
+			put(',\n')
+		}
+		indent(level)
+		put('}')
+		break
+	case 'Property':
+		expr(a.key, level)
+		put(': ')
+		expr(a.value, level)
+		break
+	case 'SequenceExpression':
+		for (var i = 0; i < a.expressions.length; i++) {
+			if (i)
+				put(', ')
+			expr(a.expressions[i], level)
+		}
+		break
+	case 'UnaryExpression':
+		put(a.operator)
+		expr(a.argument, level)
+		break
+	case 'UpdateExpression':
+		if (a.prefix) {
+			put(a.operator)
+			expr(a.argument, level)
+		} else {
+			expr(a.argument, level)
+			put(a.operator)
+		}
+		break
+	case 'VariableDeclaration':
+		put('var ')
+		for (var i = 0; i < a.declarations.length; i++) {
+			if (i)
+				put(', ')
+			expr(a.declarations[i], level)
+		}
+		break
+	case 'VariableDeclarator':
+		put(a.id.name)
+		if (a.init) {
+			put(' = ')
+			expr(a.init, level)
+		}
+		break
+	default:
+		console.assert(0, a)
+	}
+}
+
+function stmt(a, level) {
+	switch (a.type) {
 	case 'BlockStatement':
 		for (var b of a.body)
-			rec(b, level + 1)
+			stmt(b, level + 1)
 		break
 	case 'BreakStatement':
 		indent(level)
@@ -52,23 +146,6 @@ function rec(a, level) {
 			put(a.label.name)
 		}
 		put(';\n')
-		break
-	case 'CallExpression':
-		rec(a.callee)
-		put('(')
-		for (var i = 0; i < a.arguments.length; i++) {
-			if (i)
-				put(', ')
-			rec(a.arguments[i])
-		}
-		put(')')
-		break
-	case 'ConditionalExpression':
-		rec(a.test)
-		put(' ? ')
-		rec(a.consequent)
-		put(' : ')
-		rec(a.alternate)
 		break
 	case 'ContinueStatement':
 		indent(level)
@@ -85,7 +162,7 @@ function rec(a, level) {
 		block(a.body, level)
 		indent(level)
 		put(' while (')
-		rec(a.test)
+		expr(a.test, level)
 		put(');\n')
 		break
 	case 'EmptyStatement':
@@ -94,32 +171,28 @@ function rec(a, level) {
 		break
 	case 'ExpressionStatement':
 		indent(level)
-		rec(a.expression)
+		expr(a.expression, level)
 		put(';\n')
 		break
 	case 'ForStatement':
 		indent(level)
 		put('for (')
-		rec(a.init)
+		expr(a.init, level)
 		put('; ')
-		rec(a.test)
+		expr(a.test, level)
 		put('; ')
-		rec(a.update)
+		expr(a.update, level)
 		put(') ')
 		block(a.body, level)
 		put('\n')
 		break
 	case 'FunctionDeclaration':
-	case 'FunctionExpression':
 		f.push(convert(a))
-		break
-	case 'Identifier':
-		put(a.name)
 		break
 	case 'IfStatement':
 		indent(level)
 		put('if (')
-		rec(a.test)
+		expr(a.test, level)
 		put(') ')
 		block(a.consequent, level)
 		if (a.alternate) {
@@ -129,80 +202,43 @@ function rec(a, level) {
 		put('\n')
 		break
 	case 'LabeledStatement':
-		rec(a.body, loop, a.label.name)
-		break
-	case 'Literal':
-		put(a.raw)
-		break
-	case 'MemberExpression':
-		rec(a.object)
-		if (a.computed)
-			rec(a.property)
-		f.push(a)
-		break
-	case 'ObjectExpression':
-		f.push(a)
+		stmt(a.body, loop, a.label.name)
 		break
 	case 'Program':
 		for (var b of a.body)
-			rec(b, level)
+			stmt(b, level)
 		break
 	case 'ReturnStatement':
 		indent(level)
 		put('return')
 		if (a.argument) {
 			put(' ')
-			rec(a.argument)
+			expr(a.argument, level)
 		}
 		put(';\n')
-		break
-	case 'SequenceExpression':
-		for (var i = 0; i < a.expressions.length; i++) {
-			if (i)
-				put(', ')
-			rec(a.expressions[i])
-		}
 		break
 	case 'SwitchStatement':
 		indent(level)
 		put('switch (')
-		rec(a.discriminant)
+		expr(a.discriminant, level)
 		put(') ')
 		block(a.cases)
 		put('\n')
 		break
-	case 'UnaryExpression':
-		put(a.operator)
-		rec(a.argument)
-		break
-	case 'UpdateExpression':
-		if (a.prefix) {
-			put(a.operator)
-			rec(a.argument)
-		} else {
-			rec(a.argument)
-			put(a.operator)
-		}
-		break
 	case 'VariableDeclaration':
 		indent(level)
-		a.declarations.forEach(function (b) {
-			rec(b)
-		})
-		break
-	case 'VariableDeclarator':
-		variable(a.id.name)
-		if (a.init)
-			rec({
-				type: 'AssignmentExpression',
-				left: a.id,
-				right: a.init,
-			})
+		put('var ')
+		for (var i = 0; i < a.declarations.length; i++) {
+			if (i)
+				put(', ')
+			expr(a.declarations[i], level)
+		}
+		put(';\n')
 		break
 	case 'WhileStatement':
 		indent(level)
 		put('while (')
-		rec(a.test)
+		expr(a.test, level)
 		put(') ')
 		block(a.body, level)
 		put('\n')
@@ -214,7 +250,7 @@ function rec(a, level) {
 
 function format(a) {
 	ss = []
-	rec(a, 0)
+	stmt(a, 0)
 	return ss.join('')
 }
 exports.format = format
