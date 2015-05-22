@@ -21,22 +21,31 @@ function help() {
 	console.log('-version    Show version');
 	console.log();
 	console.log('-no-backup  Don\'t make .bak files');
+	console.log('-space N    Indent with N spaces');
 	process.exit(0);
 }
 
 var backup = true;
 var files = [];
+var indent = '\t';
+
+function arg() {
+	if (i + 1 == process.argv.length) {
+		console.log(process.argv[i] + ': arg expected')
+		process.exit(1);
+	}
+	return process.argv[++i];
+}
 
 for (var i = 2; i < process.argv.length; i++) {
-	var arg = process.argv[i];
-	if (arg[0] !== '-') {
-		files.push(arg);
+	var s = process.argv[i];
+	if (s[0] !== '-') {
+		files.push(s);
 		continue;
 	}
-	var opt = arg;
-	while (opt[0] === '-')
-		opt = opt.substring(1);
-	switch (opt) {
+	while (s[0] === '-')
+		s = s.substring(1);
+	switch (s) {
 	case '?':
 	case 'h':
 	case 'help':
@@ -50,9 +59,17 @@ for (var i = 2; i < process.argv.length; i++) {
 	case 'no-backups':
 		backup = false
 		break
+	case 's':
+	case 'space':
+	case 'spaces':
+		indent = ''
+		for (var j = +arg(); j-- > 0;)
+			indent += ' '
+		break
+	default:
+		console.log(process.argv[i] + ': unknown option');
+		process.exit(1);
 	}
-	console.log(arg + ': unknown option');
-	process.exit(1);
 }
 if (!files.length)
 	help();
@@ -74,7 +91,9 @@ for (var file of files) {
 		console.log(file + ': ' + e.message);
 		process.exit(1);
 	}
-	var output = format.format(a);
+	var output = format.format(a, {
+		indent: indent
+	});
 	if (input == output)
 		continue
 	try {

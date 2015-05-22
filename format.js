@@ -24,7 +24,7 @@ function blank() {
 
 function indent(level) {
 	while (level--)
-		put('\t')
+		put(options.indent)
 }
 
 function block(a, level) {
@@ -358,7 +358,12 @@ function stmt(a, level) {
 	}
 }
 
-function format(a) {
+function format(a, options) {
+	if (!options)
+		options = {
+			indent: '\t'
+		}
+	global.options = options
 	ss = []
 	stmt(a, 0)
 	if (hasBlank())
