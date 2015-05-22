@@ -94,6 +94,11 @@ function expr(a, level) {
 		indent(level)
 		put('}')
 		break
+	case 'ParenthesizedExpression':
+		put('(')
+		expr(a.expression, level)
+		put(')')
+		break
 	case 'Property':
 		expr(a.key, level)
 		put(': ')
