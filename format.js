@@ -58,7 +58,14 @@ function expr(a, level) {
 		expr(a.alternate, level)
 		break
 	case 'FunctionExpression':
-		f.push(convert(a))
+		put('function (')
+		for (var i = 0; i < a.params.length; i++) {
+			if (i)
+				put(', ')
+			expr(a.params[i], level)
+		}
+		put(') ')
+		block(a.body, level)
 		break
 	case 'Identifier':
 		put(a.name)
@@ -187,7 +194,16 @@ function stmt(a, level) {
 		put('\n')
 		break
 	case 'FunctionDeclaration':
-		f.push(convert(a))
+		indent(level)
+		put('function ' + a.id.name + '(')
+		for (var i = 0; i < a.params.length; i++) {
+			if (i)
+				put(', ')
+			expr(a.params[i], level)
+		}
+		put(') ')
+		block(a.body, level)
+		put('\n')
 		break
 	case 'IfStatement':
 		indent(level)
@@ -221,9 +237,17 @@ function stmt(a, level) {
 		indent(level)
 		put('switch (')
 		expr(a.discriminant, level)
-		put(') ')
-		block(a.cases)
-		put('\n')
+		put(') {\n')
+		for (var c of a.cases) {
+			indent(level)
+			put('case ')
+			expr(c.test, level)
+			put(':\n')
+			for (var b of c.consequent)
+				stmt(b, level + 1)
+		}
+		indent(level)
+		put('}\n')
 		break
 	case 'VariableDeclaration':
 		indent(level)
