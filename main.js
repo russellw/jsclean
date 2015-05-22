@@ -17,11 +17,14 @@ function debug(a) {
 function help() {
 	console.log('Usage: jsclean [options] files');
 	console.log();
-	console.log('-h  Show help');
-	console.log('-v  Show version');
+	console.log('-help       Show help');
+	console.log('-version    Show version');
+	console.log();
+	console.log('-no-backup  Don\'t make .bak files');
 	process.exit(0);
 }
 
+var backup = true;
 var files = [];
 
 for (var i = 2; i < process.argv.length; i++) {
@@ -43,6 +46,10 @@ for (var i = 2; i < process.argv.length; i++) {
 	case 'version':
 		console.log('jsclean version 0');
 		process.exit(0);
+	case 'no-backup':
+	case 'no-backups':
+		backup = false
+		break
 	}
 	console.log(arg + ': unknown option');
 	process.exit(1);
@@ -73,13 +80,14 @@ for (var file of files) {
 	try {
 		fs.unlinkSync(file + '.bak')
 	} catch (e) {}
-	try {
-		fs.renameSync(file, file + '.bak')
-		fs.writeFileSync(file, output)
-	} catch (e) {
-		console.log(e.message);
-		process.exit(1);
-	}
+	if (backup)
+		try {
+			fs.renameSync(file, file + '.bak')
+			fs.writeFileSync(file, output)
+		} catch (e) {
+			console.log(e.message);
+			process.exit(1);
+		}
 	console.log(file)
 	console.log(output)
 }
