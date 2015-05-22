@@ -11,14 +11,26 @@ function indent(level) {
 }
 
 function block(a, level) {
-	put('{\n')
-	if (a.type == 'BlockStatement')
+	switch (a.type) {
+	case 'BlockStatement':
+		if (a.body.length == 0 || a.body.length == 1 && a.body[0].type == 'EmptyStatement') {
+			put('{}')
+			break
+		}
+		put('{\n')
 		for (var b of a.body)
 			stmt(b, level + 1)
-	else
+		put('}')
+		break
+	case 'EmptyStatement':
+		put('{}')
+		break
+	default:
+		put('{\n')
 		stmt(a, level + 1)
+		put('}')
+	}
 	indent(level)
-	put('}')
 }
 
 function expr(a, level) {
