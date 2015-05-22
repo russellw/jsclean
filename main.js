@@ -7,17 +7,7 @@ acorn = require('acorn');
 
 format = require('./format');
 
-function help() {
-	print('Usage: jsclean [options] files');
-	print('');
-	print('-h  Show help');
-	print('-v  Show version');
-	process.exit(0);
-}
-
-function print(a) {
-	if (!arguments.length)
-		a = '';
+function debug(a) {
 	if (typeof (a) === 'object')
 		a = util.inspect(a, {
 			colors: process.stdout.isTTY,
@@ -26,15 +16,12 @@ function print(a) {
 	console.log(a);
 }
 
-function read(file) {
-	try {
-		return fs.readFileSync(file, {
-			encoding: 'utf8',
-		});
-	} catch (e) {
-		print(e.message);
-		process.exit(1);
-	}
+function help() {
+	console.log('Usage: jsclean [options] files');
+	console.log('');
+	console.log('-h  Show help');
+	console.log('-v  Show version');
+	process.exit(0);
 }
 
 var files = [];
@@ -56,25 +43,41 @@ for (var i = 2; i < process.argv.length; i++) {
 	case 'V':
 	case 'v':
 	case 'version':
-		print('Ayane version 0');
+		console.log('jsclean version 0');
 		process.exit(0);
 	}
-	print(arg + ': unknown option');
+	console.log(arg + ': unknown option');
 	process.exit(1);
 }
 if (!files.length)
 	help();
 for (var file of files) {
 	try {
-		var a = acorn.parse(read(file), {
-			ecmaVersion: 6,
-			preserveParens: true
+		var input = fs.readFileSync(file, {
+			encoding: 'utf8',
 		});
+		try {
+			var a = acorn.parse(input, {
+				ecmaVersion: 6,
+				preserveParens: true
+			})
+		} catch (e) {
+			console.log(file + ': ' + e.message);
+			process.exit(1);
+		}
+		debug(a);
+		var output = format.format(a);
+		if (input == output)
+			continue
+		try {
+			fs.unlinkSync(file + '.bak')
+		} catch (e) {}
+		fs.renameSync(file, file + '.bak')
+		fs.writeFileSync(file, output)
+		console.log(file)
+		console.log(output)
 	} catch (e) {
-		console.log(file + ': ' + e.message);
+		console.log(e.message);
 		process.exit(1);
 	}
-	print(a);
-	var s = format.format(a);
-	print(s)
 }
