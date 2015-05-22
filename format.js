@@ -76,6 +76,15 @@ function expr(a, level) {
 	case 'BinaryExpression':
 	case 'LogicalExpression':
 		expr(a.left, level)
+		if (options.eq)
+			switch (a.operator) {
+			case '==':
+				a.operator = '==='
+				break
+			case '!=':
+				a.operator = '!=='
+				break
+			}
 		put(' ' + a.operator + ' ')
 		expr(a.right, level)
 		break
@@ -358,12 +367,11 @@ function stmt(a, level) {
 	}
 }
 
-function format(a, options) {
-	if (!options)
-		options = {
-			indent: '\t'
-		}
-	global.options = options
+function format(a, comments, options) {
+	global.comments = comments || []
+	global.options = options || {
+		indent: '\t'
+	}
 	ss = []
 	stmt(a, 0)
 	if (hasBlank())

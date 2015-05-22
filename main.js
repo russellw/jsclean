@@ -17,15 +17,17 @@ function debug(a) {
 function help() {
 	console.log('Usage: jsclean [options] files');
 	console.log();
-	console.log('-help       Show help');
-	console.log('-version    Show version');
+	console.log('-help      Show help');
+	console.log('-version   Show version');
 	console.log();
-	console.log('-no-backup  Don\'t make .bak files');
-	console.log('-space N    Indent with N spaces');
+	console.log('-eq        Replace == with ===');
+	console.log('-no-bak    Don\'t make .bak files');
+	console.log('-spaces N  Indent with N spaces');
 	process.exit(0);
 }
 
 var backup = true;
+var eq;
 var files = [];
 var indent = '\t';
 
@@ -55,12 +57,13 @@ for (var i = 2; i < process.argv.length; i++) {
 	case 'version':
 		console.log('jsclean version 0');
 		process.exit(0);
-	case 'no-backup':
-	case 'no-backups':
+	case 'eq':
+		eq = true
+		break
+	case 'no-bak':
 		backup = false
 		break
 	case 's':
-	case 'space':
 	case 'spaces':
 		indent = ''
 		for (var j = +arg(); j-- > 0;)
@@ -82,16 +85,19 @@ for (var file of files) {
 		console.log(e.message);
 		process.exit(1);
 	}
+	var comments = [];
 	try {
 		var a = acorn.parse(input, {
 			ecmaVersion: 6,
+			onComment: comments,
 			preserveParens: true
 		})
 	} catch (e) {
 		console.log(file + ': ' + e.message);
 		process.exit(1);
 	}
-	var output = format.format(a, {
+	var output = format.format(a, comments, {
+		eq: eq,
 		indent: indent
 	});
 	if (input == output)
