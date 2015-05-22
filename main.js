@@ -56,28 +56,33 @@ for (var file of files) {
 		var input = fs.readFileSync(file, {
 			encoding: 'utf8',
 		});
-		try {
-			var a = acorn.parse(input, {
-				ecmaVersion: 6,
-				preserveParens: true
-			})
-		} catch (e) {
-			console.log(file + ': ' + e.message);
-			process.exit(1);
-		}
-		debug(a);
-		var output = format.format(a);
-		if (input == output)
-			continue
-		try {
-			fs.unlinkSync(file + '.bak')
-		} catch (e) {}
-		fs.renameSync(file, file + '.bak')
-		fs.writeFileSync(file, output)
-		console.log(file)
-		console.log(output)
 	} catch (e) {
 		console.log(e.message);
 		process.exit(1);
 	}
+	try {
+		var a = acorn.parse(input, {
+			ecmaVersion: 6,
+			preserveParens: true
+		})
+	} catch (e) {
+		console.log(file + ': ' + e.message);
+		process.exit(1);
+	}
+	debug(a);
+	var output = format.format(a);
+	if (input == output)
+		continue
+	try {
+		fs.unlinkSync(file + '.bak')
+	} catch (e) {}
+	try {
+		fs.renameSync(file, file + '.bak')
+		fs.writeFileSync(file, output)
+	} catch (e) {
+		console.log(e.message);
+		process.exit(1);
+	}
+	console.log(file)
+	console.log(output)
 }

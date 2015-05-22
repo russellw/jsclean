@@ -11,26 +11,14 @@ function indent(level) {
 }
 
 function block(a, level) {
-	switch (a.type) {
-	case 'BlockStatement':
-		if (a.body.length == 0 || a.body.length == 1 && a.body[0].type == 'EmptyStatement') {
-			put('{}')
-			break
-		}
-		put('{\n')
+	put('{\n')
+	if (a.type == 'BlockStatement')
 		for (var b of a.body)
 			stmt(b, level + 1)
-		put('}')
-		break
-	case 'EmptyStatement':
-		put('{}')
-		break
-	default:
-		put('{\n')
+	else
 		stmt(a, level + 1)
-		put('}')
-	}
 	indent(level)
+	put('}')
 }
 
 function expr(a, level) {
@@ -185,8 +173,6 @@ function stmt(a, level) {
 		put(');\n')
 		break
 	case 'EmptyStatement':
-		indent(level)
-		put(';\n')
 		break
 	case 'ExpressionStatement':
 		indent(level)
@@ -280,6 +266,21 @@ function stmt(a, level) {
 		}
 		indent(level)
 		put('}\n')
+		break
+	case 'TryStatement':
+		indent(level)
+		put('try ')
+		block(a.block, level)
+		if (a.handler) {
+			put(' catch (')
+			expr(a.handler.param, level)
+			put(') ')
+			block(a.handler.body, level)
+		}
+		if (a.finalizer) {
+			put(' finally ')
+			block(a.finalizer, level)
+		}
 		break
 	case 'VariableDeclaration':
 		indent(level)
