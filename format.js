@@ -33,6 +33,24 @@ function expr(a, level) {
 		indent(level)
 		put(']')
 		break
+	case 'ArrowFunctionExpression':
+		if (a.params.length == 1)
+			expr(a.params[0], level)
+		else {
+			put('(')
+			for (var i = 0; i < a.params.length; i++) {
+				if (i)
+					put(', ')
+				expr(a.params[i], level)
+			}
+			put(')')
+		}
+		put(' => ')
+		if (a.body.type == 'BlockStatement')
+			block(a.body, level)
+		else
+			expr(a.body, level)
+		break
 	case 'AssignmentExpression':
 	case 'BinaryExpression':
 	case 'LogicalExpression':
