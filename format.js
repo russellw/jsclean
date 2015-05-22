@@ -76,7 +76,10 @@ function expr(a, level) {
 		expr(a.alternate, level)
 		break
 	case 'FunctionExpression':
-		put('function (')
+		put('function ')
+		if (a.id)
+			put(a.id.name)
+		put('(')
 		for (var i = 0; i < a.params.length; i++) {
 			if (i)
 				put(', ')
