@@ -1,0 +1,2 @@
+# jsclean
+Cleans JavaScript code
