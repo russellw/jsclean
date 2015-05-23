@@ -1,18 +1,14 @@
 fs = require('fs');
 util = require('util');
-
 acorn = require('acorn');
-
 'use strict';
-
 format = require('./format');
-
 global.debug = function (a) {
 	console.log(util.inspect(a, {
 		colors: process.stdout.isTTY,
 		depth: null,
 	}));
-}
+};
 
 function help() {
 	console.log('Usage: jsclean [options] files');
@@ -33,7 +29,7 @@ var indent = '\t';
 
 function arg() {
 	if (i + 1 == process.argv.length) {
-		console.log(process.argv[i] + ': arg expected')
+		console.log(process.argv[i] + ': arg expected');
 		process.exit(1);
 	}
 	return process.argv[++i];
@@ -45,8 +41,9 @@ for (var i = 2; i < process.argv.length; i++) {
 		files.push(s);
 		continue;
 	}
-	while (s[0] === '-')
+	while (s[0] === '-') {
 		s = s.substring(1);
+	}
 	switch (s) {
 	case '?':
 	case 'h':
@@ -58,24 +55,26 @@ for (var i = 2; i < process.argv.length; i++) {
 		console.log('jsclean version 0');
 		process.exit(0);
 	case 'eq':
-		eq = true
-		break
+		eq = true;
+		break;
 	case 'no-bak':
-		backup = false
-		break
+		backup = false;
+		break;
 	case 's':
 	case 'spaces':
-		indent = ''
-		for (var j = +arg(); j-- > 0;)
-			indent += ' '
-		break
+		indent = '';
+		for (var j = +arg(); j-- > 0; ) {
+			indent += ' ';
+		}
+		break;
 	default:
 		console.log(process.argv[i] + ': unknown option');
 		process.exit(1);
 	}
 }
-if (!files.length)
+if (!files.length) {
 	help();
+}
 for (var file of files) {
 	try {
 		var input = fs.readFileSync(file, {
@@ -91,29 +90,31 @@ for (var file of files) {
 			ecmaVersion: 6,
 			onComment: comments,
 			preserveParens: true,
-			locations: true
-		})
+			locations: true,
+		});
 	} catch (e) {
 		console.log(file + ': ' + e.message);
 		process.exit(1);
 	}
 	var output = format.format(a, comments, {
 		eq: eq,
-		indent: indent
+		indent: indent,
 	});
-	if (input == output)
-		continue
+	if (input == output) {
+		continue;
+	}
 	try {
-		fs.unlinkSync(file + '.bak')
-	} catch (e) {}
-	if (backup)
+		fs.unlinkSync(file + '.bak');
+	} catch (e) {
+	}
+	if (backup) {
 		try {
-			fs.renameSync(file, file + '.bak')
-			fs.writeFileSync(file, output)
+			fs.renameSync(file, file + '.bak');
+			fs.writeFileSync(file, output);
 		} catch (e) {
 			console.log(e.message);
 			process.exit(1);
 		}
-	console.log(file)
-	console.log(output)
+	}
+	console.log(file);
 }
