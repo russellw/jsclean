@@ -348,6 +348,12 @@ function stmt(a, level) {
 		indent(level)
 		put('}\n')
 		break
+	case 'ThrowStatement':
+		indent(level)
+		put('throw ')
+		expr(a.argument, level)
+		put(';\n')
+		break
 	case 'TryStatement':
 		indent(level)
 		put('try ')
