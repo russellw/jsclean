@@ -31,10 +31,15 @@ function indent(level) {
 }
 
 function comment(a, level) {
-	if (commenti < comments.length && comments[commenti].start < a.start)
-		if (!haveBrace())
-			blank()
-	while (commenti < comments.length && comments[commenti].start < a.start) {
+	function more() {
+		if (commenti == comments.length)
+			return false
+		var c = comments[commenti];
+		return c.loc.start.line <= a.loc.start.line
+	}
+	if (more() && !haveBrace())
+		blank()
+	while (more()) {
 		var c = comments[commenti++];
 		indent(level)
 		if (c.type == 'Line')
