@@ -312,7 +312,10 @@ function stmt(a, level) {
 		put('\n')
 		break
 	case 'LabeledStatement':
-		stmt(a.body, loop, a.label.name)
+		indent(level)
+		put(a.label.name)
+		put(':\n')
+		stmt(a.body, level)
 		break
 	case 'Program':
 		for (var b of a.body) {
