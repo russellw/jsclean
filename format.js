@@ -2,24 +2,26 @@
 var commenti;
 var ss;
 
-function put(s) {
-	ss.push(s)
-}
-
-function endsWith(s, t) {
-	return s[s.length - 1] == t
-}
-
-function hasBlank() {
+function haveBlank() {
 	if (!ss.length)
 		return false
 	if (ss.length == 1)
 		return ss[ss.length - 1] == '\n'
-	return endsWith(ss[ss.length - 2], '\n') && ss[ss.length - 1] == '\n'
+	return ss[ss.length - 2].substring(-1) == '\n' && ss[ss.length - 1] == '\n'
+}
+
+function haveBrace() {
+	if (!ss.length)
+		return false
+	return ss[ss.length - 1].substring(-2) == '{\n'
+}
+
+function put(s) {
+	ss.push(s)
 }
 
 function blank() {
-	if (!hasBlank())
+	if (!haveBlank())
 		put('\n')
 }
 
@@ -29,6 +31,9 @@ function indent(level) {
 }
 
 function comment(a, level) {
+	if (commenti < comments.length && comments[commenti].start < a.start)
+		if (!haveBrace())
+			blank()
 	while (commenti < comments.length && comments[commenti].start < a.start) {
 		var c = comments[commenti++];
 		indent(level)
@@ -44,7 +49,7 @@ function block(a, level) {
 	put('{\n')
 	if (a.type == 'BlockStatement')
 		for (var b of a.body) {
-			comment(b)
+			comment(b, level + 1)
 			stmt(b, level + 1)
 		} else
 			stmt(a, level + 1)
@@ -319,7 +324,7 @@ function stmt(a, level) {
 		break
 	case 'Program':
 		for (var b of a.body) {
-			comment(b)
+			comment(b, level)
 			stmt(b, level)
 		}
 		break
@@ -403,7 +408,7 @@ function format(a, comments, options) {
 	commenti = 0
 	ss = []
 	stmt(a, 0)
-	if (hasBlank())
+	if (haveBlank())
 		ss.pop()
 	return ss.join('')
 }
