@@ -8,6 +8,10 @@ Reduce the entropy of JavaScript code
 
 - Add missing semicolons
 
+- Add trailing break in final case
+
+- Add trailing comma in initializer
+
 - Optionally replace == with ===
 
 ### Options

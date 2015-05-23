@@ -113,7 +113,6 @@ function expr(a, level) {
 	case 'AssignmentExpression':
 	case 'BinaryExpression':
 	case 'LogicalExpression':
-		expr(a.left, level);
 		if (options.eq) {
 			switch (a.operator) {
 			case '==':
@@ -124,6 +123,7 @@ function expr(a, level) {
 				break;
 			}
 		}
+		expr(a.left, level);
 		put(' ' + a.operator + ' ');
 		expr(a.right, level);
 		break;
@@ -240,6 +240,7 @@ function expr(a, level) {
 		break;
 	default:
 		console.assert(0, a);
+		break;
 	}
 }
 
@@ -377,6 +378,25 @@ function stmt(a, level) {
 		put(';\n');
 		break;
 	case 'SwitchStatement':
+		if (a.cases.length) {
+			var c = a.cases[a.cases.length - 1];
+			if (c.consequent.length) {
+				var b = c.consequent[c.consequent.length - 1];
+				switch (b.type) {
+				case 'BreakStatement':
+				case 'ContinueStatement':
+				case 'ReturnStatement':
+				case 'ThrowStatement':
+					break;
+				default:
+					c.consequent.push({
+						type: 'BreakStatement',
+						loc: b.loc,
+					});
+					break;
+				}
+			}
+		}
 		indent(level);
 		put('switch (');
 		expr(a.discriminant, level);
@@ -440,6 +460,7 @@ function stmt(a, level) {
 		break;
 	default:
 		console.assert(0, a);
+		break;
 	}
 }
 

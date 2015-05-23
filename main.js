@@ -72,6 +72,7 @@ for (var i = 2; i < process.argv.length; i++) {
 	default:
 		console.log(process.argv[i] + ': unknown option');
 		process.exit(1);
+		break;
 	}
 }
 if (!files.length) {
