@@ -88,9 +88,9 @@ for (var file of files) {
 	try {
 		var a = acorn.parse(input, {
 			ecmaVersion: 6,
+			locations: true,
 			onComment: comments,
 			preserveParens: true,
-			locations: true,
 		});
 	} catch (e) {
 		console.log(file + ': ' + e.message);

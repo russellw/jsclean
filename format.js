@@ -182,6 +182,29 @@ function expr(a, level) {
 			put('{}');
 			break;
 		}
+		a.properties.sort(function (a, b) {
+			function key(x) {
+				x = x.key;
+				switch (x.type) {
+				case 'Identifier':
+					return x.name;
+				case 'Literal':
+					return x.value;
+				default:
+					return x.type;
+				}
+			}
+
+			a = key(a);
+			b = key(b);
+			if (a < b) {
+				return -1;
+			}
+			if (a > b) {
+				return 1;
+			}
+			return 0;
+		});
 		put('{\n');
 		for (var b of a.properties) {
 			indent(level + 1);
@@ -390,8 +413,8 @@ function stmt(a, level) {
 					break;
 				default:
 					c.consequent.push({
-						type: 'BreakStatement',
 						loc: b.loc,
+						type: 'BreakStatement',
 					});
 					break;
 				}
