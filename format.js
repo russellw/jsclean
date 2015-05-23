@@ -1,4 +1,3 @@
-
 'use strict';
 
 var commenti;
@@ -26,7 +25,7 @@ function haveBrace() {
 }
 
 function blank() {
-	if (!haveBlank() && !haveBrace()) {
+	if (ss.length && !haveBlank() && !haveBrace()) {
 		put('\n');
 	}
 }
