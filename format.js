@@ -47,7 +47,7 @@ function block(a, level) {
 			comment(b)
 			stmt(b, level + 1)
 		} else
-		stmt(a, level + 1)
+			stmt(a, level + 1)
 	indent(level)
 	put('}')
 }
@@ -336,8 +336,11 @@ function stmt(a, level) {
 		put(') {\n')
 		for (var c of a.cases) {
 			indent(level)
-			put('case ')
-			expr(c.test, level)
+			if (c.test) {
+				put('case ')
+				expr(c.test, level)
+			} else
+				put('default')
 			put(':\n')
 			for (var b of c.consequent)
 				stmt(b, level + 1)
