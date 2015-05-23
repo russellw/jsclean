@@ -18,7 +18,7 @@ function help() {
 	console.log('-help      Show help');
 	console.log('-version   Show version');
 	console.log();
-	console.log('-eq        Replace == with ===');
+	console.log('-equals    Replace == with ===');
 	console.log('-no-bak    Don\'t make .bak files');
 	console.log('-spaces N  Indent with N spaces');
 	process.exit(0);
@@ -46,24 +46,21 @@ for (var i = 2; i < process.argv.length; i++) {
 	while (s[0] === '-') {
 		s = s.substring(1);
 	}
-	switch (s) {
+	switch (s[0]) {
 	case '?':
 	case 'h':
-	case 'help':
 		help();
 	case 'V':
 	case 'v':
-	case 'version':
 		console.log('jsclean version 0');
 		process.exit(0);
-	case 'eq':
+	case 'e':
 		eq = true;
 		break;
-	case 'no-bak':
+	case 'n':
 		backup = false;
 		break;
 	case 's':
-	case 'spaces':
 		indent = '';
 		for (var j = +arg(); j-- > 0; ) {
 			indent += ' ';

@@ -10,13 +10,13 @@ Reduces the entropy of JavaScript code:
 
 ### Options
 
-(Some options can be abbreviated)
+(Options can be abbreviated to one letter.)
 
 ```
 -help      Show help
 -version   Show version
 
--eq        Replace == with ===
+-equals    Replace == with ===
 -no-bak    Don't make .bak files
 -spaces N  Indent with N spaces
 ```
