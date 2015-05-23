@@ -2,6 +2,10 @@
 var commenti;
 var ss;
 
+function put(s) {
+	ss.push(s)
+}
+
 function haveBlank() {
 	if (!ss.length)
 		return false
@@ -16,12 +20,9 @@ function haveBrace() {
 	return ss[ss.length - 1].substring(-2) == '{\n'
 }
 
-function put(s) {
-	ss.push(s)
-}
 
 function blank() {
-	if (!haveBlank())
+	if (!haveBlank() && !haveBrace())
 		put('\n')
 }
 
@@ -37,7 +38,7 @@ function comment(a, level) {
 		var c = comments[commenti];
 		return c.loc.start.line <= a.loc.start.line
 	}
-	if (more() && !haveBrace())
+	if (more())
 		blank()
 	while (more()) {
 		var c = comments[commenti++];
