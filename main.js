@@ -1,7 +1,9 @@
 fs = require('fs');
 util = require('util');
 acorn = require('acorn');
+
 'use strict';
+
 format = require('./format');
 global.debug = function (a) {
 	console.log(util.inspect(a, {

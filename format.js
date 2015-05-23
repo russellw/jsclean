@@ -1,4 +1,6 @@
+
 'use strict';
+
 var commenti;
 var ss;
 
@@ -279,9 +281,15 @@ function stmt(a, level) {
 	case 'EmptyStatement':
 		break;
 	case 'ExpressionStatement':
+		if (a.expression.type === 'Literal') {
+			blank();
+		}
 		indent(level);
 		expr(a.expression, level);
 		put(';\n');
+		if (a.expression.type === 'Literal') {
+			blank();
+		}
 		break;
 	case 'ForInStatement':
 		indent(level);
