@@ -10,17 +10,17 @@ function haveBlank() {
 	if (!ss.length) {
 		return false;
 	}
-	if (ss.length == 1) {
-		return ss[ss.length - 1] == '\n';
+	if (ss.length === 1) {
+		return ss[ss.length - 1] === '\n';
 	}
-	return ss[ss.length - 2].substring(-1) == '\n' && ss[ss.length - 1] == '\n';
+	return ss[ss.length - 2].substring(-1) === '\n' && ss[ss.length - 1] === '\n';
 }
 
 function haveBrace() {
 	if (!ss.length) {
 		return false;
 	}
-	return ss[ss.length - 1].substring(-2) == '{\n';
+	return ss[ss.length - 1].substring(-2) === '{\n';
 }
 
 function blank() {
@@ -37,7 +37,7 @@ function indent(level) {
 
 function comment(a, level) {
 	function more() {
-		if (commenti == comments.length) {
+		if (commenti === comments.length) {
 			return false;
 		}
 		var c = comments[commenti];
@@ -50,7 +50,7 @@ function comment(a, level) {
 	while (more()) {
 		var c = comments[commenti++];
 		indent(level);
-		if (c.type == 'Line') {
+		if (c.type === 'Line') {
 			put('//' + c.value);
 		} else {
 			put('/*' + c.value + '*/');
@@ -61,7 +61,7 @@ function comment(a, level) {
 
 function block(a, level) {
 	put('{\n');
-	if (a.type == 'BlockStatement') {
+	if (a.type === 'BlockStatement') {
 		for (var b of a.body) {
 			comment(b, level + 1);
 			stmt(b, level + 1);
@@ -90,7 +90,7 @@ function expr(a, level) {
 		put(']');
 		break;
 	case 'ArrowFunctionExpression':
-		if (a.params.length == 1) {
+		if (a.params.length === 1) {
 			expr(a.params[0], level);
 		} else {
 			put('(');
@@ -103,7 +103,7 @@ function expr(a, level) {
 			put(')');
 		}
 		put(' => ');
-		if (a.body.type == 'BlockStatement') {
+		if (a.body.type === 'BlockStatement') {
 			block(a.body, level);
 		} else {
 			expr(a.body, level);

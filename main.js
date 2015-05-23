@@ -28,7 +28,7 @@ var files = [];
 var indent = '\t';
 
 function arg() {
-	if (i + 1 == process.argv.length) {
+	if (i + 1 === process.argv.length) {
 		console.log(process.argv[i] + ': arg expected');
 		process.exit(1);
 	}
@@ -100,7 +100,7 @@ for (var file of files) {
 		eq: eq,
 		indent: indent,
 	});
-	if (input == output) {
+	if (input === output) {
 		continue;
 	}
 	try {
