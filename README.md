@@ -51,7 +51,7 @@ Return options object with default values.
 format(code[, options])
 ```
 
-Accept source code in the form of a string and return the formatted version (per options if given).
+Accept source code as a string and return the formatted version (per options if given).
 
 Basic example:
 
