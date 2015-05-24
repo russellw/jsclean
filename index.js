@@ -1,3 +1,5 @@
+#!/usr/bin/env node
+
 'use strict';
 var acorn = require('acorn');
 var fs = require('fs');
@@ -251,7 +253,7 @@ function expr(a, level) {
 		}
 		break;
 	default:
-		console.assert(0, a);
+		console.assert(false, a);
 		break;
 	}
 }
@@ -465,7 +467,7 @@ function stmt(a, level) {
 		put('\n');
 		break;
 	default:
-		console.assert(0, a);
+		console.assert(false, a);
 		break;
 	}
 }
@@ -480,6 +482,20 @@ function defaults() {
 exports.defaults = defaults;
 
 function format(s, options1) {
+	// #!
+	var hashbang = '';
+	if (s.substring(0, 2) === '#!') {
+		var i = s.indexOf('\n');
+		if (i < 0) {
+			hashbang = s;
+			s = '';
+		} else {
+			hashbang = s.substring(0, i);
+			s = s.substring(i);
+		}
+	}
+
+	// parse
 	var comments1 = [];
 	var a = acorn.parse(s, {
 		ecmaVersion: 6,
@@ -487,12 +503,17 @@ function format(s, options1) {
 		onComment: comments1,
 		preserveParens: true,
 	});
+
+	// format
 	comments = comments1;
 	options = options1 || defaults();
 	commenti = 0;
 	ss = [];
 	stmt(a, 0);
 	var s = ss.join('');
+
+	// #!
+	s = hashbang + '\n\n' + s;
 
 	// don't start with a blank line
 	s = s.replace(/^\n+/, '');
