@@ -11,6 +11,8 @@ function debug(a) {
 }
 
 var commenti;
+var comments;
+var options;
 var ss;
 
 function put(s) {
@@ -491,9 +493,9 @@ function stmt(a, level) {
 	}
 }
 
-function format(a, comments, options) {
-	global.comments = comments || [];
-	global.options = options || {
+function format(a, comments1, options1) {
+	comments = comments1 || [];
+	options = options1 || {
 		indent: '\t',
 	};
 	commenti = 0;
@@ -579,7 +581,7 @@ if (module === require.main) {
 			console.log(e.message);
 			process.exit(1);
 		}
-		var comments = [];
+		comments = [];
 		try {
 			var a = acorn.parse(input, {
 				ecmaVersion: 6,
