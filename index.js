@@ -555,7 +555,7 @@ if (module === require.main) {
 			help();
 		case 'V':
 		case 'v':
-			console.log('jsclean version 0');
+			console.log(require('./package.json').version);
 			process.exit(0);
 		case 'e':
 			eq = true;
