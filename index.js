@@ -479,8 +479,15 @@ function defaults() {
 
 exports.defaults = defaults;
 
-function format(a, comments1, options1) {
-	comments = comments1 || [];
+function format(s, options1) {
+	var comments1 = [];
+	var a = acorn.parse(s, {
+		ecmaVersion: 6,
+		locations: true,
+		onComment: comments1,
+		preserveParens: true,
+	});
+	comments = comments1;
 	options = options1 || defaults();
 	commenti = 0;
 	ss = [];
@@ -573,19 +580,12 @@ if (module === require.main) {
 			console.log(e.message);
 			process.exit(1);
 		}
-		comments = [];
 		try {
-			var a = acorn.parse(input, {
-				ecmaVersion: 6,
-				locations: true,
-				onComment: comments,
-				preserveParens: true,
-			});
+			var output = format(input, options);
 		} catch (e) {
 			console.log(file + ': ' + e.message);
 			process.exit(1);
 		}
-		var output = format(a, comments, options);
 		if (input === output) {
 			continue;
 		}

@@ -8,7 +8,25 @@ Reduces the entropy of JavaScript code:
 
 - Optionally replaces `==` with `===`. In principle this could change the meaning of correct code, which is why it's not enabled by default, but in practice it's almost always the right thing to do, and eliminates a common source of error and inconsistency.
 
-### Options
+### Installation
+
+Install with npm:
+
+```
+npm install jsclean
+```
+
+Or download from github:
+
+```
+git clone https://github.com/russellw/jsclean.git
+```
+
+### Command line
+
+```
+jsclean [options] files
+```
 
 (Options can be abbreviated to one letter.)
 
@@ -19,4 +37,31 @@ Reduces the entropy of JavaScript code:
 -equals    Replace == with ===
 -no-bak    Don't make .bak files
 -spaces N  Indent with N spaces
+```
+
+### API
+
+*defaults()*
+
+Return options object with defaults set.
+
+*format(code[, options])*
+
+Return formatted code (per options if given).
+
+Basic example:
+
+```
+var jsclean = require('jsclean');
+var output = jsclean.format(input);
+```
+
+With options:
+
+```
+var jsclean = require('jsclean');
+var options = jsclean.defaults();
+// indent with 3 spaces
+options.indent = '   ';
+var output = jsclean.format(input, options);
 ```
