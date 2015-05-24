@@ -4,7 +4,7 @@ acorn = require('acorn');
 
 'use strict';
 
-format = require('./format');
+index = require('./index');
 global.debug = function (a) {
 	console.log(util.inspect(a, {
 		colors: process.stdout.isTTY,
@@ -96,7 +96,7 @@ for (var file of files) {
 		console.log(file + ': ' + e.message);
 		process.exit(1);
 	}
-	var output = format.format(a, comments, {
+	var output = index.format(a, comments, {
 		eq: eq,
 		indent: indent,
 	});
