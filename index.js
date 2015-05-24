@@ -1,9 +1,7 @@
-fs = require('fs');
-util = require('util');
-acorn = require('acorn');
-
 'use strict';
-
+var fs = require('fs');
+var util = require('util');
+var acorn = require('acorn');
 
 function debug(a) {
 	console.log(util.inspect(a, {
@@ -316,15 +314,9 @@ function stmt(a, level) {
 	case 'EmptyStatement':
 		break;
 	case 'ExpressionStatement':
-		if (a.expression.type === 'Literal') {
-			blank();
-		}
 		indent(level);
 		expr(a.expression, level);
 		put(';\n');
-		if (a.expression.type === 'Literal') {
-			blank();
-		}
 		break;
 	case 'ForInStatement':
 		indent(level);
@@ -514,32 +506,32 @@ function format(a, comments, options) {
 }
 
 exports.format = format;
-if (module === require.main) {
-	function help() {
-		console.log('Usage: jsclean [options] files');
-		console.log();
-		console.log('-help      Show help');
-		console.log('-version   Show version');
-		console.log();
-		console.log('-equals    Replace == with ===');
-		console.log('-no-bak    Don\'t make .bak files');
-		console.log('-spaces N  Indent with N spaces');
-		process.exit(0);
-	}
 
+function arg() {
+	if (i + 1 === process.argv.length) {
+		console.log(process.argv[i] + ': arg expected');
+		process.exit(1);
+	}
+	return process.argv[++i];
+}
+
+function help() {
+	console.log('Usage: jsclean [options] files');
+	console.log();
+	console.log('-help      Show help');
+	console.log('-version   Show version');
+	console.log();
+	console.log('-equals    Replace == with ===');
+	console.log('-no-bak    Don\'t make .bak files');
+	console.log('-spaces N  Indent with N spaces');
+	process.exit(0);
+}
+
+if (module === require.main) {
 	var backup = true;
 	var eq;
 	var files = [];
 	var dent = '\t';
-
-	function arg() {
-		if (i + 1 === process.argv.length) {
-			console.log(process.argv[i] + ': arg expected');
-			process.exit(1);
-		}
-		return process.argv[++i];
-	}
-
 	for (var i = 2; i < process.argv.length; i++) {
 		var s = process.argv[i];
 		if (s[0] !== '-') {
