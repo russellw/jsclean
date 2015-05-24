@@ -12,7 +12,7 @@ function debug(a) {
 
 var commenti;
 var comments;
-var options;
+var options = defaults();
 var ss;
 
 function put(s) {
@@ -125,7 +125,7 @@ function expr(a, level) {
 	case 'AssignmentExpression':
 	case 'BinaryExpression':
 	case 'LogicalExpression':
-		if (options.eq) {
+		if (options.equals) {
 			switch (a.operator) {
 			case '==':
 				a.operator = '===';
@@ -493,11 +493,18 @@ function stmt(a, level) {
 	}
 }
 
-function format(a, comments1, options1) {
-	comments = comments1 || [];
-	options = options1 || {
+function defaults() {
+	return {
+		equals: false,
 		indent: '\t',
 	};
+}
+
+exports.defaults = defaults;
+
+function format(a, comments1, options1) {
+	comments = comments1 || [];
+	options = options1 || defaults();
 	commenti = 0;
 	ss = [];
 	stmt(a, 0);
@@ -531,9 +538,7 @@ function help() {
 
 if (module === require.main) {
 	var backup = true;
-	var eq;
 	var files = [];
-	var dent = '\t';
 	for (var i = 2; i < process.argv.length; i++) {
 		var s = process.argv[i];
 		if (s[0] !== '-') {
@@ -552,15 +557,15 @@ if (module === require.main) {
 			console.log(require('./package.json').version);
 			process.exit(0);
 		case 'e':
-			eq = true;
+			options.equals = true;
 			break;
 		case 'n':
 			backup = false;
 			break;
 		case 's':
-			dent = '';
+			options.indent = '';
 			for (var j = +arg(); j-- > 0; ) {
-				dent += ' ';
+				options.indent += ' ';
 			}
 			break;
 		default:
@@ -593,10 +598,7 @@ if (module === require.main) {
 			console.log(file + ': ' + e.message);
 			process.exit(1);
 		}
-		var output = format(a, comments, {
-			eq: eq,
-			indent: dent,
-		});
+		var output = format(a, comments, options);
 		if (input === output) {
 			continue;
 		}
