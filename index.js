@@ -1,7 +1,7 @@
 'use strict';
+var acorn = require('acorn');
 var fs = require('fs');
 var util = require('util');
-var acorn = require('acorn');
 
 function debug(a) {
 	console.log(util.inspect(a, {
@@ -17,29 +17,6 @@ var ss;
 
 function put(s) {
 	ss.push(s);
-}
-
-function haveBlank() {
-	if (!ss.length) {
-		return false;
-	}
-	if (ss.length === 1) {
-		return ss[ss.length - 1] === '\n';
-	}
-	return ss[ss.length - 2].substring(-1) === '\n' && ss[ss.length - 1] === '\n';
-}
-
-function haveBrace() {
-	if (!ss.length) {
-		return false;
-	}
-	return ss[ss.length - 1].substring(-2) === '{\n';
-}
-
-function blank() {
-	if (ss.length && !haveBlank() && !haveBrace()) {
-		put('\n');
-	}
 }
 
 function indent(level) {
@@ -58,7 +35,7 @@ function comment(a, level) {
 	}
 
 	if (more()) {
-		blank();
+		put('\n');
 	}
 	while (more()) {
 		var c = comments[commenti++];
@@ -359,7 +336,7 @@ function stmt(a, level) {
 		put('\n');
 		break;
 	case 'FunctionDeclaration':
-		blank();
+		put('\n');
 		indent(level);
 		put('function ' + a.id.name + '(');
 		for (var i = 0; i < a.params.length; i++) {
@@ -371,7 +348,7 @@ function stmt(a, level) {
 		put(') ');
 		block(a.body, level);
 		put('\n');
-		blank();
+		put('\n');
 		break;
 	case 'IfStatement':
 		indent(level);
@@ -508,10 +485,20 @@ function format(a, comments1, options1) {
 	commenti = 0;
 	ss = [];
 	stmt(a, 0);
-	if (haveBlank()) {
-		ss.pop();
-	}
-	return ss.join('');
+	var s = ss.join('');
+
+	// don't start with a blank line
+	s = s.replace(/^\n+/, '');
+
+	// only one consecutive blank line
+	s = s.replace(/\n\n+/g, '\n\n');
+
+	// no blank line after bracket
+	s = s.replace(/{\n+/g, '{\n');
+
+	// end with exactly one newline
+	s = s.replace(/\n*$/, '\n');
+	return s;
 }
 
 exports.format = format;
