@@ -602,18 +602,18 @@ if (module === require.main) {
 		if (input === output) {
 			continue;
 		}
-		try {
-			fs.unlinkSync(file + '.bak');
-		} catch (e) {
-		}
 		if (backup) {
 			try {
+				fs.unlinkSync(file + '.bak');
 				fs.renameSync(file, file + '.bak');
-				fs.writeFileSync(file, output);
 			} catch (e) {
-				console.log(e.message);
-				process.exit(1);
 			}
+		}
+		try {
+			fs.writeFileSync(file, output);
+		} catch (e) {
+			console.log(e.message);
+			process.exit(1);
 		}
 		console.log(file);
 	}
