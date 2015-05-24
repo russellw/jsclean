@@ -4,7 +4,7 @@
   "dependencies": {
     "acorn": "^2.0.1"
   },
-  "description": "Reduces the entropy of JavaScript code",
+  "description": "Clean JavaScript code",
   "main": "index.js",
   "devDependencies": {},
   "scripts": {
