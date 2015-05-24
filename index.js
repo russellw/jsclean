@@ -498,6 +498,8 @@ function format(s, options1) {
 	// parse
 	var comments1 = [];
 	var a = acorn.parse(s, {
+		allowImportExportEverywhere: true,
+		allowReturnOutsideFunction: true,
 		ecmaVersion: 6,
 		locations: true,
 		onComment: comments1,

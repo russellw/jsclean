@@ -45,13 +45,13 @@ jsclean [options] files
 defaults()
 ```
 
-Return options object with defaults set.
+Return options object with default values.
 
 ```
 format(code[, options])
 ```
 
-Return formatted code (per options if given).
+Accept source code in the form of a string and return the formatted version (per options if given).
 
 Basic example:
 
