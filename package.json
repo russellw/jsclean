@@ -3,5 +3,26 @@
   "version": "1.0.0",
   "dependencies": {
     "acorn": "^2.0.1"
-  }
+  },
+  "description": "Reduces the entropy of JavaScript code",
+  "main": "index.js",
+  "devDependencies": {},
+  "scripts": {
+    "test": "test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/russellw/jsclean.git"
+  },
+  "keywords": [
+    "beautify",
+    "clean",
+    "code-quality"
+  ],
+  "author": "Russell Wallace <russell.wallace@gmail.com>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/russellw/jsclean/issues"
+  },
+  "homepage": "https://github.com/russellw/jsclean"
 }
