@@ -41,11 +41,15 @@ jsclean [options] files
 
 ### API
 
-*defaults()*
+```
+defaults()
+```
 
 Return options object with defaults set.
 
-*format(code[, options])*
+```
+format(code[, options])
+```
 
 Return formatted code (per options if given).
 
@@ -65,3 +69,9 @@ var options = jsclean.defaults();
 options.indent = '   ';
 var output = jsclean.format(input, options);
 ```
+
+Options are:
+
+- *equals* Replace all occurrences of the loose comparison operators `==` and `!=` with the exact comparison operators `===` and `!==`. Although this is pretty much always the right thing to do in practice, it's theoretically possible that it could change the meaning of correct code, so it defaults to `false`.
+
+- *indent* String to use for indentation; should be set to a tab or one or more spaces. Default is `'\t'`.
