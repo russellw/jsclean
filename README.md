@@ -39,47 +39,81 @@ git clone https://github.com/russellw/jsclean.git
 
 ```
 
-Original files are renamed to `.bak` unless `--no-backup` is given.
+Original files are renamed with an added extension of `.bak` unless `--no-backup` is given.
 
 If no files are specified, jsclean filters stdin to stdout.
 
 ### API
 
-```
-defaults()
-```
-
-Return options object with default values.
+The simplest way to use the API accepts and returns a string:
 
 ```
-format(code[, options])
+code = jsclean.format(code[, options])
 ```
 
-Accept source code as a string and return the formatted version (per options if given).
-
-Basic example:
+This function is implemented as:
 
 ```
-var jsclean = require('jsclean');
-var output = jsclean.format(input);
+function format(code, options) {
+  var ast = parse(code);
+  transform(ast, options);
+  return gen(ast, options);
+}
 ```
 
-With options:
+An object with the default options can be obtained with:
 
 ```
-var jsclean = require('jsclean');
-var options = jsclean.defaults();
-// indent with 3 spaces
-options.indent = '   ';
-var output = jsclean.format(input, options);
+options = jsclean.defaults()
 ```
 
 Options are:
 
 - **exactEquals**
 
-	Replace all occurrences of the loose comparison operators `==` and `!=` with the exact comparison operators `===` and `!==`.
+	Replace all occurrences of the loose comparison operators `==` and `!=` with the exact comparison operators `===` and `!==`. Default is true.
+
+- **sortProperties**
+
+	Sort the properties of object literals, by key in alphabetical order. Default is true.
+
+- **trailingBreak**
+
+	In a `switch` where the final case does not end in a terminator statement, add a trailing `break`. This improves consistency and removes an opportunity for error if further cases are subsequently added. Default is true.
 
 - **indent**
 
 	String to use for indentation; should be set to a tab or one or more spaces. Default is `'\t'`.
+
+Parsing, transformation and generation of formatted code can be accessed separately:
+
+```
+ast = jsclean.parse(code)
+```
+
+Use Acorn to parse source code into an abstract syntax tree. The following Acorn options are used:
+
+```
+allowImportExportEverywhere: true,
+allowReturnOutsideFunction: true,
+ecmaVersion: 6,
+locations: true,
+onComment: comments,
+onToken: tokens,
+preserveParens: true,
+ranges: true,
+```
+
+Comments are attached to AST nodes as `leadingComment` properties using estraverse. In addition, if the code begins with `#!`, the AST is annotated with a corresponding `hashbang` property.
+
+```
+jsclean.transform(ast[, options])
+```
+
+Apply syntactic transformations to the AST.
+
+```
+code = jsclean.gen(ast[, options])
+```
+
+Generate JavaScript code from the AST.
