@@ -34,6 +34,7 @@ function defaults() {
 exports.defaults = defaults;
 
 function parse(code) {
+
 	// #!
 	var hashbang = '';
 	if (code.substring(0, 2) === '#!') {
@@ -95,6 +96,7 @@ function transform(ast, options) {
 				switch (ast.type) {
 				case 'ObjectExpression':
 					ast.properties.sort(function (a, b) {
+
 						function key(x) {
 							x = x.key;
 							switch (x.type) {
@@ -565,16 +567,16 @@ function gen(ast, options) {
 	// only one consecutive blank line
 	code = code.replace(/\n\n+/g, '\n\n');
 
-	// no blank line after bracket
-	code = code.replace(/{\n+/g, '{\n');
-
 	// end with exactly one newline
 	code = code.replace(/\n*$/, '\n');
 	return code;
 }
 
 exports.gen = gen;
+
+// main
 if (module === require.main) {
+
 	// options
 	commander.usage('[options] files');
 	commander.version(require('./package.json').version);
