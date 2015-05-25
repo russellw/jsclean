@@ -2,7 +2,8 @@
   "name": "jsclean",
   "version": "2.0.0",
   "dependencies": {
-    "acorn": "^2.0.1"
+    "acorn": "^2.0.1",
+    "estraverse": "^4.1.0"
   },
   "description": "Clean JavaScript code",
   "main": "index.js",
