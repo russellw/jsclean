@@ -4,9 +4,9 @@ Reduces the entropy of JavaScript code:
 
 - Formats code in standard layout, fixing readability of ill-formatted code and allowing a consistent style to be automatically enforced throughout a project.
 
-- Applies minor syntactic changes (adds missing semicolons and optional braces, ensures array and object literals always have trailing commas and the final case of a switch statement always has a trailing break when no other terminator statement is present) that don't change the meaning of code but make it easier to make changes without introducing errors.
+- Applies syntactic changes (add missing semicolons and optional braces, replace `==` with `===`, ensure array and object literals always have trailing commas and the final case of a `switch` always has a trailing `break` when no other terminator statement is present) that eliminate common sources of error and inconsistency.
 
-- Optionally replaces `==` with `===`. In principle this could change the meaning of correct code, which is why it's not enabled by default, but in practice it's almost always the right thing to do, and eliminates a common source of error and inconsistency.
+- Provides an API that allows parsing, syntactic transformation and formatted code generation to be accessed separately or together.
 
 ### Installation
 
@@ -91,7 +91,7 @@ Parsing, transformation and generation of formatted code can be accessed separat
 ast = jsclean.parse(code)
 ```
 
-Use Acorn to parse source code into an abstract syntax tree. The following Acorn options are used:
+Use Acorn to parse source code into an abstract syntax tree. jsclean uses the following Acorn options:
 
 ```
 allowImportExportEverywhere: true,
