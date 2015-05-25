@@ -5,6 +5,7 @@ var acorn = require('acorn');
 var commander = require('commander');
 var estraverse = require('estraverse');
 var fs = require('fs');
+var stdin = require('get-stdin');
 var util = require('util');
 
 function debug(a) {
@@ -598,39 +599,53 @@ if (module === require.main) {
 			options.indent += ' ';
 		}
 	}
+	if (commander.args.length) {
 
-	// files
-	for (var file of commander.args) {
-		try {
-			var input = fs.readFileSync(file, {
-				encoding: 'utf8',
-			});
-		} catch (e) {
-			console.log(e.message);
-			process.exit(1);
-		}
-		try {
-			var output = format(input, options);
-		} catch (e) {
-			console.log(file + ': ' + e.message);
-			process.exit(1);
-		}
-		if (input === output) {
-			continue;
-		}
-		if (commander.backup) {
+		// files
+		for (var file of commander.args) {
 			try {
-				fs.unlinkSync(file + '.bak');
-				fs.renameSync(file, file + '.bak');
+				var input = fs.readFileSync(file, {
+					encoding: 'utf8',
+				});
 			} catch (e) {
+				console.log(e.message);
+				process.exit(1);
 			}
+			try {
+				var output = format(input, options);
+			} catch (e) {
+				console.log(file + ': ' + e.message);
+				process.exit(1);
+			}
+			if (input === output) {
+				continue;
+			}
+			if (commander.backup) {
+				try {
+					fs.unlinkSync(file + '.bak');
+					fs.renameSync(file, file + '.bak');
+				} catch (e) {
+				}
+			}
+			try {
+				fs.writeFileSync(file, output);
+			} catch (e) {
+				console.log(e.message);
+				process.exit(1);
+			}
+			console.log(file);
 		}
-		try {
-			fs.writeFileSync(file, output);
-		} catch (e) {
-			console.log(e.message);
-			process.exit(1);
-		}
-		console.log(file);
+	} else {
+
+		// stdin
+		stdin(function (input) {
+			try {
+				var output = format(input, options);
+				console.log(output);
+			} catch (e) {
+				console.log(e.message);
+				process.exit(1);
+			}
+		});
 	}
 }

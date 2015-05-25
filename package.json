@@ -4,7 +4,8 @@
   "dependencies": {
     "acorn": "^2.0.1",
     "commander": "^2.8.1",
-    "estraverse": "^4.1.0"
+    "estraverse": "^4.1.0",
+    "get-stdin": "^4.0.1"
   },
   "description": "Clean JavaScript code",
   "main": "index.js",
