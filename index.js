@@ -580,8 +580,14 @@ if (module === require.main) {
 			backup = false;
 			break;
 		case 's':
+			s = arg();
+			var j = +s;
+			if (isNaN(j)) {
+				console.log(s + ': expected number');
+				process.exit(1);
+			}
 			options.indent = '';
-			for (var j = +arg(); j-- > 0; ) {
+			while (j-- > 0) {
 				options.indent += ' ';
 			}
 			break;
