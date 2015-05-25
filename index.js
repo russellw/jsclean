@@ -25,6 +25,8 @@ function defaults() {
 	return {
 		equals: false,
 		indent: '\t',
+		sortProps: true,
+		trailingBreak: true,
 	};
 }
 
@@ -68,11 +70,11 @@ exports.parse = parse;
 
 function transform(ast, options) {
 	options = options || defaults();
-	estraverse.traverse(ast, {
-		enter: function (ast, parent) {
-			switch (ast.type) {
-			case 'BinaryExpression':
-				if (options.equals) {
+	if (options.equals) {
+		estraverse.traverse(ast, {
+			enter: function (ast, parent) {
+				switch (ast.type) {
+				case 'BinaryExpression':
 					switch (ast.operator) {
 					case '==':
 						ast.operator = '===';
@@ -81,11 +83,73 @@ function transform(ast, options) {
 						ast.operator = '!==';
 						break;
 					}
+					break;
 				}
-				break;
-			}
-		},
-	});
+			},
+		});
+	}
+	if (options.sortProps) {
+		estraverse.traverse(ast, {
+			enter: function (ast, parent) {
+				switch (ast.type) {
+				case 'ObjectExpression':
+					ast.properties.sort(function (a, b) {
+						function key(x) {
+							x = x.key;
+							switch (x.type) {
+							case 'Identifier':
+								return x.name;
+							case 'Literal':
+								return x.value;
+							default:
+								return x.type;
+							}
+						}
+
+						a = key(a);
+						b = key(b);
+						if (a < b) {
+							return -1;
+						}
+						if (a > b) {
+							return 1;
+						}
+						return 0;
+					});
+					break;
+				}
+			},
+		});
+	}
+	if (options.trailingBreak) {
+		estraverse.traverse(ast, {
+			enter: function (ast, parent) {
+				switch (ast.type) {
+				case 'SwitchStatement':
+					if (ast.cases.length) {
+						var c = ast.cases[ast.cases.length - 1];
+						if (c.consequent.length) {
+							var a = c.consequent[c.consequent.length - 1];
+							switch (a.type) {
+							case 'BreakStatement':
+							case 'ContinueStatement':
+							case 'ReturnStatement':
+							case 'ThrowStatement':
+								break;
+							default:
+								c.consequent.push({
+									loc: a.loc,
+									type: 'BreakStatement',
+								});
+								break;
+							}
+						}
+					}
+					break;
+				}
+			},
+		});
+	}
 }
 
 exports.transform = transform;
@@ -231,29 +295,6 @@ function gen(ast, options) {
 				put('{}');
 				break;
 			}
-			ast.properties.sort(function (a, b) {
-				function key(x) {
-					x = x.key;
-					switch (x.type) {
-					case 'Identifier':
-						return x.name;
-					case 'Literal':
-						return x.value;
-					default:
-						return x.type;
-					}
-				}
-
-				a = key(a);
-				b = key(b);
-				if (a < b) {
-					return -1;
-				}
-				if (a > b) {
-					return 1;
-				}
-				return 0;
-			});
 			put('{\n');
 			for (var a of ast.properties) {
 				indent(level + 1);
@@ -444,25 +485,6 @@ function gen(ast, options) {
 			put(';\n');
 			break;
 		case 'SwitchStatement':
-			if (ast.cases.length) {
-				var c = ast.cases[ast.cases.length - 1];
-				if (c.consequent.length) {
-					var a = c.consequent[c.consequent.length - 1];
-					switch (a.type) {
-					case 'BreakStatement':
-					case 'ContinueStatement':
-					case 'ReturnStatement':
-					case 'ThrowStatement':
-						break;
-					default:
-						c.consequent.push({
-							loc: a.loc,
-							type: 'BreakStatement',
-						});
-						break;
-					}
-				}
-			}
 			indent(level);
 			put('switch (');
 			expr(ast.discriminant, level);
