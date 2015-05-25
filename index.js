@@ -2,6 +2,7 @@
 
 'use strict';
 var acorn = require('acorn');
+var commander = require('commander');
 var estraverse = require('estraverse');
 var fs = require('fs');
 var util = require('util');
@@ -23,9 +24,9 @@ exports.format = format;
 
 function defaults() {
 	return {
-		equals: false,
+		exactEquals: true,
 		indent: '\t',
-		sortProps: true,
+		sortProperties: true,
 		trailingBreak: true,
 	};
 }
@@ -70,7 +71,7 @@ exports.parse = parse;
 
 function transform(ast, options) {
 	options = options || defaults();
-	if (options.equals) {
+	if (options.exactEquals) {
 		estraverse.traverse(ast, {
 			enter: function (ast, parent) {
 				switch (ast.type) {
@@ -88,7 +89,7 @@ function transform(ast, options) {
 			},
 		});
 	}
-	if (options.sortProps) {
+	if (options.sortProperties) {
 		estraverse.traverse(ast, {
 			enter: function (ast, parent) {
 				switch (ast.type) {
@@ -573,76 +574,31 @@ function gen(ast, options) {
 }
 
 exports.gen = gen;
-
-function arg() {
-	if (i + 1 === process.argv.length) {
-		console.log(process.argv[i] + ': arg expected');
-		process.exit(1);
-	}
-	return process.argv[++i];
-}
-
-function help() {
-	console.log('Usage: jsclean [options] files');
-	console.log();
-	console.log('-help      Show help');
-	console.log('-version   Show version');
-	console.log();
-	console.log('-equals    Replace == with ===');
-	console.log('-no-bak    Don\'t make .bak files');
-	console.log('-spaces N  Indent with N spaces');
-	process.exit(0);
-}
-
 if (module === require.main) {
-	var backup = true;
-	var files = [];
+	// options
+	commander.usage('[options] files');
+	commander.version(require('./package.json').version);
+	commander.option('    --no-exact-equals', 'don\'t replace == with ===');
+	commander.option('    --no-sort-properties', 'don\'t sort object properties');
+	commander.option('    --no-trailing-break', 'don\'t add trailing break');
+	commander.option('-n ,--no-backup', 'don\'t make .bak files');
+	commander.option('-s ,--spaces <n>', 'indent with spaces', parseInt);
+	commander.parse(process.argv);
 	var options = defaults();
-	for (var i = 2; i < process.argv.length; i++) {
-		var s = process.argv[i];
-		if (s[0] !== '-') {
-			files.push(s);
-			continue;
-		}
-		while (s[0] === '-') {
-			s = s.substring(1);
-		}
-		switch (s[0]) {
-		case '?':
-		case 'h':
-			help();
-		case 'V':
-		case 'v':
-			console.log(require('./package.json').version);
-			process.exit(0);
-		case 'e':
-			options.equals = true;
-			break;
-		case 'n':
-			backup = false;
-			break;
-		case 's':
-			s = arg();
-			var j = +s;
-			if (isNaN(j)) {
-				console.log(s + ': expected number');
-				process.exit(1);
-			}
-			options.indent = '';
-			while (j-- > 0) {
-				options.indent += ' ';
-			}
-			break;
-		default:
-			console.log(process.argv[i] + ': unknown option');
-			process.exit(1);
-			break;
+	for (var p in commander) {
+		if (Object.prototype.hasOwnProperty.call(commander, p)) {
+			options[p] = commander[p];
 		}
 	}
-	if (!files.length) {
-		help();
+	if (commander.spaces) {
+		options.indent = '';
+		for (var i = commander.spaces; i-- > 0; ) {
+			options.indent += ' ';
+		}
 	}
-	for (var file of files) {
+
+	// files
+	for (var file of commander.args) {
 		try {
 			var input = fs.readFileSync(file, {
 				encoding: 'utf8',
@@ -660,7 +616,7 @@ if (module === require.main) {
 		if (input === output) {
 			continue;
 		}
-		if (backup) {
+		if (commander.backup) {
 			try {
 				fs.unlinkSync(file + '.bak');
 				fs.renameSync(file, file + '.bak');
