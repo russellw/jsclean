@@ -33,7 +33,7 @@ git clone https://github.com/russellw/jsclean.git
     -V, --version             output the version number
         --no-exact-equals     don't replace == with ===
         --no-sort-properties  don't sort object properties
-        --no-trailing-break   don't add trailing break
+        --no-trailing-break   don't add trailing break to final case
     -n, --no-backup           don't make .bak files
     -s, --spaces <n>          indent with spaces
 
@@ -76,6 +76,10 @@ var output = jsclean.format(input, options);
 
 Options are:
 
-- **equals**: Replace all occurrences of the loose comparison operators `==` and `!=` with the exact comparison operators `===` and `!==`. Although this is pretty much always the right thing to do in practice, it's theoretically possible that it could change the meaning of correct code, so it defaults to `false`.
+- **exactEquals**
 
-- **indent**: String to use for indentation; should be set to a tab or one or more spaces. Default is `'\t'`.
+	Replace all occurrences of the loose comparison operators `==` and `!=` with the exact comparison operators `===` and `!==`.
+
+- **indent**
+
+	String to use for indentation; should be set to a tab or one or more spaces. Default is `'\t'`.
