@@ -2,7 +2,7 @@
 
 Reduces the entropy of JavaScript code:
 
-- Formats code in standard layout, fixing readability of ill-formatted code and allowing a consistent style to be automatically enforced throughout a project.
+- Formats code in a standard layout, fixing readability of ill-formatted code and allowing a consistent style to be automatically enforced throughout a project.
 
 - Applies syntactic changes (add missing semicolons and optional braces, replace `==` with `===`, ensure array and object literals always have trailing commas and the final case of a `switch` always has a trailing `break` when no other terminator statement is present) that eliminate common sources of error and inconsistency.
 
