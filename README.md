@@ -25,19 +25,23 @@ git clone https://github.com/russellw/jsclean.git
 ### Command line
 
 ```
-jsclean [options] files
+  Usage: jsclean [options] [files]
+
+  Options:
+
+    -h, --help                output usage information
+    -V, --version             output the version number
+        --no-exact-equals     don't replace == with ===
+        --no-sort-properties  don't sort object properties
+        --no-trailing-break   don't add trailing break
+    -n, --no-backup           don't make .bak files
+    -s, --spaces <n>          indent with spaces
+
 ```
 
-(Options can be abbreviated to one letter.)
+Original files are renamed to `.bak` unless `--no-backup` is given.
 
-```
--help      Show help
--version   Show version
-
--equals    Replace == with ===
--no-bak    Don't make .bak files
--spaces N  Indent with N spaces
-```
+If no files are specified, jsclean filters stdin to stdout.
 
 ### API
 

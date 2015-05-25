@@ -579,13 +579,13 @@ exports.gen = gen;
 if (module === require.main) {
 
 	// options
-	commander.usage('[options] files');
+	commander.usage('[options] [files]');
 	commander.version(require('./package.json').version);
 	commander.option('    --no-exact-equals', 'don\'t replace == with ===');
 	commander.option('    --no-sort-properties', 'don\'t sort object properties');
 	commander.option('    --no-trailing-break', 'don\'t add trailing break');
-	commander.option('-n ,--no-backup', 'don\'t make .bak files');
-	commander.option('-s ,--spaces <n>', 'indent with spaces', parseInt);
+	commander.option('-n, --no-backup', 'don\'t make .bak files');
+	commander.option('-s, --spaces <n>', 'indent with spaces', parseInt);
 	commander.parse(process.argv);
 	var options = defaults();
 	for (var p in commander) {
@@ -599,6 +599,8 @@ if (module === require.main) {
 			options.indent += ' ';
 		}
 	}
+
+	// inputs
 	if (commander.args.length) {
 
 		// files
