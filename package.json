@@ -1,6 +1,6 @@
 {
   "name": "jsclean",
-  "version": "3.0.0",
+  "version": "3.1.0",
   "dependencies": {
     "acorn": "^2.0.1",
     "commander": "^2.8.1",
@@ -9,7 +9,7 @@
   },
   "description": "Clean JavaScript code",
   "main": "index.js",
-  "bin": "./index.js",
+  "bin": "./bin/jsclean.js",
   "devDependencies": {},
   "scripts": {
     "test": "test"
