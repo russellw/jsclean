@@ -568,4 +568,3 @@ function gen(ast, options) {
 }
 
 exports.gen = gen;
-
