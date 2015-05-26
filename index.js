@@ -1,6 +1,21 @@
 'use strict';
 var acorn = require('acorn');
 var estraverse = require('estraverse');
+var keys = {
+	ParenthesizedExpression: [
+		'expression',
+	],
+};
+
+function cmp(a, b) {
+	if (a < b) {
+		return -1;
+	}
+	if (a > b) {
+		return 1;
+	}
+	return 0;
+}
 
 function debug(a) {
 	console.log(require('util').inspect(a, {
@@ -9,11 +24,28 @@ function debug(a) {
 	}));
 }
 
-var keys = {
-	ParenthesizedExpression: [
-		'expression',
-	],
-};
+function hasTerminator(c) {
+	var a = c.consequent;
+	if (!a.length)
+		return false;
+	return isTerminator(last(a));
+}
+
+function isTerminator(ast) {
+	switch (ast.type) {
+	case 'BreakStatement':
+	case 'ContinueStatement':
+	case 'ReturnStatement':
+	case 'ThrowStatement':
+		return true;
+	}
+}
+
+function last(a) {
+	return a[a.length - 1];
+}
+
+// API
 
 function format(code, options) {
 	var ast = parse(code);
@@ -28,6 +60,7 @@ function defaults() {
 		exactEquals: true,
 		indent: '\t',
 		semicolons: true,
+		sortCases: true,
 		sortProperties: true,
 		trailingBreak: true,
 	};
@@ -119,15 +152,7 @@ function transform(ast, options) {
 							}
 						}
 
-						a = key(a);
-						b = key(b);
-						if (a < b) {
-							return -1;
-						}
-						if (a > b) {
-							return 1;
-						}
-						return 0;
+						return cmp(key(a), key(b));
 					});
 					break;
 				}
@@ -140,23 +165,23 @@ function transform(ast, options) {
 			enter: function (ast, parent) {
 				switch (ast.type) {
 				case 'SwitchStatement':
-					if (ast.cases.length) {
-						var c = ast.cases[ast.cases.length - 1];
-						if (c.consequent.length) {
-							var a = c.consequent[c.consequent.length - 1];
-							switch (a.type) {
-							case 'BreakStatement':
-							case 'ContinueStatement':
-							case 'ReturnStatement':
-							case 'ThrowStatement':
-								break;
-							default:
-								c.consequent.push({
-									loc: a.loc,
-									type: 'BreakStatement',
-								});
-								break;
-							}
+					if (!ast.cases.length)
+						break;
+					var c = ast.cases[ast.cases.length - 1];
+					if (c.consequent.length) {
+						var a = c.consequent[c.consequent.length - 1];
+						switch (a.type) {
+						case 'BreakStatement':
+						case 'ContinueStatement':
+						case 'ReturnStatement':
+						case 'ThrowStatement':
+							break;
+						default:
+							c.consequent.push({
+								loc: a.loc,
+								type: 'BreakStatement',
+							});
+							break;
 						}
 					}
 					break;
@@ -164,6 +189,48 @@ function transform(ast, options) {
 			},
 			keys: keys,
 		});
+		if (options.sortCases) {
+			estraverse.traverse(ast, {
+				enter: function (ast, parent) {
+					switch (ast.type) {
+					case 'SwitchStatement':
+						if (!ast.cases.length)
+							break;
+						var block = [];
+						var blocks = [];
+						for (var c of ast.cases) {
+							block.push(c);
+							if (hasTerminator(c)) {
+								blocks.push(block);
+								block = [];
+							}
+						}
+						if (block.length)
+							blocks.push(block);
+						blocks.sort(function (a, b) {
+
+							function key(block) {
+								var x = block[0].test;
+								if (!x)
+									return '\uffff';
+								switch (x.type) {
+								case 'Identifier':
+									return x.name;
+								case 'Literal':
+									return x.value;
+								default:
+									return x.type;
+								}
+							}
+
+							return cmp(key(a), key(b));
+						});
+						break;
+					}
+				},
+				keys: keys,
+			});
+		}
 	}
 }
 
