@@ -140,8 +140,6 @@ function transform(ast, options) {
 							return x.name;
 						case 'Literal':
 							return x.value;
-						default:
-							return x.type;
 						}
 					}
 
@@ -186,6 +184,30 @@ function transform(ast, options) {
 					}
 					if (block.length)
 						blocks.push(block);
+					blocks: for (var block of blocks) {
+						for (var i = 0; i < block.length - 1; i++)
+							if (block[i].consequent.length)
+								continue blocks;
+						var consequent = last(block).consequent;
+						last(block).consequent = [];
+						block.sort(function (a, b) {
+
+							function key(x) {
+								x = x.test;
+								if (!x)
+									return '\uffff';
+								switch (x.type) {
+								case 'Identifier':
+									return x.name;
+								case 'Literal':
+									return x.value;
+								}
+							}
+
+							return cmp(key(a), key(b));
+						});
+						last(block).consequent = consequent;
+					}
 					blocks.sort(function (a, b) {
 
 						function key(block) {
@@ -197,8 +219,6 @@ function transform(ast, options) {
 								return x.name;
 							case 'Literal':
 								return x.value;
-							default:
-								return x.type;
 							}
 						}
 
