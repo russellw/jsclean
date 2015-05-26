@@ -246,7 +246,10 @@ function gen(ast, options) {
 		for (var c of ast.leadingComments) {
 			indent(level);
 			if (c.type === 'Line') {
-				put('//' + c.value);
+				put('//');
+				if (c.value[0] !== ' ')
+					put(' ');
+				put(c.value);
 			} else {
 				put('/*' + c.value + '*/');
 			}
