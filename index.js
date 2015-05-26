@@ -292,7 +292,7 @@ function gen(ast, options) {
 				}
 				expr(ast.params[i], level);
 			}
-			put(') ');
+			put(')');
 			block(ast.body, level);
 			break;
 		case 'Identifier':
