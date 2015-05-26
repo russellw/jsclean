@@ -69,7 +69,6 @@ function defaults() {
 exports.defaults = defaults;
 
 function parse(code) {
-
 	// #!
 	var hashbang = '';
 	if (code.substring(0, 2) === '#!') {
@@ -132,7 +131,6 @@ function transform(ast, options) {
 				if (ast.type !== 'ObjectExpression')
 					return;
 				ast.properties.sort(function (a, b) {
-
 					function key(x) {
 						x = x.key;
 						switch (x.type) {
@@ -173,6 +171,8 @@ function transform(ast, options) {
 						return;
 					if (!ast.cases.length)
 						return;
+
+					// get blocks of cases
 					var block = [];
 					var blocks = [];
 					for (var c of ast.cases) {
@@ -184,6 +184,8 @@ function transform(ast, options) {
 					}
 					if (block.length)
 						blocks.push(block);
+
+					// sort cases within block
 					blocks: for (var block of blocks) {
 						for (var i = 0; i < block.length - 1; i++)
 							if (block[i].consequent.length)
@@ -191,7 +193,6 @@ function transform(ast, options) {
 						var consequent = last(block).consequent;
 						last(block).consequent = [];
 						block.sort(function (a, b) {
-
 							function key(x) {
 								x = x.test;
 								if (!x)
@@ -208,8 +209,9 @@ function transform(ast, options) {
 						});
 						last(block).consequent = consequent;
 					}
-					blocks.sort(function (a, b) {
 
+					// sort blocks
+					blocks.sort(function (a, b) {
 						function key(block) {
 							var x = block[0].test;
 							if (!x)
@@ -224,6 +226,8 @@ function transform(ast, options) {
 
 						return cmp(key(a), key(b));
 					});
+
+					// put blocks of cases
 					ast.cases = [];
 					for (var block of blocks)
 						for (var c of block)
@@ -684,6 +688,9 @@ function gen(ast, options) {
 
 	// only one consecutive blank line
 	code = code.replace(/\n\n+/g, '\n\n');
+
+	// no blank line after bracket
+	code = code.replace(/{\n\n/g, '{\n');
 
 	// end with exactly one newline
 	code = code.replace(/\n*$/, '\n');

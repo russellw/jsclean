@@ -32,8 +32,6 @@ if (commander.spaces) {
 
 // inputs
 if (commander.args.length) {
-
-	// files
 	for (var file of commander.args) {
 		var input = fs.readFileSync(file, {
 			encoding: 'utf8',
@@ -53,8 +51,6 @@ if (commander.args.length) {
 		console.log(file);
 	}
 } else {
-
-	// stdin
 	stdin(function (input) {
 		var output = index.format(input, options);
 		output = output.replace(/\n*$/, '');
