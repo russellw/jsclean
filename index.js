@@ -228,6 +228,7 @@ function gen(ast, options) {
 			}
 			put('[\n');
 			for (var a of ast.elements) {
+				comment(a, level + 1);
 				indent(level + 1);
 				expr(a, level + 1);
 				put(',\n');
@@ -319,6 +320,7 @@ function gen(ast, options) {
 			}
 			put('{\n');
 			for (var a of ast.properties) {
+				comment(a, level + 1);
 				indent(level + 1);
 				expr(a, level + 1);
 				put(',\n');
@@ -380,12 +382,12 @@ function gen(ast, options) {
 	}
 
 	function stmt(ast, level) {
-		comment(ast, level);
 		switch (ast.type) {
 		case 'BlockStatement':
 			put('{\n');
 			for (var a of ast.body) {
 				blankLine(a);
+				comment(a, level + 1);
 				indent(level + 1);
 				stmt(a, level + 1);
 				put('\n');
@@ -485,7 +487,8 @@ function gen(ast, options) {
 		case 'Program':
 			for (var a of ast.body) {
 				blankLine(a);
-				stmt(a, level);
+				comment(a, 0);
+				stmt(a, 0);
 				put('\n');
 				blankLine(a);
 			}
