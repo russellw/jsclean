@@ -10,6 +10,7 @@ var stdin = require('get-stdin');
 commander.usage('[options] [files]');
 commander.version(require('../package.json').version);
 commander.option('    --no-exact-equals', 'don\'t replace == with ===');
+commander.option('    --no-extra-braces', 'don\'t add unnecessary braces');
 commander.option('    --no-semicolons', 'omit semicolons');
 commander.option('    --no-sort-cases', 'don\'t sort cases');
 commander.option('    --no-sort-properties', 'don\'t sort object properties');

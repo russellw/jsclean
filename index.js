@@ -1,11 +1,34 @@
 'use strict';
 var acorn = require('acorn');
 var estraverse = require('estraverse');
+
+// node type unknown to estraverse
 var keys = {
 	ParenthesizedExpression: [
 		'expression',
 	],
 };
+
+function brace(ast) {
+	if (!ast) {
+		return ast;
+	}
+	switch (ast.type) {
+	case 'BlockStatement':
+		return ast;
+	case 'EmptyStatement':
+		ast.body = [];
+		ast.type = 'BlockStatement';
+		return ast;
+	default:
+		return {
+			body: [
+				ast,
+			],
+			type: 'BlockStatement',
+		};
+	}
+}
 
 function cmp(a, b) {
 	if (a < b) {
@@ -26,8 +49,9 @@ function debug(a) {
 
 function hasTerminator(c) {
 	var a = c.consequent;
-	if (!a.length)
+	if (!a.length) {
 		return false;
+	}
 	return isTerminator(last(a));
 }
 
@@ -58,6 +82,7 @@ exports.format = format;
 function defaults() {
 	return {
 		exactEquals: true,
+		extraBraces: true,
 		indent: '\t',
 		semicolons: true,
 		sortCases: true,
@@ -109,8 +134,9 @@ function transform(ast, options) {
 	if (options.exactEquals) {
 		estraverse.traverse(ast, {
 			enter: function (ast, parent) {
-				if (ast.type !== 'BinaryExpression')
+				if (ast.type !== 'BinaryExpression') {
 					return;
+				}
 				if (ast.left.value !== null && ast.right.value !== null) {
 					switch (ast.operator) {
 					case '!=':
@@ -125,11 +151,32 @@ function transform(ast, options) {
 			keys: keys,
 		});
 	}
+	if (options.extraBraces) {
+		estraverse.traverse(ast, {
+			enter: function (ast, parent) {
+				switch (ast.type) {
+				case 'DoWhileStatement':
+				case 'ForInStatement':
+				case 'ForOfStatement':
+				case 'ForStatement':
+				case 'WhileStatement':
+					ast.body = brace(ast.body);
+					break;
+				case 'IfStatement':
+					ast.consequent = brace(ast.consequent);
+					ast.alternate = brace(ast.alternate);
+					break;
+				}
+			},
+			keys: keys,
+		});
+	}
 	if (options.sortProperties) {
 		estraverse.traverse(ast, {
 			enter: function (ast, parent) {
-				if (ast.type !== 'ObjectExpression')
+				if (ast.type !== 'ObjectExpression') {
 					return;
+				}
 				ast.properties.sort(function (a, b) {
 					function key(x) {
 						x = x.key;
@@ -150,13 +197,16 @@ function transform(ast, options) {
 	if (options.trailingBreak) {
 		estraverse.traverse(ast, {
 			enter: function (ast, parent) {
-				if (ast.type !== 'SwitchStatement')
+				if (ast.type !== 'SwitchStatement') {
 					return;
-				if (!ast.cases.length)
+				}
+				if (!ast.cases.length) {
 					return;
+				}
 				var c = last(ast.cases);
-				if (hasTerminator(c))
+				if (hasTerminator(c)) {
 					return;
+				}
 				c.consequent.push({
 					loc: a.loc,
 					type: 'BreakStatement',
@@ -167,10 +217,12 @@ function transform(ast, options) {
 		if (options.sortCases) {
 			estraverse.traverse(ast, {
 				enter: function (ast, parent) {
-					if (ast.type !== 'SwitchStatement')
+					if (ast.type !== 'SwitchStatement') {
 						return;
-					if (!ast.cases.length)
+					}
+					if (!ast.cases.length) {
 						return;
+					}
 
 					// get blocks of cases
 					var block = [];
@@ -182,21 +234,25 @@ function transform(ast, options) {
 							block = [];
 						}
 					}
-					if (block.length)
+					if (block.length) {
 						blocks.push(block);
+					}
 
 					// sort cases within block
 					blocks: for (var block of blocks) {
-						for (var i = 0; i < block.length - 1; i++)
-							if (block[i].consequent.length)
+						for (var i = 0; i < block.length - 1; i++) {
+							if (block[i].consequent.length) {
 								continue blocks;
+							}
+						}
 						var consequent = last(block).consequent;
 						last(block).consequent = [];
 						block.sort(function (a, b) {
 							function key(x) {
 								x = x.test;
-								if (!x)
+								if (!x) {
 									return '\uffff';
+								}
 								switch (x.type) {
 								case 'Identifier':
 									return x.name;
@@ -214,8 +270,9 @@ function transform(ast, options) {
 					blocks.sort(function (a, b) {
 						function key(block) {
 							var x = block[0].test;
-							if (!x)
+							if (!x) {
 								return '\uffff';
+							}
 							switch (x.type) {
 							case 'Identifier':
 								return x.name;
@@ -229,9 +286,11 @@ function transform(ast, options) {
 
 					// put blocks of cases
 					ast.cases = [];
-					for (var block of blocks)
-						for (var c of block)
+					for (var block of blocks) {
+						for (var c of block) {
 							ast.cases.push(c);
+						}
+					}
 				},
 				keys: keys,
 			});
@@ -248,8 +307,9 @@ function gen(ast, options) {
 	estraverse.traverse(ast, {
 		keys: keys,
 		leave: function (ast, parent) {
-			if (!ast.leadingComments)
+			if (!ast.leadingComments) {
 				return;
+			}
 			if (!parent) {
 				return;
 			}
@@ -319,8 +379,9 @@ function gen(ast, options) {
 			indent(level);
 			if (c.type === 'Line') {
 				put('//');
-				if (c.value[0] !== ' ')
+				if (c.value[0] !== ' ') {
 					put(' ');
+				}
 				put(c.value);
 			} else {
 				put('/*' + c.value + '*/');
@@ -330,10 +391,11 @@ function gen(ast, options) {
 	}
 
 	function forInit(ast, level) {
-		if (ast.type === 'VariableDeclaration')
+		if (ast.type === 'VariableDeclaration') {
 			variableDeclaration(ast, level);
-		else
+		} else {
 			rec(ast, level);
+		}
 	}
 
 	function indent(level) {
@@ -354,21 +416,23 @@ function gen(ast, options) {
 	}
 
 	function semicolon() {
-		if (options.semicolons)
+		if (options.semicolons) {
 			put(';');
+		}
 	}
 
 	function stmt(ast, level) {
 		comment(ast, level);
 		blankLine(ast);
 		indent(level);
-		if (!options.semicolons)
+		if (!options.semicolons) {
 			switch (ast.type) {
 			case 'ArrayExpression':
 			case 'ParenthesizedExpression':
 				put(';');
 				break;
 			}
+		}
 		rec(ast, level);
 		put('\n');
 		blankLine(ast);

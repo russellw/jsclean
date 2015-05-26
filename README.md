@@ -73,6 +73,10 @@ Options are:
 
 	Replace all occurrences of the loose comparison operators `==` and `!=` with the exact comparison operators `===` and `!==` (except where one operand is `null`). Default is true.
 
+- **extraBraces**
+
+	Compound statements always use braces even if the body is a single statement. This improves consistency and removes an opportunity for error if a second statement is subsequently added. Default is true.
+
 - **semicolons**
 
 	Use semicolons. Default is true.
