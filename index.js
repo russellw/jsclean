@@ -220,11 +220,11 @@ function gen(ast, options) {
 	function block(ast, level) {
 		if (ast.type === 'BlockStatement') {
 			put(' ');
-			stmt(ast, level);
+			rec(ast, level);
 		} else {
 			put('\n');
 			indent(level + 1);
-			stmt(ast, level + 1);
+			rec(ast, level + 1);
 		}
 	}
 
@@ -257,7 +257,7 @@ function gen(ast, options) {
 		if (ast.type === 'VariableDeclaration')
 			VariableDeclaration(ast, level);
 		else
-			expr(ast, level);
+			rec(ast, level);
 	}
 
 	function indent(level) {
@@ -276,13 +276,13 @@ function gen(ast, options) {
 			if (i) {
 				put(', ');
 			}
-			expr(ast.declarations[i], level);
+			rec(ast.declarations[i], level);
 		}
 	}
 
 	// recursive descent
 
-	function expr(ast, level) {
+	function rec(ast, level) {
 		switch (ast.type) {
 		case 'ArrayExpression':
 			if (!ast.elements.length) {
@@ -293,7 +293,7 @@ function gen(ast, options) {
 			for (var a of ast.elements) {
 				comment(a, level + 1);
 				indent(level + 1);
-				expr(a, level + 1);
+				rec(a, level + 1);
 				put(',\n');
 			}
 			indent(level);
@@ -301,14 +301,14 @@ function gen(ast, options) {
 			break;
 		case 'ArrowFunctionExpression':
 			if (ast.params.length === 1) {
-				expr(ast.params[0], level);
+				rec(ast.params[0], level);
 			} else {
 				put('(');
 				for (var i = 0; i < ast.params.length; i++) {
 					if (i) {
 						put(', ');
 					}
-					expr(ast.params[i], level);
+					rec(ast.params[i], level);
 				}
 				put(')');
 			}
@@ -316,33 +316,33 @@ function gen(ast, options) {
 			if (ast.body.type === 'BlockStatement') {
 				block(ast.body, level);
 			} else {
-				expr(ast.body, level);
+				rec(ast.body, level);
 			}
 			break;
 		case 'AssignmentExpression':
 		case 'BinaryExpression':
 		case 'LogicalExpression':
-			expr(ast.left, level);
+			rec(ast.left, level);
 			put(' ' + ast.operator + ' ');
-			expr(ast.right, level);
+			rec(ast.right, level);
 			break;
 		case 'CallExpression':
-			expr(ast.callee, level);
+			rec(ast.callee, level);
 			put('(');
 			for (var i = 0; i < ast.arguments.length; i++) {
 				if (i) {
 					put(', ');
 				}
-				expr(ast.arguments[i], level);
+				rec(ast.arguments[i], level);
 			}
 			put(')');
 			break;
 		case 'ConditionalExpression':
-			expr(ast.test, level);
+			rec(ast.test, level);
 			put(' ? ');
-			expr(ast.consequent, level);
+			rec(ast.consequent, level);
 			put(' : ');
-			expr(ast.alternate, level);
+			rec(ast.alternate, level);
 			break;
 		case 'FunctionExpression':
 			put('function ');
@@ -354,7 +354,7 @@ function gen(ast, options) {
 				if (i) {
 					put(', ');
 				}
-				expr(ast.params[i], level);
+				rec(ast.params[i], level);
 			}
 			put(')');
 			block(ast.body, level);
@@ -366,14 +366,14 @@ function gen(ast, options) {
 			put(ast.raw);
 			break;
 		case 'MemberExpression':
-			expr(ast.object, level);
+			rec(ast.object, level);
 			if (ast.computed) {
 				put('[');
-				expr(ast.property, level);
+				rec(ast.property, level);
 				put(']');
 			} else {
 				put('.');
-				expr(ast.property, level);
+				rec(ast.property, level);
 			}
 			break;
 		case 'ObjectExpression':
@@ -385,7 +385,7 @@ function gen(ast, options) {
 			for (var a of ast.properties) {
 				comment(a, level + 1);
 				indent(level + 1);
-				expr(a, level + 1);
+				rec(a, level + 1);
 				put(',\n');
 			}
 			indent(level);
@@ -393,32 +393,32 @@ function gen(ast, options) {
 			break;
 		case 'ParenthesizedExpression':
 			put('(');
-			expr(ast.expression, level);
+			rec(ast.expression, level);
 			put(')');
 			break;
 		case 'Property':
-			expr(ast.key, level);
+			rec(ast.key, level);
 			put(': ');
-			expr(ast.value, level);
+			rec(ast.value, level);
 			break;
 		case 'SequenceExpression':
 			for (var i = 0; i < ast.expressions.length; i++) {
 				if (i) {
 					put(', ');
 				}
-				expr(ast.expressions[i], level);
+				rec(ast.expressions[i], level);
 			}
 			break;
 		case 'UnaryExpression':
 			put(ast.operator);
-			expr(ast.argument, level);
+			rec(ast.argument, level);
 			break;
 		case 'UpdateExpression':
 			if (ast.prefix) {
 				put(ast.operator);
-				expr(ast.argument, level);
+				rec(ast.argument, level);
 			} else {
-				expr(ast.argument, level);
+				rec(ast.argument, level);
 				put(ast.operator);
 			}
 			break;
@@ -426,24 +426,16 @@ function gen(ast, options) {
 			put(ast.id.name);
 			if (ast.init) {
 				put(' = ');
-				expr(ast.init, level);
+				rec(ast.init, level);
 			}
 			break;
-		default:
-			console.assert(false, ast);
-			break;
-		}
-	}
-
-	function stmt(ast, level) {
-		switch (ast.type) {
 		case 'BlockStatement':
 			put('{\n');
 			for (var a of ast.body) {
 				comment(a, level + 1);
 				blankLine(a);
 				indent(level + 1);
-				stmt(a, level + 1);
+				rec(a, level + 1);
 				put('\n');
 				blankLine(a);
 			}
@@ -469,7 +461,7 @@ function gen(ast, options) {
 			block(ast.body, level);
 			blockEnd(ast.body, level);
 			put('while (');
-			expr(ast.test, level);
+			rec(ast.test, level);
 			put(')');
 			semicolon();
 			break;
@@ -477,14 +469,14 @@ function gen(ast, options) {
 			put(';');
 			break;
 		case 'ExpressionStatement':
-			expr(ast.expression, level);
+			rec(ast.expression, level);
 			semicolon();
 			break;
 		case 'ForInStatement':
 			put('for (');
 			forInit(ast.left, level);
 			put(' in ');
-			expr(ast.right, level);
+			rec(ast.right, level);
 			put(')');
 			block(ast.body, level);
 			break;
@@ -492,7 +484,7 @@ function gen(ast, options) {
 			put('for (');
 			forInit(ast.left, level);
 			put(' of ');
-			expr(ast.right, level);
+			rec(ast.right, level);
 			put(')');
 			block(ast.body, level);
 			break;
@@ -503,11 +495,11 @@ function gen(ast, options) {
 			}
 			put('; ');
 			if (ast.test) {
-				expr(ast.test, level);
+				rec(ast.test, level);
 			}
 			put('; ');
 			if (ast.update) {
-				expr(ast.update, level);
+				rec(ast.update, level);
 			}
 			put(')');
 			block(ast.body, level);
@@ -518,14 +510,14 @@ function gen(ast, options) {
 				if (i) {
 					put(', ');
 				}
-				expr(ast.params[i], level);
+				rec(ast.params[i], level);
 			}
 			put(')');
 			block(ast.body, level);
 			break;
 		case 'IfStatement':
 			put('if (');
-			expr(ast.test, level);
+			rec(ast.test, level);
 			put(')');
 			block(ast.consequent, level);
 			if (ast.alternate) {
@@ -536,13 +528,13 @@ function gen(ast, options) {
 			break;
 		case 'LabeledStatement':
 			put(ast.label.name + ': ');
-			stmt(ast.body, level);
+			rec(ast.body, level);
 			break;
 		case 'Program':
 			for (var a of ast.body) {
 				comment(a, 0);
 				blankLine(a);
-				stmt(a, 0);
+				rec(a, 0);
 				put('\n');
 				blankLine(a);
 			}
@@ -551,26 +543,26 @@ function gen(ast, options) {
 			put('return');
 			if (ast.argument) {
 				put(' ');
-				expr(ast.argument, level);
+				rec(ast.argument, level);
 			}
 			semicolon();
 			break;
 		case 'SwitchStatement':
 			put('switch (');
-			expr(ast.discriminant, level);
+			rec(ast.discriminant, level);
 			put(') {\n');
 			for (var c of ast.cases) {
 				indent(level);
 				if (c.test) {
 					put('case ');
-					expr(c.test, level);
+					rec(c.test, level);
 				} else {
 					put('default');
 				}
 				put(':\n');
 				for (var a of c.consequent) {
 					indent(level + 1);
-					stmt(a, level + 1);
+					rec(a, level + 1);
 					put('\n');
 				}
 			}
@@ -579,7 +571,7 @@ function gen(ast, options) {
 			break;
 		case 'ThrowStatement':
 			put('throw ');
-			expr(ast.argument, level);
+			rec(ast.argument, level);
 			semicolon();
 			break;
 		case 'TryStatement':
@@ -587,7 +579,7 @@ function gen(ast, options) {
 			block(ast.block, level);
 			if (ast.handler) {
 				put(' catch (');
-				expr(ast.handler.param, level);
+				rec(ast.handler.param, level);
 				put(')');
 				block(ast.handler.body, level);
 			}
@@ -602,7 +594,7 @@ function gen(ast, options) {
 			break;
 		case 'WhileStatement':
 			put('while (');
-			expr(ast.test, level);
+			rec(ast.test, level);
 			put(')');
 			block(ast.body, level);
 			break;
@@ -612,7 +604,7 @@ function gen(ast, options) {
 		}
 	}
 
-	stmt(ast, 0);
+	rec(ast, 0);
 	var code = ss.join('');
 
 	// #!
