@@ -680,6 +680,7 @@ function gen(ast, options) {
 				}
 				put(':\n');
 				for (var a of c.consequent) {
+					comment(a, level + 1);
 					indent(level + 1);
 					rec(a, level + 1);
 					put('\n');
@@ -755,7 +756,10 @@ function gen(ast, options) {
 	// only one consecutive blank line
 	code = code.replace(/\n\n+/g, '\n\n');
 
-	// no blank line after bracket
+	// no blank line after :
+	code = code.replace(/:\n\n/g, ':\n');
+
+	// no blank line after {
 	code = code.replace(/{\n\n/g, '{\n');
 
 	// end with exactly one newline
