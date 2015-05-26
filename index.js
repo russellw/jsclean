@@ -8,9 +8,12 @@ function debug(a) {
 		depth: null,
 	}));
 }
-var keys={
-ParenthesizedExpression:['expression']
-}
+
+var keys = {
+	ParenthesizedExpression: [
+		'expression',
+	],
+};
 
 function format(code, options) {
 	var ast = parse(code);
@@ -93,7 +96,7 @@ function transform(ast, options) {
 					break;
 				}
 			},
-		keys:keys
+			keys: keys,
 		});
 	}
 	if (options.sortProperties) {
@@ -128,7 +131,7 @@ function transform(ast, options) {
 					break;
 				}
 			},
-		keys:keys
+			keys: keys,
 		});
 	}
 	if (options.trailingBreak) {
@@ -158,7 +161,7 @@ function transform(ast, options) {
 					break;
 				}
 			},
-		keys:keys
+			keys: keys,
 		});
 	}
 }
@@ -170,8 +173,10 @@ function gen(ast, options) {
 
 	// bubble comments up to statements
 	estraverse.traverse(ast, {
+		keys: keys,
 		leave: function (ast, parent) {
-//			if(!ast.leadingComments)return
+			if (!ast.leadingComments)
+				return;
 			if (!parent) {
 				return;
 			}
@@ -192,10 +197,9 @@ function gen(ast, options) {
 			case 'ObjectExpression':
 				return;
 			}
-			parent.leadingComments =(parent.leadingComments ||[]).concat( ast.leadingComments)
+			parent.leadingComments = (parent.leadingComments || []).concat(ast.leadingComments);
 			ast.leadingComments = null;
 		},
-		keys:keys
 	});
 
 	// gathered strings
@@ -428,8 +432,8 @@ function gen(ast, options) {
 		case 'BlockStatement':
 			put('{\n');
 			for (var a of ast.body) {
-				blankLine(a);
 				comment(a, level + 1);
+				blankLine(a);
 				indent(level + 1);
 				stmt(a, level + 1);
 				put('\n');
@@ -528,8 +532,8 @@ function gen(ast, options) {
 			break;
 		case 'Program':
 			for (var a of ast.body) {
-				blankLine(a);
 				comment(a, 0);
+				blankLine(a);
 				stmt(a, 0);
 				put('\n');
 				blankLine(a);

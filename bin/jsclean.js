@@ -33,20 +33,10 @@ if (commander.args.length) {
 
 	// files
 	for (var file of commander.args) {
-		try {
-			var input = fs.readFileSync(file, {
-				encoding: 'utf8',
-			});
-		} catch (e) {
-			console.log(e.message);
-			process.exit(1);
-		}
-		try {
-			var output = index.format(input, options);
-		} catch (e) {
-			console.log(file + ': ' + e.message);
-			process.exit(1);
-		}
+		var input = fs.readFileSync(file, {
+			encoding: 'utf8',
+		});
+		var output = index.format(input, options);
 		if (input === output) {
 			continue;
 		}
@@ -57,25 +47,15 @@ if (commander.args.length) {
 			} catch (e) {
 			}
 		}
-		try {
-			fs.writeFileSync(file, output);
-		} catch (e) {
-			console.log(e.message);
-			process.exit(1);
-		}
+		fs.writeFileSync(file, output);
 		console.log(file);
 	}
 } else {
 
 	// stdin
 	stdin(function (input) {
-		try {
-			var output = index.format(input, options);
-			output = output.replace(/\n*$/, '');
-			console.log(output);
-		} catch (e) {
-			console.log(e.message);
-			process.exit(1);
-		}
+		var output = index.format(input, options);
+		output = output.replace(/\n*$/, '');
+		console.log(output);
 	});
 }
