@@ -266,6 +266,17 @@ function gen(ast, options) {
 		}
 	}
 
+	function params(a, level) {
+		put('(');
+		for (var i = 0; i < a.length; i++) {
+			if (i) {
+				put(', ');
+			}
+			rec(a[i], level);
+		}
+		put(')');
+	}
+
 	function semicolon() {
 		put(';');
 	}
@@ -312,14 +323,7 @@ function gen(ast, options) {
 			if (ast.params.length === 1) {
 				rec(ast.params[0], level);
 			} else {
-				put('(');
-				for (var i = 0; i < ast.params.length; i++) {
-					if (i) {
-						put(', ');
-					}
-					rec(ast.params[i], level);
-				}
-				put(')');
+				params(ast.params, level);
 			}
 			put(' => ');
 			if (ast.body.type === 'BlockStatement') {
@@ -337,14 +341,7 @@ function gen(ast, options) {
 			break;
 		case 'CallExpression':
 			rec(ast.callee, level);
-			put('(');
-			for (var i = 0; i < ast.arguments.length; i++) {
-				if (i) {
-					put(', ');
-				}
-				rec(ast.arguments[i], level);
-			}
-			put(')');
+			params(ast.arguments, level);
 			break;
 		case 'ConditionalExpression':
 			rec(ast.test, level);
@@ -358,14 +355,7 @@ function gen(ast, options) {
 			if (ast.id) {
 				put(ast.id.name);
 			}
-			put('(');
-			for (var i = 0; i < ast.params.length; i++) {
-				if (i) {
-					put(', ');
-				}
-				rec(ast.params[i], level);
-			}
-			put(')');
+			params(ast.params, level);
 			block(ast.body, level);
 			break;
 		case 'Identifier':
@@ -509,14 +499,8 @@ function gen(ast, options) {
 			block(ast.body, level);
 			break;
 		case 'FunctionDeclaration':
-			put('function ' + ast.id.name + '(');
-			for (var i = 0; i < ast.params.length; i++) {
-				if (i) {
-					put(', ');
-				}
-				rec(ast.params[i], level);
-			}
-			put(')');
+			put('function ' + ast.id.name);
+			params(ast.params, level);
 			block(ast.body, level);
 			break;
 		case 'IfStatement':
