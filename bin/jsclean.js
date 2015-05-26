@@ -71,6 +71,7 @@ if (commander.args.length) {
 	stdin(function (input) {
 		try {
 			var output = index.format(input, options);
+			output = output.replace(/\n*$/, '');
 			console.log(output);
 		} catch (e) {
 			console.log(e.message);
