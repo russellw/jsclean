@@ -81,9 +81,13 @@ Options are:
 
 	Use semicolons. Default is true.
 
+- **sortCases**
+
+	Sort cases in switch statements, by test in alphabetical order. Default is true.
+
 - **sortProperties**
 
-	Sort the properties of object literals, by key in alphabetical order. Default is true.
+	Sort properties of object literals, by key in alphabetical order. Default is true.
 
 - **trailingBreak**
 
