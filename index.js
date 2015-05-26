@@ -255,7 +255,7 @@ function gen(ast, options) {
 
 	function forInit(ast, level) {
 		if (ast.type === 'VariableDeclaration')
-			VariableDeclaration(ast, level);
+			variableDeclaration(ast, level);
 		else
 			rec(ast, level);
 	}
@@ -279,7 +279,7 @@ function gen(ast, options) {
 		blankLine(ast);
 	}
 
-	function VariableDeclaration(ast, level) {
+	function variableDeclaration(ast, level) {
 		put('var ');
 		for (var i = 0; i < ast.declarations.length; i++) {
 			if (i) {
@@ -589,7 +589,7 @@ function gen(ast, options) {
 			}
 			break;
 		case 'VariableDeclaration':
-			VariableDeclaration(ast, level);
+			variableDeclaration(ast, level);
 			semicolon();
 			break;
 		case 'WhileStatement':
