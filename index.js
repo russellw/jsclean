@@ -85,6 +85,7 @@ function defaults() {
 		extraBraces: true,
 		indent: '\t',
 		semicolons: true,
+		separateVars: true,
 		sortCases: true,
 		sortProperties: true,
 		trailingBreak: true,
@@ -167,6 +168,43 @@ function transform(ast, options) {
 					ast.alternate = brace(ast.alternate);
 					break;
 				}
+			},
+			keys: keys,
+		});
+	}
+	if (options.separateVars) {
+		estraverse.traverse(ast, {
+			enter: function (ast, parent) {
+				if (ast.type !== 'VariableDeclaration') {
+					return;
+				}
+				switch (parent.type) {
+				case 'BlockStatement':
+				case 'Program':
+					var body = parent.body;
+					break;
+				case 'SwitchCase':
+					body = parent.consequent;
+					break;
+				default:
+					return;
+				}
+				var vars = ast.declarations;
+				if (ast.leadingComments) {
+					vars[0].leadingComments = (vars[0].leadingComments || []).concat(ast.leadingComments);
+				}
+				for (var i = 0; i < vars.length; i++) {
+					vars[i] = {
+						declarations: [
+							vars[i],
+						],
+						type: ast.type,
+					};
+				}
+				body.splice.apply(body, [
+					body.indexOf(ast),
+					1,
+				].concat(vars));
 			},
 			keys: keys,
 		});

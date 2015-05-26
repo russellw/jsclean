@@ -83,6 +83,10 @@ Options are:
 
 	Use semicolons. Default is true.
 
+- **separateVars**
+
+	Replace a declaration of multiple variables like `var a, b` with a separate declaration for each variable like `var a; var b`. Default is true.
+
 - **sortCases**
 
 	Sort cases in switch statements, by test in alphabetical order. Default is true.
