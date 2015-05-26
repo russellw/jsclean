@@ -110,24 +110,17 @@ function transform(ast, options) {
 	if (options.exactEquals) {
 		estraverse.traverse(ast, {
 			enter: function (ast, parent) {
-
-				function isNull(a) {
-					return a.type === 'Literal' && a.value === null;
-				}
-
-				switch (ast.type) {
-				case 'BinaryExpression':
-					if (!isNull(ast.left) && !isNull(ast.right)) {
-						switch (ast.operator) {
-						case '==':
-							ast.operator = '===';
-							break;
-						case '!=':
-							ast.operator = '!==';
-							break;
-						}
+				if (ast.type !== 'BinaryExpression')
+					return;
+				if (ast.left.value !== null && ast.right.value !== null) {
+					switch (ast.operator) {
+					case '==':
+						ast.operator = '===';
+						break;
+					case '!=':
+						ast.operator = '!==';
+						break;
 					}
-					break;
 				}
 			},
 			keys: keys,
@@ -136,12 +129,69 @@ function transform(ast, options) {
 	if (options.sortProperties) {
 		estraverse.traverse(ast, {
 			enter: function (ast, parent) {
-				switch (ast.type) {
-				case 'ObjectExpression':
-					ast.properties.sort(function (a, b) {
+				if (ast.type !== 'ObjectExpression')
+					return;
+				ast.properties.sort(function (a, b) {
 
-						function key(x) {
-							x = x.key;
+					function key(x) {
+						x = x.key;
+						switch (x.type) {
+						case 'Identifier':
+							return x.name;
+						case 'Literal':
+							return x.value;
+						default:
+							return x.type;
+						}
+					}
+
+					return cmp(key(a), key(b));
+				});
+			},
+			keys: keys,
+		});
+	}
+	if (options.trailingBreak) {
+		estraverse.traverse(ast, {
+			enter: function (ast, parent) {
+				if (ast.type !== 'SwitchStatement')
+					return;
+				if (!ast.cases.length)
+					return;
+				var c = last(ast.cases);
+				if (hasTerminator(c))
+					return;
+				c.consequent.push({
+					loc: a.loc,
+					type: 'BreakStatement',
+				});
+			},
+			keys: keys,
+		});
+		if (options.sortCases) {
+			estraverse.traverse(ast, {
+				enter: function (ast, parent) {
+					if (ast.type !== 'SwitchStatement')
+						return;
+					if (!ast.cases.length)
+						return;
+					var block = [];
+					var blocks = [];
+					for (var c of ast.cases) {
+						block.push(c);
+						if (hasTerminator(c)) {
+							blocks.push(block);
+							block = [];
+						}
+					}
+					if (block.length)
+						blocks.push(block);
+					blocks.sort(function (a, b) {
+
+						function key(block) {
+							var x = block[0].test;
+							if (!x)
+								return '\uffff';
 							switch (x.type) {
 							case 'Identifier':
 								return x.name;
@@ -154,79 +204,6 @@ function transform(ast, options) {
 
 						return cmp(key(a), key(b));
 					});
-					break;
-				}
-			},
-			keys: keys,
-		});
-	}
-	if (options.trailingBreak) {
-		estraverse.traverse(ast, {
-			enter: function (ast, parent) {
-				switch (ast.type) {
-				case 'SwitchStatement':
-					if (!ast.cases.length)
-						break;
-					var c = ast.cases[ast.cases.length - 1];
-					if (c.consequent.length) {
-						var a = c.consequent[c.consequent.length - 1];
-						switch (a.type) {
-						case 'BreakStatement':
-						case 'ContinueStatement':
-						case 'ReturnStatement':
-						case 'ThrowStatement':
-							break;
-						default:
-							c.consequent.push({
-								loc: a.loc,
-								type: 'BreakStatement',
-							});
-							break;
-						}
-					}
-					break;
-				}
-			},
-			keys: keys,
-		});
-		if (options.sortCases) {
-			estraverse.traverse(ast, {
-				enter: function (ast, parent) {
-					switch (ast.type) {
-					case 'SwitchStatement':
-						if (!ast.cases.length)
-							break;
-						var block = [];
-						var blocks = [];
-						for (var c of ast.cases) {
-							block.push(c);
-							if (hasTerminator(c)) {
-								blocks.push(block);
-								block = [];
-							}
-						}
-						if (block.length)
-							blocks.push(block);
-						blocks.sort(function (a, b) {
-
-							function key(block) {
-								var x = block[0].test;
-								if (!x)
-									return '\uffff';
-								switch (x.type) {
-								case 'Identifier':
-									return x.name;
-								case 'Literal':
-									return x.value;
-								default:
-									return x.type;
-								}
-							}
-
-							return cmp(key(a), key(b));
-						});
-						break;
-					}
 				},
 				keys: keys,
 			});
