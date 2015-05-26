@@ -373,6 +373,11 @@ function gen(ast, options) {
 		case 'Literal':
 			put(ast.raw);
 			break;
+		case 'NewExpression':
+			put('new ');
+			rec(ast.callee, level);
+			params(ast.arguments, level);
+			break;
 		case 'MemberExpression':
 			rec(ast.object, level);
 			if (ast.computed) {
