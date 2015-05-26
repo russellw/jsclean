@@ -2,7 +2,7 @@
 var acorn = require('acorn');
 var estraverse = require('estraverse');
 
-// node type unknown to estraverse
+// Node type unknown to estraverse
 var keys = {
 	ParenthesizedExpression: [
 		'expression',
@@ -81,6 +81,7 @@ exports.format = format;
 
 function defaults() {
 	return {
+		capComments: true,
 		exactEquals: true,
 		extraBraces: true,
 		indent: '\t',
@@ -108,7 +109,7 @@ function parse(code) {
 		}
 	}
 
-	// parse
+	// Parse
 	var comments = [];
 	var tokens = [];
 	var ast = acorn.parse(code, {
@@ -132,6 +133,28 @@ exports.parse = parse;
 
 function transform(ast, options) {
 	options = options || defaults();
+	if (options.capComments) {
+		estraverse.traverse(ast, {
+			enter: function (ast, parent) {
+				if (!ast.leadingComments) {
+					return;
+				}
+				for (var c of ast.leadingComments) {
+					if (c.type !== 'Line') {
+						continue;
+					}
+					var s = c.value;
+					for (var i = 0; i < s.length; i++) {
+						if (s[i] !== ' ') {
+							c.value = s.substring(0, i) + s[i].toUpperCase() + s.substring(i + 1);
+							break;
+						}
+					}
+				}
+			},
+			keys: keys,
+		});
+	}
 	if (options.exactEquals) {
 		estraverse.traverse(ast, {
 			enter: function (ast, parent) {
@@ -262,7 +285,7 @@ function transform(ast, options) {
 						return;
 					}
 
-					// get blocks of cases
+					// Get blocks of cases
 					var block = [];
 					var blocks = [];
 					for (var c of ast.cases) {
@@ -276,7 +299,7 @@ function transform(ast, options) {
 						blocks.push(block);
 					}
 
-					// sort cases within block
+					// Sort cases within block
 					blocks: for (var block of blocks) {
 						for (var i = 0; i < block.length - 1; i++) {
 							if (block[i].consequent.length) {
@@ -304,7 +327,7 @@ function transform(ast, options) {
 						last(block).consequent = consequent;
 					}
 
-					// sort blocks
+					// Sort blocks
 					blocks.sort(function (a, b) {
 						function key(block) {
 							var x = block[0].test;
@@ -322,7 +345,7 @@ function transform(ast, options) {
 						return cmp(key(a), key(b));
 					});
 
-					// put blocks of cases
+					// Put blocks of cases
 					ast.cases = [];
 					for (var block of blocks) {
 						for (var c of block) {
@@ -341,7 +364,7 @@ exports.transform = transform;
 function gen(ast, options) {
 	options = options || defaults();
 
-	// bubble comments up to statements
+	// Bubble comments up to statements
 	estraverse.traverse(ast, {
 		keys: keys,
 		leave: function (ast, parent) {
@@ -374,14 +397,14 @@ function gen(ast, options) {
 		},
 	});
 
-	// gathered strings
+	// Gathered strings
 	var ss = [];
 
 	function put(s) {
 		ss.push(s);
 	}
 
-	// syntax elements
+	// Syntax elements
 
 	function blankLine(ast) {
 		if (ast.type === 'FunctionDeclaration') {
@@ -487,7 +510,7 @@ function gen(ast, options) {
 		}
 	}
 
-	// recursive descent
+	// Recursive descent
 
 	function rec(ast, level) {
 		switch (ast.type) {
@@ -791,19 +814,19 @@ function gen(ast, options) {
 	// #!
 	code = ast.hashbang + '\n\n' + code;
 
-	// don't start with blank line
+	// Don't start with blank line
 	code = code.replace(/^\n+/, '');
 
-	// only one consecutive blank line
+	// Only one consecutive blank line
 	code = code.replace(/\n\n+/g, '\n\n');
 
-	// no blank line after :
+	// No blank line after :
 	code = code.replace(/:\n\n/g, ':\n');
 
-	// no blank line after {
+	// No blank line after {
 	code = code.replace(/{\n\n/g, '{\n');
 
-	// end with exactly one newline
+	// End with exactly one newline
 	code = code.replace(/\n*$/, '\n');
 	return code;
 }

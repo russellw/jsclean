@@ -71,6 +71,10 @@ options = jsclean.defaults()
 
 Options are:
 
+- **capComments**
+
+	Convert the first nonblank character of each line comment to uppercase. Default is true.
+
 - **exactEquals**
 
 	Replace all occurrences of the loose comparison operators `==` and `!=` with the exact comparison operators `===` and `!==` (except where one operand is `null`). Default is true.

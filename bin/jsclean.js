@@ -8,9 +8,10 @@ var index = require('../index');
 var os = require('os');
 var stdin = require('get-stdin');
 
-// options
+// Options
 commander.usage('[options] [files]');
 commander.version(require('../package.json').version);
+commander.option('    --no-cap-comments', 'don\'t capitalize comments');
 commander.option('    --no-exact-equals', 'don\'t replace == with ===');
 commander.option('    --no-extra-braces', 'don\'t add optional braces');
 commander.option('    --no-semicolons', 'omit semicolons');
@@ -34,7 +35,7 @@ if (commander.spaces) {
 	}
 }
 
-// inputs
+// Inputs
 if (commander.args.length) {
 	for (var pattern of commander.args) {
 		var files = [
