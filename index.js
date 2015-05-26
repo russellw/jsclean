@@ -167,9 +167,29 @@ function gen(ast, options) {
 		ss.push(s);
 	}
 
-	function indent(level) {
-		while (level--) {
-			put(options.indent);
+	function blankLine(ast) {
+		if (ast.type === 'FunctionDeclaration') {
+			put('\n');
+		}
+	}
+
+	function block(ast, level) {
+		if (ast.type === 'BlockStatement') {
+			put(' ');
+			stmt(ast, level);
+		} else {
+			put('\n');
+			indent(level + 1);
+			stmt(ast, level + 1);
+		}
+	}
+
+	function blockEnd(ast, level) {
+		if (ast.type === 'BlockStatement') {
+			put(' ');
+		} else {
+			put('\n');
+			indent(level);
 		}
 	}
 
@@ -189,17 +209,14 @@ function gen(ast, options) {
 		}
 	}
 
-	function block(ast, level) {
-		put('{\n');
-		if (ast.type === 'BlockStatement') {
-			for (var a of ast.body) {
-				stmt(a, level + 1);
-			}
-		} else {
-			stmt(ast, level + 1);
+	function indent(level) {
+		while (level--) {
+			put(options.indent);
 		}
-		indent(level);
-		put('}');
+	}
+
+	function semicolon() {
+		put(';');
 	}
 
 	function expr(ast, level) {
@@ -366,66 +383,64 @@ function gen(ast, options) {
 		comment(ast, level);
 		switch (ast.type) {
 		case 'BlockStatement':
+			put('{\n');
 			for (var a of ast.body) {
+				blankLine(a);
+				indent(level + 1);
 				stmt(a, level + 1);
+				put('\n');
+				blankLine(a);
 			}
+			indent(level);
+			put('}');
 			break;
 		case 'BreakStatement':
-			indent(level);
 			put('break');
 			if (ast.label) {
-				put(' ');
-				put(ast.label.name);
+				put(' ' + ast.label.name);
 			}
-			put(';\n');
+			semicolon();
 			break;
 		case 'ContinueStatement':
-			indent(level);
 			put('continue');
 			if (ast.label) {
-				put(' ');
-				put(ast.label.name);
+				put(' ' + ast.label.name);
 			}
-			put(';\n');
+			semicolon();
 			break;
 		case 'DoWhileStatement':
-			indent(level);
-			put('do ');
+			put('do');
 			block(ast.body, level);
-			indent(level);
-			put(' while (');
+			blockEnd(ast.body, level);
+			put('while (');
 			expr(ast.test, level);
-			put(');\n');
+			put(')');
+			semicolon();
 			break;
 		case 'EmptyStatement':
+			put(';');
 			break;
 		case 'ExpressionStatement':
-			indent(level);
 			expr(ast.expression, level);
-			put(';\n');
+			semicolon();
 			break;
 		case 'ForInStatement':
-			indent(level);
 			put('for (');
 			expr(ast.left, level);
 			put(' in ');
 			expr(ast.right, level);
-			put(') ');
+			put(')');
 			block(ast.body, level);
-			put('\n');
 			break;
 		case 'ForOfStatement':
-			indent(level);
 			put('for (');
 			expr(ast.left, level);
 			put(' of ');
 			expr(ast.right, level);
-			put(') ');
+			put(')');
 			block(ast.body, level);
-			put('\n');
 			break;
 		case 'ForStatement':
-			indent(level);
 			put('for (');
 			if (ast.init) {
 				expr(ast.init, level);
@@ -438,12 +453,10 @@ function gen(ast, options) {
 			if (ast.update) {
 				expr(ast.update, level);
 			}
-			put(') ');
+			put(')');
 			block(ast.body, level);
-			put('\n');
 			break;
 		case 'FunctionDeclaration':
-			put('\n');
 			indent(level);
 			put('function ' + ast.id.name + '(');
 			for (var i = 0; i < ast.params.length; i++) {
@@ -452,45 +465,43 @@ function gen(ast, options) {
 				}
 				expr(ast.params[i], level);
 			}
-			put(') ');
+			put(')');
 			block(ast.body, level);
 			put('\n');
 			put('\n');
 			break;
 		case 'IfStatement':
-			indent(level);
 			put('if (');
 			expr(ast.test, level);
-			put(') ');
+			put(')');
 			block(ast.consequent, level);
 			if (ast.alternate) {
-				put(' else ');
+				blockEnd(ast.consequent, level);
+				put('else');
 				block(ast.alternate, level);
 			}
-			put('\n');
 			break;
 		case 'LabeledStatement':
-			indent(level);
-			put(ast.label.name);
-			put(':\n');
+			put(ast.label.name + ': ');
 			stmt(ast.body, level);
 			break;
 		case 'Program':
 			for (var a of ast.body) {
+				blankLine(a);
 				stmt(a, level);
+				put('\n');
+				blankLine(a);
 			}
 			break;
 		case 'ReturnStatement':
-			indent(level);
 			put('return');
 			if (ast.argument) {
 				put(' ');
 				expr(ast.argument, level);
 			}
-			put(';\n');
+			semicolon();
 			break;
 		case 'SwitchStatement':
-			indent(level);
 			put('switch (');
 			expr(ast.discriminant, level);
 			put(') {\n');
@@ -504,36 +515,34 @@ function gen(ast, options) {
 				}
 				put(':\n');
 				for (var a of c.consequent) {
+					indent(level + 1);
 					stmt(a, level + 1);
+					put('\n');
 				}
 			}
 			indent(level);
-			put('}\n');
+			put('}');
 			break;
 		case 'ThrowStatement':
-			indent(level);
 			put('throw ');
 			expr(ast.argument, level);
-			put(';\n');
+			semicolon();
 			break;
 		case 'TryStatement':
-			indent(level);
-			put('try ');
+			put('try');
 			block(ast.block, level);
 			if (ast.handler) {
 				put(' catch (');
 				expr(ast.handler.param, level);
-				put(') ');
+				put(')');
 				block(ast.handler.body, level);
 			}
 			if (ast.finalizer) {
 				put(' finally ');
 				block(ast.finalizer, level);
 			}
-			put('\n');
 			break;
 		case 'VariableDeclaration':
-			indent(level);
 			put('var ');
 			for (var i = 0; i < ast.declarations.length; i++) {
 				if (i) {
@@ -541,15 +550,13 @@ function gen(ast, options) {
 				}
 				expr(ast.declarations[i], level);
 			}
-			put(';\n');
+			semicolon();
 			break;
 		case 'WhileStatement':
-			indent(level);
 			put('while (');
 			expr(ast.test, level);
-			put(') ');
+			put(')');
 			block(ast.body, level);
-			put('\n');
 			break;
 		default:
 			console.assert(false, ast);
