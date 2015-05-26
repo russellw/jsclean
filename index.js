@@ -114,11 +114,11 @@ function transform(ast, options) {
 					return;
 				if (ast.left.value !== null && ast.right.value !== null) {
 					switch (ast.operator) {
-					case '==':
-						ast.operator = '===';
-						break;
 					case '!=':
 						ast.operator = '!==';
+						break;
+					case '==':
+						ast.operator = '===';
 						break;
 					}
 				}
@@ -204,6 +204,10 @@ function transform(ast, options) {
 
 						return cmp(key(a), key(b));
 					});
+					ast.cases = [];
+					for (var block of blocks)
+						for (var c of block)
+							ast.cases.push(c);
 				},
 				keys: keys,
 			});
@@ -395,100 +399,6 @@ function gen(ast, options) {
 			put(' ' + ast.operator + ' ');
 			rec(ast.right, level);
 			break;
-		case 'CallExpression':
-			rec(ast.callee, level);
-			params(ast.arguments, level);
-			break;
-		case 'ConditionalExpression':
-			rec(ast.test, level);
-			put(' ? ');
-			rec(ast.consequent, level);
-			put(' : ');
-			rec(ast.alternate, level);
-			break;
-		case 'FunctionExpression':
-			put('function ');
-			if (ast.id) {
-				put(ast.id.name);
-			}
-			params(ast.params, level);
-			block(ast.body, level);
-			break;
-		case 'Identifier':
-			put(ast.name);
-			break;
-		case 'Literal':
-			put(ast.raw);
-			break;
-		case 'NewExpression':
-			put('new ');
-			rec(ast.callee, level);
-			params(ast.arguments, level);
-			break;
-		case 'MemberExpression':
-			rec(ast.object, level);
-			if (ast.computed) {
-				put('[');
-				rec(ast.property, level);
-				put(']');
-			} else {
-				put('.');
-				rec(ast.property, level);
-			}
-			break;
-		case 'ObjectExpression':
-			if (!ast.properties.length) {
-				put('{}');
-				break;
-			}
-			put('{\n');
-			for (var a of ast.properties) {
-				comment(a, level + 1);
-				indent(level + 1);
-				rec(a, level + 1);
-				put(',\n');
-			}
-			indent(level);
-			put('}');
-			break;
-		case 'ParenthesizedExpression':
-			put('(');
-			rec(ast.expression, level);
-			put(')');
-			break;
-		case 'Property':
-			rec(ast.key, level);
-			put(': ');
-			rec(ast.value, level);
-			break;
-		case 'SequenceExpression':
-			for (var i = 0; i < ast.expressions.length; i++) {
-				if (i) {
-					put(', ');
-				}
-				rec(ast.expressions[i], level);
-			}
-			break;
-		case 'UnaryExpression':
-			put(ast.operator);
-			rec(ast.argument, level);
-			break;
-		case 'UpdateExpression':
-			if (ast.prefix) {
-				put(ast.operator);
-				rec(ast.argument, level);
-			} else {
-				rec(ast.argument, level);
-				put(ast.operator);
-			}
-			break;
-		case 'VariableDeclarator':
-			put(ast.id.name);
-			if (ast.init) {
-				put(' = ');
-				rec(ast.init, level);
-			}
-			break;
 		case 'BlockStatement':
 			put('{\n');
 			for (var a of ast.body) {
@@ -503,6 +413,17 @@ function gen(ast, options) {
 				put(' ' + ast.label.name);
 			}
 			semicolon();
+			break;
+		case 'CallExpression':
+			rec(ast.callee, level);
+			params(ast.arguments, level);
+			break;
+		case 'ConditionalExpression':
+			rec(ast.test, level);
+			put(' ? ');
+			rec(ast.consequent, level);
+			put(' : ');
+			rec(ast.alternate, level);
 			break;
 		case 'ContinueStatement':
 			put('continue');
@@ -564,6 +485,17 @@ function gen(ast, options) {
 			params(ast.params, level);
 			block(ast.body, level);
 			break;
+		case 'FunctionExpression':
+			put('function ');
+			if (ast.id) {
+				put(ast.id.name);
+			}
+			params(ast.params, level);
+			block(ast.body, level);
+			break;
+		case 'Identifier':
+			put(ast.name);
+			break;
 		case 'IfStatement':
 			put('if (');
 			rec(ast.test, level);
@@ -579,10 +511,54 @@ function gen(ast, options) {
 			put(ast.label.name + ': ');
 			rec(ast.body, level);
 			break;
+		case 'Literal':
+			put(ast.raw);
+			break;
+		case 'MemberExpression':
+			rec(ast.object, level);
+			if (ast.computed) {
+				put('[');
+				rec(ast.property, level);
+				put(']');
+			} else {
+				put('.');
+				rec(ast.property, level);
+			}
+			break;
+		case 'NewExpression':
+			put('new ');
+			rec(ast.callee, level);
+			params(ast.arguments, level);
+			break;
+		case 'ObjectExpression':
+			if (!ast.properties.length) {
+				put('{}');
+				break;
+			}
+			put('{\n');
+			for (var a of ast.properties) {
+				comment(a, level + 1);
+				indent(level + 1);
+				rec(a, level + 1);
+				put(',\n');
+			}
+			indent(level);
+			put('}');
+			break;
+		case 'ParenthesizedExpression':
+			put('(');
+			rec(ast.expression, level);
+			put(')');
+			break;
 		case 'Program':
 			for (var a of ast.body) {
 				stmt(a, 0);
 			}
+			break;
+		case 'Property':
+			rec(ast.key, level);
+			put(': ');
+			rec(ast.value, level);
 			break;
 		case 'ReturnStatement':
 			put('return');
@@ -591,6 +567,14 @@ function gen(ast, options) {
 				rec(ast.argument, level);
 			}
 			semicolon();
+			break;
+		case 'SequenceExpression':
+			for (var i = 0; i < ast.expressions.length; i++) {
+				if (i) {
+					put(', ');
+				}
+				rec(ast.expressions[i], level);
+			}
 			break;
 		case 'SwitchStatement':
 			put('switch (');
@@ -633,9 +617,29 @@ function gen(ast, options) {
 				block(ast.finalizer, level);
 			}
 			break;
+		case 'UnaryExpression':
+			put(ast.operator);
+			rec(ast.argument, level);
+			break;
+		case 'UpdateExpression':
+			if (ast.prefix) {
+				put(ast.operator);
+				rec(ast.argument, level);
+			} else {
+				rec(ast.argument, level);
+				put(ast.operator);
+			}
+			break;
 		case 'VariableDeclaration':
 			variableDeclaration(ast, level);
 			semicolon();
+			break;
+		case 'VariableDeclarator':
+			put(ast.id.name);
+			if (ast.init) {
+				put(' = ');
+				rec(ast.init, level);
+			}
 			break;
 		case 'WhileStatement':
 			put('while (');
