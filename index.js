@@ -318,6 +318,7 @@ function gen(ast, options) {
 			}
 			switch (ast.type) {
 			case 'FunctionDeclaration':
+			case 'SwitchCase':
 				return;
 			case 'VariableDeclaration':
 				if (parent.type.indexOf('For') < 0) {
@@ -669,6 +670,7 @@ function gen(ast, options) {
 			rec(ast.discriminant, level);
 			put(') {\n');
 			for (var c of ast.cases) {
+				comment(c, level);
 				indent(level);
 				if (c.test) {
 					put('case ');
