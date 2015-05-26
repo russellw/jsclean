@@ -8,6 +8,9 @@ function debug(a) {
 		depth: null,
 	}));
 }
+var keys={
+ParenthesizedExpression:['expression']
+}
 
 function format(code, options) {
 	var ast = parse(code);
@@ -90,6 +93,7 @@ function transform(ast, options) {
 					break;
 				}
 			},
+		keys:keys
 		});
 	}
 	if (options.sortProperties) {
@@ -124,6 +128,7 @@ function transform(ast, options) {
 					break;
 				}
 			},
+		keys:keys
 		});
 	}
 	if (options.trailingBreak) {
@@ -153,6 +158,7 @@ function transform(ast, options) {
 					break;
 				}
 			},
+		keys:keys
 		});
 	}
 }
@@ -161,11 +167,45 @@ exports.transform = transform;
 
 function gen(ast, options) {
 	options = options || defaults();
+
+	// bubble comments up to statements
+	estraverse.traverse(ast, {
+		leave: function (ast, parent) {
+//			if(!ast.leadingComments)return
+			if (!parent) {
+				return;
+			}
+			if (ast.type.indexOf('Statement') >= 0) {
+				return;
+			}
+			switch (ast.type) {
+			case 'FunctionDeclaration':
+				return;
+			case 'VariableDeclaration':
+				if (parent.type.indexOf('For') < 0) {
+					return;
+				}
+				break;
+			}
+			switch (parent.type) {
+			case 'ArrayExpression':
+			case 'ObjectExpression':
+				return;
+			}
+			parent.leadingComments =(parent.leadingComments ||[]).concat( ast.leadingComments)
+			ast.leadingComments = null;
+		},
+		keys:keys
+	});
+
+	// gathered strings
 	var ss = [];
 
 	function put(s) {
 		ss.push(s);
 	}
+
+	// syntax elements
 
 	function blankLine(ast) {
 		if (ast.type === 'FunctionDeclaration') {
@@ -218,6 +258,8 @@ function gen(ast, options) {
 	function semicolon() {
 		put(';');
 	}
+
+	// recursive descent
 
 	function expr(ast, level) {
 		switch (ast.type) {
