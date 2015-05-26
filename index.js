@@ -253,6 +253,13 @@ function gen(ast, options) {
 		}
 	}
 
+	function forInit(ast, level) {
+		if (ast.type === 'VariableDeclaration')
+			VariableDeclaration(ast, level);
+		else
+			expr(ast, level);
+	}
+
 	function indent(level) {
 		while (level--) {
 			put(options.indent);
@@ -261,6 +268,16 @@ function gen(ast, options) {
 
 	function semicolon() {
 		put(';');
+	}
+
+	function VariableDeclaration(ast, level) {
+		put('var ');
+		for (var i = 0; i < ast.declarations.length; i++) {
+			if (i) {
+				put(', ');
+			}
+			expr(ast.declarations[i], level);
+		}
 	}
 
 	// recursive descent
@@ -405,15 +422,6 @@ function gen(ast, options) {
 				put(ast.operator);
 			}
 			break;
-		case 'VariableDeclaration':
-			put('var ');
-			for (var i = 0; i < ast.declarations.length; i++) {
-				if (i) {
-					put(', ');
-				}
-				expr(ast.declarations[i], level);
-			}
-			break;
 		case 'VariableDeclarator':
 			put(ast.id.name);
 			if (ast.init) {
@@ -474,7 +482,7 @@ function gen(ast, options) {
 			break;
 		case 'ForInStatement':
 			put('for (');
-			expr(ast.left, level);
+			forInit(ast.left, level);
 			put(' in ');
 			expr(ast.right, level);
 			put(')');
@@ -482,7 +490,7 @@ function gen(ast, options) {
 			break;
 		case 'ForOfStatement':
 			put('for (');
-			expr(ast.left, level);
+			forInit(ast.left, level);
 			put(' of ');
 			expr(ast.right, level);
 			put(')');
@@ -491,7 +499,7 @@ function gen(ast, options) {
 		case 'ForStatement':
 			put('for (');
 			if (ast.init) {
-				expr(ast.init, level);
+				forInit(ast.init, level);
 			}
 			put('; ');
 			if (ast.test) {
@@ -589,13 +597,7 @@ function gen(ast, options) {
 			}
 			break;
 		case 'VariableDeclaration':
-			put('var ');
-			for (var i = 0; i < ast.declarations.length; i++) {
-				if (i) {
-					put(', ');
-				}
-				expr(ast.declarations[i], level);
-			}
+			VariableDeclaration(ast, level);
 			semicolon();
 			break;
 		case 'WhileStatement':
