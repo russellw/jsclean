@@ -70,15 +70,22 @@ function transform(ast, options) {
 	if (options.exactEquals) {
 		estraverse.traverse(ast, {
 			enter: function (ast, parent) {
+
+				function isNull(a) {
+					return a.type === 'Literal' && a.value === null;
+				}
+
 				switch (ast.type) {
 				case 'BinaryExpression':
-					switch (ast.operator) {
-					case '==':
-						ast.operator = '===';
-						break;
-					case '!=':
-						ast.operator = '!==';
-						break;
+					if (!isNull(ast.left) && !isNull(ast.right)) {
+						switch (ast.operator) {
+						case '==':
+							ast.operator = '===';
+							break;
+						case '!=':
+							ast.operator = '!==';
+							break;
+						}
 					}
 					break;
 				}

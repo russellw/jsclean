@@ -71,7 +71,7 @@ Options are:
 
 - **exactEquals**
 
-	Replace all occurrences of the loose comparison operators `==` and `!=` with the exact comparison operators `===` and `!==`. Default is true.
+	Replace all occurrences of the loose comparison operators `==` and `!=` with the exact comparison operators `===` and `!==` (except where one operand is `null`). Default is true.
 
 - **sortProperties**
 
