@@ -3,7 +3,9 @@
 'use strict';
 var commander = require('commander');
 var fs = require('fs');
+var glob = require('glob');
 var index = require('../index');
+var os = require('os');
 var stdin = require('get-stdin');
 
 // options
@@ -34,23 +36,33 @@ if (commander.spaces) {
 
 // inputs
 if (commander.args.length) {
-	for (var file of commander.args) {
-		var input = fs.readFileSync(file, {
-			encoding: 'utf8',
-		});
-		var output = index.format(input, options);
-		if (input === output) {
-			continue;
+	for (var pattern of commander.args) {
+		var files = [
+			pattern,
+		];
+		if (os.platform() === 'win32') {
+			files = glob.sync(pattern, {
+				nonull: true,
+			});
 		}
-		if (commander.backup) {
-			try {
-				fs.unlinkSync(file + '.bak');
-				fs.renameSync(file, file + '.bak');
-			} catch (e) {
+		for (var file of files) {
+			console.log(file);
+			var input = fs.readFileSync(file, {
+				encoding: 'utf8',
+			});
+			var output = index.format(input, options);
+			if (input === output) {
+				continue;
 			}
+			if (commander.backup) {
+				try {
+					fs.unlinkSync(file + '.bak');
+					fs.renameSync(file, file + '.bak');
+				} catch (e) {
+				}
+			}
+			fs.writeFileSync(file, output);
 		}
-		fs.writeFileSync(file, output);
-		console.log(file);
 	}
 } else {
 	stdin(function (input) {

@@ -246,7 +246,7 @@ function transform(ast, options) {
 					return;
 				}
 				c.consequent.push({
-					loc: a.loc,
+					loc: ast.loc,
 					type: 'BreakStatement',
 				});
 			},
@@ -726,6 +726,9 @@ function gen(ast, options) {
 			}
 			indent(level);
 			put('}');
+			break;
+		case 'ThisExpression':
+			put('this');
 			break;
 		case 'ThrowStatement':
 			put('throw ');
