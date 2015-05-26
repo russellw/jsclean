@@ -270,6 +270,15 @@ function gen(ast, options) {
 		put(';');
 	}
 
+	function stmt(ast, level) {
+		comment(ast, level);
+		blankLine(ast);
+		indent(level);
+		rec(ast, level);
+		put('\n');
+		blankLine(ast);
+	}
+
 	function VariableDeclaration(ast, level) {
 		put('var ');
 		for (var i = 0; i < ast.declarations.length; i++) {
@@ -432,12 +441,7 @@ function gen(ast, options) {
 		case 'BlockStatement':
 			put('{\n');
 			for (var a of ast.body) {
-				comment(a, level + 1);
-				blankLine(a);
-				indent(level + 1);
-				rec(a, level + 1);
-				put('\n');
-				blankLine(a);
+				stmt(a, level + 1);
 			}
 			indent(level);
 			put('}');
@@ -532,11 +536,7 @@ function gen(ast, options) {
 			break;
 		case 'Program':
 			for (var a of ast.body) {
-				comment(a, 0);
-				blankLine(a);
-				rec(a, 0);
-				put('\n');
-				blankLine(a);
+				stmt(a, 0);
 			}
 			break;
 		case 'ReturnStatement':
