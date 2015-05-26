@@ -73,6 +73,10 @@ Options are:
 
 	Replace all occurrences of the loose comparison operators `==` and `!=` with the exact comparison operators `===` and `!==` (except where one operand is `null`). Default is true.
 
+- **semicolons**
+
+	Use semicolons. Default is true.
+
 - **sortProperties**
 
 	Sort the properties of object literals, by key in alphabetical order. Default is true.

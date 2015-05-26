@@ -27,6 +27,7 @@ function defaults() {
 	return {
 		exactEquals: true,
 		indent: '\t',
+		semicolons: true,
 		sortProperties: true,
 		trailingBreak: true,
 	};
@@ -278,13 +279,21 @@ function gen(ast, options) {
 	}
 
 	function semicolon() {
-		put(';');
+		if (options.semicolons)
+			put(';');
 	}
 
 	function stmt(ast, level) {
 		comment(ast, level);
 		blankLine(ast);
 		indent(level);
+		if (!options.semicolons)
+			switch (ast.type) {
+			case 'ArrayExpression':
+			case 'ParenthesizedExpression':
+				put(';');
+				break;
+			}
 		rec(ast, level);
 		put('\n');
 		blankLine(ast);
