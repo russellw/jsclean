@@ -457,7 +457,6 @@ function gen(ast, options) {
 			block(ast.body, level);
 			break;
 		case 'FunctionDeclaration':
-			indent(level);
 			put('function ' + ast.id.name + '(');
 			for (var i = 0; i < ast.params.length; i++) {
 				if (i) {
@@ -467,8 +466,6 @@ function gen(ast, options) {
 			}
 			put(')');
 			block(ast.body, level);
-			put('\n');
-			put('\n');
 			break;
 		case 'IfStatement':
 			put('if (');
