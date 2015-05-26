@@ -32,11 +32,13 @@ git clone https://github.com/russellw/jsclean.git
     -h, --help                output usage information
     -V, --version             output the version number
         --no-exact-equals     don't replace == with ===
+        --no-extra-braces     don't add optional braces
+        --no-semicolons       omit semicolons
+        --no-sort-cases       don't sort cases
         --no-sort-properties  don't sort object properties
         --no-trailing-break   don't add trailing break to final case
     -n, --no-backup           don't make .bak files
     -s, --spaces <n>          indent with spaces
-
 ```
 
 Original files are renamed with an added extension of `.bak` unless `--no-backup` is given.
