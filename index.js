@@ -493,6 +493,14 @@ function gen(ast, options) {
 			case 'ParenthesizedExpression':
 				put(';');
 				break;
+			case 'UnaryExpression':
+				switch (ast.operator) {
+				case '+':
+				case '-':
+					put(';');
+					break;
+				}
+				break;
 			}
 		}
 		rec(ast, level);
@@ -774,6 +782,9 @@ function gen(ast, options) {
 			break;
 		case 'UnaryExpression':
 			put(ast.operator);
+			if (ast.operator.search(/[a-z]/) >= 0) {
+				put(' ');
+			}
 			rec(ast.argument, level);
 			break;
 		case 'UpdateExpression':
