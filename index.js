@@ -96,6 +96,7 @@ function defaults() {
 exports.defaults = defaults;
 
 function parse(code) {
+
 	// #!
 	var hashbang = '';
 	if (code.substring(0, 2) === '#!') {
@@ -239,6 +240,7 @@ function transform(ast, options) {
 					return;
 				}
 				ast.properties.sort(function (a, b) {
+
 					function key(x) {
 						x = x.key;
 						switch (x.type) {
@@ -309,6 +311,7 @@ function transform(ast, options) {
 						var consequent = last(block).consequent;
 						last(block).consequent = [];
 						block.sort(function (a, b) {
+
 							function key(x) {
 								x = x.test;
 								if (!x) {
@@ -329,6 +332,7 @@ function transform(ast, options) {
 
 					// Sort blocks
 					blocks.sort(function (a, b) {
+
 						function key(block) {
 							var x = block[0].test;
 							if (!x) {
@@ -830,12 +834,6 @@ function gen(ast, options) {
 
 	// Only one consecutive blank line
 	code = code.replace(/\n\n+/g, '\n\n');
-
-	// No blank line after :
-	code = code.replace(/:\n\n/g, ':\n');
-
-	// No blank line after {
-	code = code.replace(/{\n\n/g, '{\n');
 
 	// End with exactly one newline
 	code = code.replace(/\n*$/, '\n');

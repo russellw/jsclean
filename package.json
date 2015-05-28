@@ -1,6 +1,6 @@
 {
   "name": "jsclean",
-  "version": "3.3.1",
+  "version": "3.3.2",
   "dependencies": {
     "acorn": "^2.0.1",
     "commander": "^2.8.1",
