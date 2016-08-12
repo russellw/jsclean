@@ -59,6 +59,9 @@ if (commander.args.length) {
 			if (commander.backup) {
 				try {
 					fs.unlinkSync(file + '.bak');
+				} catch (e) {
+				}
+				try {
 					fs.renameSync(file, file + '.bak');
 				} catch (e) {
 				}
