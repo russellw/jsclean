@@ -10,7 +10,7 @@
   },
   "description": "Clean JavaScript code",
   "main": "index.js",
-  "bin": "./bin/jsclean.js",
+  "bin": "./jsclean.js",
   "devDependencies": {},
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"

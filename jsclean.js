@@ -4,13 +4,13 @@
 var commander = require('commander');
 var fs = require('fs');
 var glob = require('glob');
-var index = require('../index');
+var index = require('./index');
 var os = require('os');
 var stdin = require('get-stdin');
 
 // Options
 commander.usage('[options] [files]');
-commander.version(require('../package.json').version);
+commander.version(require('./package.json').version);
 commander.option('    --no-cap-comments', 'don\'t capitalize comments');
 commander.option('    --no-exact-equals', 'don\'t replace == with ===');
 commander.option('    --no-extra-braces', 'don\'t add optional braces');
