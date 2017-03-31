@@ -77,8 +77,6 @@ function format(code, options) {
 	return gen(ast, options);
 }
 
-exports.format = format;
-
 function defaults() {
 	return {
 		capComments: true,
@@ -93,8 +91,6 @@ function defaults() {
 		trailingBreak: true,
 	};
 }
-
-exports.defaults = defaults;
 
 function parse(code) {
 
@@ -130,8 +126,6 @@ function parse(code) {
 	ast.hashbang = hashbang;
 	return ast;
 }
-
-exports.parse = parse;
 
 function transform(ast, options) {
 	options = options || defaults();
@@ -365,8 +359,6 @@ function transform(ast, options) {
 		}
 	}
 }
-
-exports.transform = transform;
 
 function gen(ast, options) {
 	options = options || defaults();
@@ -843,4 +835,7 @@ function gen(ast, options) {
 	return code;
 }
 
+exports.defaults = defaults;
+exports.format = format;
 exports.gen = gen;
+exports.transform = transform;
