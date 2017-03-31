@@ -11,13 +11,12 @@
   "description": "Clean JavaScript code",
   "main": "index.js",
   "bin": "./jsclean.js",
-  "devDependencies": {},
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/russellw/jsclean.git"
+    "url": "git+https://github.com/russellw/jsclean.git"
   },
   "keywords": [
     "beautify",
@@ -29,5 +28,5 @@
   "bugs": {
     "url": "https://github.com/russellw/jsclean/issues"
   },
-  "homepage": "https://github.com/russellw/jsclean"
+  "homepage": "https://github.com/russellw/jsclean#readme"
 }
