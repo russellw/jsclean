@@ -838,4 +838,5 @@ function gen(ast, options) {
 exports.defaults = defaults;
 exports.format = format;
 exports.gen = gen;
+exports.parse = parse;
 exports.transform = transform;
