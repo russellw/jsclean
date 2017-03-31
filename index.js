@@ -860,9 +860,6 @@ function transform(ast, options) {
 					if (ast.type !== 'SwitchStatement') {
 						return;
 					}
-					if (!ast.cases.length) {
-						return;
-					}
 
 					// Get blocks of cases
 					var block = [];
