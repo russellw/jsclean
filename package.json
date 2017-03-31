@@ -1,6 +1,9 @@
 {
-  "name": "jsclean",
-  "version": "3.3.2",
+  "author": "Russell Wallace <russell.wallace@gmail.com>",
+  "bin": "./jsclean.js",
+  "bugs": {
+    "url": "https://github.com/russellw/jsclean/issues"
+  },
   "dependencies": {
     "acorn": "^2.0.1",
     "commander": "^2.8.1",
@@ -9,24 +12,21 @@
     "glob": "^5.0.10"
   },
   "description": "Clean JavaScript code",
-  "main": "index.js",
-  "bin": "./jsclean.js",
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/russellw/jsclean.git"
-  },
+  "homepage": "https://github.com/russellw/jsclean#readme",
   "keywords": [
     "beautify",
     "clean",
     "code-quality"
   ],
-  "author": "Russell Wallace <russell.wallace@gmail.com>",
   "license": "MIT",
-  "bugs": {
-    "url": "https://github.com/russellw/jsclean/issues"
+  "main": "index.js",
+  "name": "jsclean",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/russellw/jsclean.git"
   },
-  "homepage": "https://github.com/russellw/jsclean#readme"
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "version": "3.3.2"
 }
