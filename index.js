@@ -55,6 +55,14 @@ function hasTerminator(c) {
 	return isTerminator(last(a));
 }
 
+function hex(n, size) {
+	var s = n.toString(16);
+	while (s.length < size) {
+		s = '0' + s;
+	}
+	return s;
+}
+
 function isTerminator(ast) {
 	switch (ast.type) {
 	case 'BreakStatement':
@@ -405,6 +413,58 @@ function gen(ast, options) {
 			rec(ast.body, level);
 			break;
 		case 'Literal':
+			if (typeof (ast.value) === 'string') {
+				var q = "'";
+				if (ast.value.indexOf(q) >= 0) {
+					q = '"';
+				}
+				put(q);
+				for (var c of ast.value) {
+					switch (c) {
+					case '\b':
+						put('\\b');
+						break;
+					case '\t':
+						put('\\t');
+						break;
+					case '\n':
+						put('\\n');
+						break;
+					case '\v':
+						put('\\v');
+						break;
+					case '\f':
+						put('\\f');
+						break;
+					case '\r':
+						put('\\r');
+						break;
+					case '\\':
+						put('\\\\');
+						break;
+					case q:
+						put('\\');
+						put(q);
+						break;
+					default:
+						var n = c.charCodeAt(0);
+						if (32 <= n && n <= 126) {
+							put(c);
+							break;
+						}
+						if (n < 0x100) {
+							put('\\x');
+							put(hex(n, 2));
+							break;
+						}
+						put('\\u');
+						put(hex(n, 4));
+						break;
+					}
+				}
+				put(q);
+				break;
+			}
 			put(ast.raw);
 			break;
 		case 'MemberExpression':
