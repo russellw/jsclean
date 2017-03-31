@@ -49,7 +49,6 @@ if (commander.args.length) {
 			});
 		}
 		for (var file of files) {
-			console.log(file);
 			var input = fs.readFileSync(file, {
 				encoding: 'utf8',
 			});
@@ -57,6 +56,7 @@ if (commander.args.length) {
 			if (input === output) {
 				continue;
 			}
+			console.log(file);
 			if (commander.backup) {
 				try {
 					fs.unlinkSync(file + '.bak');
