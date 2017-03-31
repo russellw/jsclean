@@ -4,7 +4,7 @@ Reduces the entropy of JavaScript code:
 
 - Formats code in a standard layout, fixing readability of ill-formatted code and allowing a consistent style to be automatically enforced throughout a project.
 
-- Applies syntactic changes (add missing semicolons, optional braces, trailing commas and break statements, replace `==` with `===`, sort cases and object properties etc) that eliminate common sources of error and inconsistency. Each of these can be individually turned off to make jsclean match your project's coding standards.
+- Applies syntactic changes (add missing semicolons, optional braces, trailing commas and break statements, replace `==` with `===`, sort functions, cases and object properties etc) that eliminate common sources of error and inconsistency. Each of these can be individually turned off to make jsclean match your project's coding standards.
 
 - Provides an API that allows parsing, syntactic transformation and formatted code generation to be accessed separately or together.
 
@@ -37,6 +37,7 @@ git clone https://github.com/russellw/jsclean.git
         --no-semicolons       omit semicolons
         --no-separate-vars    don't separate variable declarations
         --no-sort-cases       don't sort cases
+        --no-sort-functions   don't sort functions
         --no-sort-properties  don't sort object properties
         --no-trailing-break   don't add trailing break to final case
     -n, --no-backup           don't make .bak files
@@ -96,6 +97,10 @@ Options are:
 - **sortCases**
 
 	Sort cases in switch statements, by test in alphabetical order. Default is true.
+
+- **sortFunctions**
+
+	Sort functions in alphabetical order. Functions won't be moved past comments, so comments can delineate sections of a program. Default is true.
 
 - **sortProperties**
 

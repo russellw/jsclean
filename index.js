@@ -88,6 +88,7 @@ function defaults() {
 		semicolons: true,
 		separateVars: true,
 		sortCases: true,
+		sortFunctions: true,
 		sortProperties: true,
 		trailingBreak: true,
 	};
@@ -359,6 +360,8 @@ function transform(ast, options) {
 				},
 				keys: keys,
 			});
+		}
+		if (options.sortFunctions) {
 		}
 	}
 }
