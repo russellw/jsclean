@@ -69,8 +69,8 @@ function last(a) {
 	return a[a.length - 1];
 }
 
-function sortSlice(a, i, j, cmp) {
-	return a.slice(0, i).concat(a.slice(i, j).sort(cmp)).concat(a.slice(j));
+function sortSlice(a, i, j, f) {
+	return a.slice(0, i).concat(a.slice(i, j).sort(f)).concat(a.slice(j));
 }
 
 // API
