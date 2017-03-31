@@ -69,13 +69,11 @@ function last(a) {
 	return a[a.length - 1];
 }
 
-// API
-
-function format(code, options) {
-	var ast = parse(code);
-	transform(ast, options);
-	return gen(ast, options);
+function sortSlice(a, i, j, cmp) {
+	return a.slice(0, i).concat(a.slice(i, j).sort(cmp)).concat(a.slice(j));
 }
+
+// API
 
 function defaults() {
 	return {
@@ -92,272 +90,10 @@ function defaults() {
 	};
 }
 
-function parse(code) {
-
-	// #!
-	var hashbang = '';
-	if (code.substring(0, 2) === '#!') {
-		var i = code.indexOf('\n');
-		if (i < 0) {
-			hashbang = code;
-			code = '';
-		} else {
-			hashbang = code.substring(0, i);
-			code = code.substring(i);
-		}
-	}
-
-	// Parse
-	var comments = [];
-	var tokens = [];
-	var ast = acorn.parse(code, {
-		allowImportExportEverywhere: true,
-		allowReturnOutsideFunction: true,
-		ecmaVersion: 6,
-		locations: true,
-		onComment: comments,
-		onToken: tokens,
-		preserveParens: true,
-		ranges: true,
-	});
-	estraverse.attachComments(ast, comments, tokens);
-
-	// #!
-	ast.hashbang = hashbang;
-	return ast;
-}
-
-function transform(ast, options) {
-	options = options || defaults();
-	if (options.capComments) {
-		estraverse.traverse(ast, {
-			enter: function (ast, parent) {
-				if (!ast.leadingComments) {
-					return;
-				}
-				for (var c of ast.leadingComments) {
-					if (c.type !== 'Line') {
-						continue;
-					}
-					var s = c.value;
-					for (var i = 0; i < s.length; i++) {
-						if (s[i] !== ' ') {
-							c.value = s.substring(0, i) + s[i].toUpperCase() + s.substring(i + 1);
-							break;
-						}
-					}
-				}
-			},
-			keys: keys,
-		});
-	}
-	if (options.exactEquals) {
-		estraverse.traverse(ast, {
-			enter: function (ast, parent) {
-				if (ast.type !== 'BinaryExpression') {
-					return;
-				}
-				if (ast.left.value !== null && ast.right.value !== null) {
-					switch (ast.operator) {
-					case '!=':
-						ast.operator = '!==';
-						break;
-					case '==':
-						ast.operator = '===';
-						break;
-					}
-				}
-			},
-			keys: keys,
-		});
-	}
-	if (options.extraBraces) {
-		estraverse.traverse(ast, {
-			enter: function (ast, parent) {
-				switch (ast.type) {
-				case 'DoWhileStatement':
-				case 'ForInStatement':
-				case 'ForOfStatement':
-				case 'ForStatement':
-				case 'WhileStatement':
-					ast.body = brace(ast.body);
-					break;
-				case 'IfStatement':
-					ast.consequent = brace(ast.consequent);
-					ast.alternate = brace(ast.alternate);
-					break;
-				}
-			},
-			keys: keys,
-		});
-	}
-	if (options.separateVars) {
-		estraverse.traverse(ast, {
-			enter: function (ast, parent) {
-				if (ast.type !== 'VariableDeclaration') {
-					return;
-				}
-				switch (parent.type) {
-				case 'BlockStatement':
-				case 'Program':
-					var body = parent.body;
-					break;
-				case 'SwitchCase':
-					body = parent.consequent;
-					break;
-				default:
-					return;
-				}
-				var vars = ast.declarations;
-				if (ast.leadingComments) {
-					vars[0].leadingComments = (vars[0].leadingComments || []).concat(ast.leadingComments);
-				}
-				for (var i = 0; i < vars.length; i++) {
-					vars[i] = {
-						declarations: [
-							vars[i],
-						],
-						type: ast.type,
-					};
-				}
-				body.splice.apply(body, [
-					body.indexOf(ast),
-					1,
-				].concat(vars));
-			},
-			keys: keys,
-		});
-	}
-	if (options.sortProperties) {
-		estraverse.traverse(ast, {
-			enter: function (ast, parent) {
-				if (ast.type !== 'ObjectExpression') {
-					return;
-				}
-				ast.properties.sort(function (a, b) {
-
-					function key(x) {
-						x = x.key;
-						switch (x.type) {
-						case 'Identifier':
-							return x.name;
-						case 'Literal':
-							return x.value;
-						}
-					}
-
-					return cmp(key(a), key(b));
-				});
-			},
-			keys: keys,
-		});
-	}
-	if (options.trailingBreak) {
-		estraverse.traverse(ast, {
-			enter: function (ast, parent) {
-				if (ast.type !== 'SwitchStatement') {
-					return;
-				}
-				if (!ast.cases.length) {
-					return;
-				}
-				var c = last(ast.cases);
-				if (hasTerminator(c)) {
-					return;
-				}
-				c.consequent.push({
-					loc: ast.loc,
-					type: 'BreakStatement',
-				});
-			},
-			keys: keys,
-		});
-		if (options.sortCases) {
-			estraverse.traverse(ast, {
-				enter: function (ast, parent) {
-					if (ast.type !== 'SwitchStatement') {
-						return;
-					}
-					if (!ast.cases.length) {
-						return;
-					}
-
-					// Get blocks of cases
-					var block = [];
-					var blocks = [];
-					for (var c of ast.cases) {
-						block.push(c);
-						if (hasTerminator(c)) {
-							blocks.push(block);
-							block = [];
-						}
-					}
-					if (block.length) {
-						blocks.push(block);
-					}
-
-					// Sort cases within block
-					blocks: for (var block of blocks) {
-						for (var i = 0; i < block.length - 1; i++) {
-							if (block[i].consequent.length) {
-								continue blocks;
-							}
-						}
-						var consequent = last(block).consequent;
-						last(block).consequent = [];
-						block.sort(function (a, b) {
-
-							function key(x) {
-								x = x.test;
-								if (!x) {
-									return '\uffff';
-								}
-								switch (x.type) {
-								case 'Identifier':
-									return x.name;
-								case 'Literal':
-									return x.value;
-								}
-							}
-
-							return cmp(key(a), key(b));
-						});
-						last(block).consequent = consequent;
-					}
-
-					// Sort blocks
-					blocks.sort(function (a, b) {
-
-						function key(block) {
-							var x = block[0].test;
-							if (!x) {
-								return '\uffff';
-							}
-							switch (x.type) {
-							case 'Identifier':
-								return x.name;
-							case 'Literal':
-								return x.value;
-							}
-						}
-
-						return cmp(key(a), key(b));
-					});
-
-					// Put blocks of cases
-					ast.cases = [];
-					for (var block of blocks) {
-						for (var c of block) {
-							ast.cases.push(c);
-						}
-					}
-				},
-				keys: keys,
-			});
-		}
-		if (options.sortFunctions) {
-		}
-	}
+function format(code, options) {
+	var ast = parse(code);
+	transform(ast, options);
+	return gen(ast, options);
 }
 
 function gen(ast, options) {
@@ -833,6 +569,315 @@ function gen(ast, options) {
 	// End with exactly one newline
 	code = code.replace(/\n*$/, '\n');
 	return code;
+}
+
+function parse(code) {
+
+	// #!
+	var hashbang = '';
+	if (code.substring(0, 2) === '#!') {
+		var i = code.indexOf('\n');
+		if (i < 0) {
+			hashbang = code;
+			code = '';
+		} else {
+			hashbang = code.substring(0, i);
+			code = code.substring(i);
+		}
+	}
+
+	// Parse
+	var comments = [];
+	var tokens = [];
+	var ast = acorn.parse(code, {
+		allowImportExportEverywhere: true,
+		allowReturnOutsideFunction: true,
+		ecmaVersion: 6,
+		locations: true,
+		onComment: comments,
+		onToken: tokens,
+		preserveParens: true,
+		ranges: true,
+	});
+	estraverse.attachComments(ast, comments, tokens);
+
+	// #!
+	ast.hashbang = hashbang;
+	return ast;
+}
+
+function transform(ast, options) {
+	options = options || defaults();
+	if (options.capComments) {
+		estraverse.traverse(ast, {
+			enter: function (ast, parent) {
+				if (!ast.leadingComments) {
+					return;
+				}
+				for (var c of ast.leadingComments) {
+					if (c.type !== 'Line') {
+						continue;
+					}
+					var s = c.value;
+					for (var i = 0; i < s.length; i++) {
+						if (s[i] !== ' ') {
+							c.value = s.substring(0, i) + s[i].toUpperCase() + s.substring(i + 1);
+							break;
+						}
+					}
+				}
+			},
+			keys: keys,
+		});
+	}
+	if (options.exactEquals) {
+		estraverse.traverse(ast, {
+			enter: function (ast, parent) {
+				if (ast.type !== 'BinaryExpression') {
+					return;
+				}
+				if (ast.left.value !== null && ast.right.value !== null) {
+					switch (ast.operator) {
+					case '!=':
+						ast.operator = '!==';
+						break;
+					case '==':
+						ast.operator = '===';
+						break;
+					}
+				}
+			},
+			keys: keys,
+		});
+	}
+	if (options.extraBraces) {
+		estraverse.traverse(ast, {
+			enter: function (ast, parent) {
+				switch (ast.type) {
+				case 'DoWhileStatement':
+				case 'ForInStatement':
+				case 'ForOfStatement':
+				case 'ForStatement':
+				case 'WhileStatement':
+					ast.body = brace(ast.body);
+					break;
+				case 'IfStatement':
+					ast.consequent = brace(ast.consequent);
+					ast.alternate = brace(ast.alternate);
+					break;
+				}
+			},
+			keys: keys,
+		});
+	}
+	if (options.separateVars) {
+		estraverse.traverse(ast, {
+			enter: function (ast, parent) {
+				if (ast.type !== 'VariableDeclaration') {
+					return;
+				}
+				switch (parent.type) {
+				case 'BlockStatement':
+				case 'Program':
+					var body = parent.body;
+					break;
+				case 'SwitchCase':
+					body = parent.consequent;
+					break;
+				default:
+					return;
+				}
+				var vars = ast.declarations;
+				if (ast.leadingComments) {
+					vars[0].leadingComments = (vars[0].leadingComments || []).concat(ast.leadingComments);
+				}
+				for (var i = 0; i < vars.length; i++) {
+					vars[i] = {
+						declarations: [
+							vars[i],
+						],
+						type: ast.type,
+					};
+				}
+				body.splice.apply(body, [
+					body.indexOf(ast),
+					1,
+				].concat(vars));
+			},
+			keys: keys,
+		});
+	}
+	if (options.sortFunctions) {
+		estraverse.traverse(ast, {
+			enter: function (ast, parent) {
+				if (ast.type !== 'Program') {
+					return;
+				}
+				var a = ast.body;
+				for (var i = 0; i < a.length; ) {
+					if (!(a[i].type === 'FunctionDeclaration' && a[i].id)) {
+						i++;
+						continue;
+					}
+					for (var j = i + 1; j < a.length; j++) {
+						if (!(a[j].type === 'FunctionDeclaration' && a[j].id)) {
+							break;
+						}
+						if (a[j].leadingComments) {
+							break;
+						}
+					}
+					var comment;
+					if (a[i].leadingComments) {
+						comment = a[i].leadingComments;
+						delete a[i].leadingComments;
+					}
+					a = sortSlice(a, i, j, function (a, b) {
+
+						function key(x) {
+							return x.id.name;
+						}
+
+						return cmp(key(a), key(b));
+					});
+					if (comment) {
+						a[i].leadingComments = comment;
+					}
+					i = j;
+				}
+				ast.body = a;
+			},
+			keys: keys,
+		});
+	}
+	if (options.sortProperties) {
+		estraverse.traverse(ast, {
+			enter: function (ast, parent) {
+				if (ast.type !== 'ObjectExpression') {
+					return;
+				}
+				ast.properties.sort(function (a, b) {
+
+					function key(x) {
+						x = x.key;
+						switch (x.type) {
+						case 'Identifier':
+							return x.name;
+						case 'Literal':
+							return x.value;
+						}
+					}
+
+					return cmp(key(a), key(b));
+				});
+			},
+			keys: keys,
+		});
+	}
+	if (options.trailingBreak) {
+		estraverse.traverse(ast, {
+			enter: function (ast, parent) {
+				if (ast.type !== 'SwitchStatement') {
+					return;
+				}
+				if (!ast.cases.length) {
+					return;
+				}
+				var c = last(ast.cases);
+				if (hasTerminator(c)) {
+					return;
+				}
+				c.consequent.push({
+					loc: ast.loc,
+					type: 'BreakStatement',
+				});
+			},
+			keys: keys,
+		});
+		if (options.sortCases) {
+			estraverse.traverse(ast, {
+				enter: function (ast, parent) {
+					if (ast.type !== 'SwitchStatement') {
+						return;
+					}
+					if (!ast.cases.length) {
+						return;
+					}
+
+					// Get blocks of cases
+					var block = [];
+					var blocks = [];
+					for (var c of ast.cases) {
+						block.push(c);
+						if (hasTerminator(c)) {
+							blocks.push(block);
+							block = [];
+						}
+					}
+					if (block.length) {
+						blocks.push(block);
+					}
+
+					// Sort cases within block
+					blocks: for (var block of blocks) {
+						for (var i = 0; i < block.length - 1; i++) {
+							if (block[i].consequent.length) {
+								continue blocks;
+							}
+						}
+						var consequent = last(block).consequent;
+						last(block).consequent = [];
+						block.sort(function (a, b) {
+
+							function key(x) {
+								x = x.test;
+								if (!x) {
+									return '\uffff';
+								}
+								switch (x.type) {
+								case 'Identifier':
+									return x.name;
+								case 'Literal':
+									return x.value;
+								}
+							}
+
+							return cmp(key(a), key(b));
+						});
+						last(block).consequent = consequent;
+					}
+
+					// Sort blocks
+					blocks.sort(function (a, b) {
+
+						function key(block) {
+							var x = block[0].test;
+							if (!x) {
+								return '\uffff';
+							}
+							switch (x.type) {
+							case 'Identifier':
+								return x.name;
+							case 'Literal':
+								return x.value;
+							}
+						}
+
+						return cmp(key(a), key(b));
+					});
+
+					// Put blocks of cases
+					ast.cases = [];
+					for (var block of blocks) {
+						for (var c of block) {
+							ast.cases.push(c);
+						}
+					}
+				},
+				keys: keys,
+			});
+		}
+	}
 }
 
 exports.defaults = defaults;
