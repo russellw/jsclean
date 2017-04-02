@@ -98,8 +98,8 @@ function defaults() {
 	};
 }
 
-function format(code, options) {
-	var ast = parse(code);
+function format(text, options) {
+	var ast = parse(text);
 	transform(ast, options);
 	return gen(ast, options);
 }
@@ -615,41 +615,41 @@ function gen(ast, options) {
 	}
 
 	rec(ast, 0);
-	var code = ss.join('');
+	var text = ss.join('');
 
 	// #!
-	code = ast.hashbang + '\n\n' + code;
+	text = ast.hashbang + '\n\n' + text;
 
 	// Don't start with blank line
-	code = code.replace(/^\n+/, '');
+	text = text.replace(/^\n+/, '');
 
 	// Only one consecutive blank line
-	code = code.replace(/\n\n+/g, '\n\n');
+	text = text.replace(/\n\n+/g, '\n\n');
 
 	// End with exactly one newline
-	code = code.replace(/\n*$/, '\n');
-	return code;
+	text = text.replace(/\n*$/, '\n');
+	return text;
 }
 
-function parse(code) {
+function parse(text) {
 
 	// #!
 	var hashbang = '';
-	if (code.substring(0, 2) === '#!') {
-		var i = code.indexOf('\n');
+	if (text.substring(0, 2) === '#!') {
+		var i = text.indexOf('\n');
 		if (i < 0) {
-			hashbang = code;
-			code = '';
+			hashbang = text;
+			text = '';
 		} else {
-			hashbang = code.substring(0, i);
-			code = code.substring(i);
+			hashbang = text.substring(0, i);
+			text = text.substring(i);
 		}
 	}
 
 	// Parse
 	var comments = [];
 	var tokens = [];
-	var ast = acorn.parse(code, {
+	var ast = acorn.parse(text, {
 		allowImportExportEverywhere: true,
 		allowReturnOutsideFunction: true,
 		ecmaVersion: 6,

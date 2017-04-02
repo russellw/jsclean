@@ -53,14 +53,14 @@ If no files are specified, jsclean filters stdin to stdout.
 The simplest way to use the API accepts and returns a string:
 
 ```
-code = jsclean.format(code[, options])
+text = jsclean.format(text[, options])
 ```
 
 This function is implemented as:
 
 ```
-function format(code, options) {
-  var ast = parse(code);
+function format(text, options) {
+  var ast = parse(text);
   transform(ast, options);
   return gen(ast, options);
 }
@@ -117,7 +117,7 @@ Options are:
 Parsing, transformation and generation of formatted code can be accessed separately:
 
 ```
-ast = jsclean.parse(code)
+ast = jsclean.parse(text)
 ```
 
 Use Acorn to parse source code into an abstract syntax tree. jsclean uses the following Acorn options:
@@ -142,7 +142,7 @@ jsclean.transform(ast[, options])
 Apply syntactic transformations to the AST.
 
 ```
-code = jsclean.gen(ast[, options])
+text = jsclean.gen(ast[, options])
 ```
 
 Generate JavaScript code from the AST.
