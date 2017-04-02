@@ -3,10 +3,10 @@
 'use strict';
 var commander = require('commander');
 var fs = require('fs');
+var getStdin = require('get-stdin');
 var glob = require('glob');
 var index = require('./index');
 var os = require('os');
-var stdin = require('get-stdin');
 
 // Options
 commander.usage('[options] [files]');
@@ -71,7 +71,7 @@ if (commander.args.length) {
 		}
 	}
 } else {
-	stdin(function (input) {
+	getStdin().then(function (input) {
 		var output = index.format(input, options);
 		output = output.replace(/\n*$/, '');
 		console.log(output);

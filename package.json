@@ -5,11 +5,11 @@
     "url": "https://github.com/russellw/jsclean/issues"
   },
   "dependencies": {
-    "acorn": "^2.0.1",
+    "acorn": "^5.0.3",
     "commander": "^2.8.1",
     "estraverse": "^4.1.0",
-    "get-stdin": "^4.0.1",
-    "glob": "^5.0.10"
+    "get-stdin": "^5.0.1",
+    "glob": "^7.1.1"
   },
   "description": "Clean JavaScript code",
   "homepage": "https://github.com/russellw/jsclean#readme",
