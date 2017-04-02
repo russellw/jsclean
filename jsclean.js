@@ -71,9 +71,9 @@ if (commander.args.length) {
 		}
 	}
 } else {
-	getStdin().then(function (input) {
-		var output = index.format(input, options);
-		output = output.replace(/\n*$/, '');
-		console.log(output);
+	getStdin().then(function (text) {
+		text = index.format(text, options);
+		text = text.replace(/\n*$/, '');
+		console.log(text);
 	});
 }
