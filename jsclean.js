@@ -1,12 +1,11 @@
 #!/usr/bin/env node
 
 'use strict';
+var commandFiles = require('command-files');
 var commander = require('commander');
 var fs = require('fs');
 var getStdin = require('get-stdin');
-var glob = require('glob');
 var index = require('./index');
-var os = require('os');
 
 // Options
 commander.usage('[options] [files]');
@@ -37,38 +36,28 @@ if (commander.spaces) {
 }
 
 // Inputs
-if (commander.args.length) {
-	for (var pattern of commander.args) {
-		var files = [
-			pattern,
-		];
-		if (os.platform() === 'win32') {
-			files = glob.sync(pattern, {
-				nonull: true,
-				nosort: true,
-			});
+var files = commandFiles.expand(commander.args);
+if (files.length) {
+	for (var file of files) {
+		var input = fs.readFileSync(file, {
+			encoding: 'utf8',
+		});
+		var output = index.format(input, options);
+		if (input === output) {
+			continue;
 		}
-		for (var file of files) {
-			var input = fs.readFileSync(file, {
-				encoding: 'utf8',
-			});
-			var output = index.format(input, options);
-			if (input === output) {
-				continue;
+		console.log(file);
+		if (commander.backup) {
+			try {
+				fs.unlinkSync(file + '.bak');
+			} catch (e) {
 			}
-			console.log(file);
-			if (commander.backup) {
-				try {
-					fs.unlinkSync(file + '.bak');
-				} catch (e) {
-				}
-				try {
-					fs.renameSync(file, file + '.bak');
-				} catch (e) {
-				}
+			try {
+				fs.renameSync(file, file + '.bak');
+			} catch (e) {
 			}
-			fs.writeFileSync(file, output);
 		}
+		fs.writeFileSync(file, output);
 	}
 } else {
 	getStdin().then(function (text) {

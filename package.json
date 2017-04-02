@@ -6,10 +6,10 @@
   },
   "dependencies": {
     "acorn": "^5.0.3",
+    "command-files": "^1.0.0",
     "commander": "^2.8.1",
     "estraverse": "^4.1.0",
-    "get-stdin": "^5.0.1",
-    "glob": "^7.1.1"
+    "get-stdin": "^5.0.1"
   },
   "description": "Clean JavaScript code",
   "homepage": "https://github.com/russellw/jsclean#readme",
