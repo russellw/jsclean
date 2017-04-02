@@ -40,13 +40,6 @@ function cmp(a, b) {
 	return 0;
 }
 
-function debug(a) {
-	console.log(require('util').inspect(a, {
-		colors: process.stdout.isTTY,
-		depth: null,
-	}));
-}
-
 function hasTerminator(c) {
 	var a = c.consequent;
 	if (!a.length) {
