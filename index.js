@@ -627,22 +627,21 @@ function gen(ast, options) {
 	text = text.replace(/\n\n+/g, '\n\n');
 
 	// End with exactly one newline
-	text = text.replace(/\n*$/, '\n');
-	return text;
+	return text.replace(/\n*$/, '\n');
 }
 
 function parse(text) {
 
 	// #!
 	var hashbang = '';
-	if (text.substring(0, 2) === '#!') {
+	if (text.slice(0, 2) === '#!') {
 		var i = text.indexOf('\n');
 		if (i < 0) {
 			hashbang = text;
 			text = '';
 		} else {
-			hashbang = text.substring(0, i);
-			text = text.substring(i);
+			hashbang = text.slice(0, i);
+			text = text.slice(i);
 		}
 	}
 
@@ -681,7 +680,7 @@ function transform(ast, options) {
 					var s = c.value;
 					for (var i = 0; i < s.length; i++) {
 						if (s[i] !== ' ') {
-							c.value = s.substring(0, i) + s[i].toUpperCase() + s.substring(i + 1);
+							c.value = s.slice(0, i) + s[i].toUpperCase() + s.slice(i + 1);
 							break;
 						}
 					}
