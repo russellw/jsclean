@@ -7,6 +7,8 @@ var commander = require('commander');
 var estraverse = require('estraverse');
 var fs = require('fs');
 var index = require('./index');
+
+// Options
 commander.usage('<files>');
 commander.version(require('./package.json').version);
 commander.parse(process.argv);
@@ -46,6 +48,7 @@ function parse(text) {
 	return ast;
 }
 
+// Files
 var files = commandFiles.expand(commander.args);
 for (var file of files) {
 	var input = fs.readFileSync(file, {
