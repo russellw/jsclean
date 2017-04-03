@@ -84,10 +84,7 @@ function defaults() {
 		indent: '\t',
 		semicolons: true,
 		separateVars: true,
-		sortCases: true,
-		sortFunctions: true,
-		sortProperties: true,
-		trailingBreak: true,
+		sort: true,
 	};
 }
 
@@ -782,8 +779,6 @@ function transform(ast, options) {
 			keys: keys,
 		});
 	}
-
-	// Sort things
 	if (options.sort) {
 
 		// Sort cases
