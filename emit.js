@@ -13,16 +13,16 @@ var ss;
 
 function blankLine(ast) {
 	if (ast.type === 'FunctionDeclaration') {
-		put('\n');
+		ss.push('\n');
 	}
 }
 
 function block(ast, level) {
 	if (ast.type === 'BlockStatement') {
-		put(' ');
+		ss.push(' ');
 		emit(ast, level);
 	} else {
-		put('\n');
+		ss.push('\n');
 		indent(level + 1);
 		emit(ast, level + 1);
 	}
@@ -30,9 +30,9 @@ function block(ast, level) {
 
 function blockEnd(ast, level) {
 	if (ast.type === 'BlockStatement') {
-		put(' ');
+		ss.push(' ');
 	} else {
-		put('\n');
+		ss.push('\n');
 		indent(level);
 	}
 }
@@ -41,19 +41,19 @@ function comment(ast, level) {
 	if (!ast.leadingComments) {
 		return;
 	}
-	put('\n');
+	ss.push('\n');
 	for (var c of ast.leadingComments) {
 		indent(level);
 		if (c.type === 'Line') {
-			put('//');
+			ss.push('//');
 			if (c.value[0] !== ' ') {
-				put(' ');
+				ss.push(' ');
 			}
-			put(c.value);
+			ss.push(c.value);
 		} else {
-			put('/*' + c.value + '*/');
+			ss.push('/*' + c.value + '*/');
 		}
-		put('\n');
+		ss.push('\n');
 	}
 }
 
@@ -61,18 +61,18 @@ function emit(ast, level) {
 	switch (ast.type) {
 	case 'ArrayExpression':
 		if (!ast.elements.length) {
-			put('[]');
+			ss.push('[]');
 			break;
 		}
-		put('[\n');
+		ss.push('[\n');
 		for (var a of ast.elements) {
 			comment(a, level + 1);
 			indent(level + 1);
 			emit(a, level + 1);
-			put(',\n');
+			ss.push(',\n');
 		}
 		indent(level);
-		put(']');
+		ss.push(']');
 		break;
 	case 'ArrowFunctionExpression':
 		if (ast.params.length === 1) {
@@ -80,7 +80,7 @@ function emit(ast, level) {
 		} else {
 			params(ast.params, level);
 		}
-		put(' => ');
+		ss.push(' => ');
 		if (ast.body.type === 'BlockStatement') {
 			block(ast.body, level);
 		} else {
@@ -91,23 +91,23 @@ function emit(ast, level) {
 	case 'BinaryExpression':
 	case 'LogicalExpression':
 		emit(ast.left, level);
-		put(' ' + ast.operator + ' ');
+		ss.push(' ' + ast.operator + ' ');
 		emit(ast.right, level);
 		break;
 	case 'BlockStatement':
-		put('{\n');
+		ss.push('{\n');
 		for (var a of ast.body) {
 			stmt(a, level + 1);
 		}
 		indent(level);
-		put('}');
+		ss.push('}');
 		break;
 	case 'BreakStatement':
-		put('break');
+		ss.push('break');
 		if (ast.label) {
-			put(' ' + ast.label.name);
+			ss.push(' ' + ast.label.name);
 		}
-		put(';');
+		ss.push(';');
 		break;
 	case 'CallExpression':
 		emit(ast.callee, level);
@@ -115,95 +115,95 @@ function emit(ast, level) {
 		break;
 	case 'ConditionalExpression':
 		emit(ast.test, level);
-		put(' ? ');
+		ss.push(' ? ');
 		emit(ast.consequent, level);
-		put(' : ');
+		ss.push(' : ');
 		emit(ast.alternate, level);
 		break;
 	case 'ContinueStatement':
-		put('continue');
+		ss.push('continue');
 		if (ast.label) {
-			put(' ' + ast.label.name);
+			ss.push(' ' + ast.label.name);
 		}
-		put(';');
+		ss.push(';');
 		break;
 	case 'DoWhileStatement':
-		put('do');
+		ss.push('do');
 		block(ast.body, level);
 		blockEnd(ast.body, level);
-		put('while (');
+		ss.push('while (');
 		emit(ast.test, level);
-		put(')');
-		put(';');
+		ss.push(')');
+		ss.push(';');
 		break;
 	case 'EmptyStatement':
-		put(';');
+		ss.push(';');
 		break;
 	case 'ExpressionStatement':
 		emit(ast.expression, level);
-		put(';');
+		ss.push(';');
 		break;
 	case 'ForInStatement':
-		put('for (');
+		ss.push('for (');
 		forInit(ast.left, level);
-		put(' in ');
+		ss.push(' in ');
 		emit(ast.right, level);
-		put(')');
+		ss.push(')');
 		block(ast.body, level);
 		break;
 	case 'ForOfStatement':
-		put('for (');
+		ss.push('for (');
 		forInit(ast.left, level);
-		put(' of ');
+		ss.push(' of ');
 		emit(ast.right, level);
-		put(')');
+		ss.push(')');
 		block(ast.body, level);
 		break;
 	case 'ForStatement':
-		put('for (');
+		ss.push('for (');
 		if (ast.init) {
 			forInit(ast.init, level);
 		}
-		put('; ');
+		ss.push('; ');
 		if (ast.test) {
 			emit(ast.test, level);
 		}
-		put('; ');
+		ss.push('; ');
 		if (ast.update) {
 			emit(ast.update, level);
 		}
-		put(')');
+		ss.push(')');
 		block(ast.body, level);
 		break;
 	case 'FunctionDeclaration':
-		put('function ' + ast.id.name);
+		ss.push('function ' + ast.id.name);
 		params(ast.params, level);
 		block(ast.body, level);
 		break;
 	case 'FunctionExpression':
-		put('function ');
+		ss.push('function ');
 		if (ast.id) {
-			put(ast.id.name);
+			ss.push(ast.id.name);
 		}
 		params(ast.params, level);
 		block(ast.body, level);
 		break;
 	case 'Identifier':
-		put(ast.name);
+		ss.push(ast.name);
 		break;
 	case 'IfStatement':
-		put('if (');
+		ss.push('if (');
 		emit(ast.test, level);
-		put(')');
+		ss.push(')');
 		block(ast.consequent, level);
 		if (ast.alternate) {
 			blockEnd(ast.consequent, level);
-			put('else');
+			ss.push('else');
 			block(ast.alternate, level);
 		}
 		break;
 	case 'LabeledStatement':
-		put(ast.label.name + ': ');
+		ss.push(ast.label.name + ': ');
 		emit(ast.body, level);
 		break;
 	case 'Literal':
@@ -212,90 +212,90 @@ function emit(ast, level) {
 			if (ast.value.indexOf(q) >= 0) {
 				q = '"';
 			}
-			put(q);
+			ss.push(q);
 			for (var c of ast.value) {
 				switch (c) {
 				case '\b':
-					put('\\b');
+					ss.push('\\b');
 					break;
 				case '\t':
-					put('\\t');
+					ss.push('\\t');
 					break;
 				case '\n':
-					put('\\n');
+					ss.push('\\n');
 					break;
 				case '\v':
-					put('\\v');
+					ss.push('\\v');
 					break;
 				case '\f':
-					put('\\f');
+					ss.push('\\f');
 					break;
 				case '\r':
-					put('\\r');
+					ss.push('\\r');
 					break;
 				case '\\':
-					put('\\\\');
+					ss.push('\\\\');
 					break;
 				case q:
-					put('\\');
-					put(q);
+					ss.push('\\');
+					ss.push(q);
 					break;
 				default:
 					var n = c.charCodeAt(0);
 					if (32 <= n && n <= 126) {
-						put(c);
+						ss.push(c);
 						break;
 					}
 					if (n < 0x100) {
-						put('\\x');
-						put(hex(n, 2));
+						ss.push('\\x');
+						ss.push(hex(n, 2));
 						break;
 					}
-					put('\\u');
-					put(hex(n, 4));
+					ss.push('\\u');
+					ss.push(hex(n, 4));
 					break;
 				}
 			}
-			put(q);
+			ss.push(q);
 			break;
 		}
-		put(ast.raw);
+		ss.push(ast.raw);
 		break;
 	case 'MemberExpression':
 		emit(ast.object, level);
 		if (ast.computed) {
-			put('[');
+			ss.push('[');
 			emit(ast.property, level);
-			put(']');
+			ss.push(']');
 		} else {
-			put('.');
+			ss.push('.');
 			emit(ast.property, level);
 		}
 		break;
 	case 'NewExpression':
-		put('new ');
+		ss.push('new ');
 		emit(ast.callee, level);
 		params(ast.arguments, level);
 		break;
 	case 'ObjectExpression':
 		if (!ast.properties.length) {
-			put('{}');
+			ss.push('{}');
 			break;
 		}
-		put('{\n');
+		ss.push('{\n');
 		for (var a of ast.properties) {
 			comment(a, level + 1);
 			indent(level + 1);
 			emit(a, level + 1);
-			put(',\n');
+			ss.push(',\n');
 		}
 		indent(level);
-		put('}');
+		ss.push('}');
 		break;
 	case 'ParenthesizedExpression':
-		put('(');
+		ss.push('(');
 		emit(ast.expression, level);
-		put(')');
+		ss.push(')');
 		break;
 	case 'Program':
 		for (var a of ast.body) {
@@ -304,102 +304,102 @@ function emit(ast, level) {
 		break;
 	case 'Property':
 		emit(ast.key, level);
-		put(': ');
+		ss.push(': ');
 		emit(ast.value, level);
 		break;
 	case 'ReturnStatement':
-		put('return');
+		ss.push('return');
 		if (ast.argument) {
-			put(' ');
+			ss.push(' ');
 			emit(ast.argument, level);
 		}
-		put(';');
+		ss.push(';');
 		break;
 	case 'SequenceExpression':
 		for (var i = 0; i < ast.expressions.length; i++) {
 			if (i) {
-				put(', ');
+				ss.push(', ');
 			}
 			emit(ast.expressions[i], level);
 		}
 		break;
 	case 'SwitchStatement':
-		put('switch (');
+		ss.push('switch (');
 		emit(ast.discriminant, level);
-		put(') {\n');
+		ss.push(') {\n');
 		for (var c of ast.cases) {
 			comment(c, level);
 			indent(level);
 			if (c.test) {
-				put('case ');
+				ss.push('case ');
 				emit(c.test, level);
 			} else {
-				put('default');
+				ss.push('default');
 			}
-			put(':\n');
+			ss.push(':\n');
 			for (var a of c.consequent) {
 				comment(a, level + 1);
 				indent(level + 1);
 				emit(a, level + 1);
-				put('\n');
+				ss.push('\n');
 			}
 		}
 		indent(level);
-		put('}');
+		ss.push('}');
 		break;
 	case 'ThisExpression':
-		put('this');
+		ss.push('this');
 		break;
 	case 'ThrowStatement':
-		put('throw ');
+		ss.push('throw ');
 		emit(ast.argument, level);
-		put(';');
+		ss.push(';');
 		break;
 	case 'TryStatement':
-		put('try');
+		ss.push('try');
 		block(ast.block, level);
 		if (ast.handler) {
-			put(' catch (');
+			ss.push(' catch (');
 			emit(ast.handler.param, level);
-			put(')');
+			ss.push(')');
 			block(ast.handler.body, level);
 		}
 		if (ast.finalizer) {
-			put(' finally ');
+			ss.push(' finally ');
 			block(ast.finalizer, level);
 		}
 		break;
 	case 'UnaryExpression':
-		put(ast.operator);
+		ss.push(ast.operator);
 		if (ast.operator.search(/[a-z]/) >= 0) {
-			put(' ');
+			ss.push(' ');
 		}
 		emit(ast.argument, level);
 		break;
 	case 'UpdateExpression':
 		if (ast.prefix) {
-			put(ast.operator);
+			ss.push(ast.operator);
 			emit(ast.argument, level);
 		} else {
 			emit(ast.argument, level);
-			put(ast.operator);
+			ss.push(ast.operator);
 		}
 		break;
 	case 'VariableDeclaration':
 		variableDeclaration(ast, level);
-		put(';');
+		ss.push(';');
 		break;
 	case 'VariableDeclarator':
-		put(ast.id.name);
+		ss.push(ast.id.name);
 		if (ast.init) {
-			put(' = ');
+			ss.push(' = ');
 			emit(ast.init, level);
 		}
 		break;
 	case 'WhileStatement':
-		put('while (');
+		ss.push('while (');
 		emit(ast.test, level);
-		put(')');
+		ss.push(')');
 		block(ast.body, level);
 		break;
 	default:
@@ -426,23 +426,19 @@ function hex(n, size) {
 
 function indent(level) {
 	while (level--) {
-		put('\t');
+		ss.push('\t');
 	}
 }
 
 function params(a, level) {
-	put('(');
+	ss.push('(');
 	for (var i = 0; i < a.length; i++) {
 		if (i) {
-			put(', ');
+			ss.push(', ');
 		}
 		emit(a[i], level);
 	}
-	put(')');
-}
-
-function put(s) {
-	ss.push(s);
+	ss.push(')');
 }
 
 function stmt(ast, level) {
@@ -450,15 +446,15 @@ function stmt(ast, level) {
 	blankLine(ast);
 	indent(level);
 	emit(ast, level);
-	put('\n');
+	ss.push('\n');
 	blankLine(ast);
 }
 
 function variableDeclaration(ast, level) {
-	put('var ');
+	ss.push('var ');
 	for (var i = 0; i < ast.declarations.length; i++) {
 		if (i) {
-			put(', ');
+			ss.push(', ');
 		}
 		emit(ast.declarations[i], level);
 	}
