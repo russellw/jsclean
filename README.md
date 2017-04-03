@@ -39,7 +39,6 @@ git clone https://github.com/russellw/jsclean.git
         --no-sort-cases       don't sort cases
         --no-sort-functions   don't sort functions
         --no-sort-properties  don't sort object properties
-        --no-trailing-break   don't add trailing break to final case
     -n, --no-backup           don't make .bak files
     -s, --spaces <n>          indent with spaces
 ```
@@ -105,10 +104,6 @@ Options are:
 - **sortProperties**
 
 	Sort properties of object literals, by key in alphabetical order. Default is true.
-
-- **trailingBreak**
-
-	In a `switch` where the final case does not end in a terminator statement, add a trailing `break`. This improves consistency and removes an opportunity for error if further cases are subsequently added. Default is true.
 
 - **indent**
 

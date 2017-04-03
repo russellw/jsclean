@@ -660,6 +660,29 @@ function parse(text) {
 
 function transform(ast, options) {
 	options = options || defaults();
+
+	// Trailing break
+	estraverse.traverse(ast, {
+		enter: function (ast, parent) {
+			if (ast.type !== 'SwitchStatement') {
+				return;
+			}
+			if (!ast.cases.length) {
+				return;
+			}
+			var c = last(ast.cases);
+			if (hasTerminator(c)) {
+				return;
+			}
+			c.consequent.push({
+				loc: ast.loc,
+				type: 'BreakStatement',
+			});
+		},
+		keys: keys,
+	});
+
+	// Optional transforms
 	if (options.capComments) {
 		estraverse.traverse(ast, {
 			enter: function (ast, parent) {
@@ -826,81 +849,40 @@ function transform(ast, options) {
 			keys: keys,
 		});
 	}
-	if (options.trailingBreak) {
+	if (options.sortCases) {
 		estraverse.traverse(ast, {
 			enter: function (ast, parent) {
 				if (ast.type !== 'SwitchStatement') {
 					return;
 				}
-				if (!ast.cases.length) {
-					return;
-				}
-				var c = last(ast.cases);
-				if (hasTerminator(c)) {
-					return;
-				}
-				c.consequent.push({
-					loc: ast.loc,
-					type: 'BreakStatement',
-				});
-			},
-			keys: keys,
-		});
-		if (options.sortCases) {
-			estraverse.traverse(ast, {
-				enter: function (ast, parent) {
-					if (ast.type !== 'SwitchStatement') {
-						return;
-					}
 
-					// Get blocks of cases
-					var block = [];
-					var blocks = [];
-					for (var c of ast.cases) {
-						block.push(c);
-						if (hasTerminator(c)) {
-							blocks.push(block);
-							block = [];
-						}
-					}
-					if (block.length) {
+				// Get blocks of cases
+				var block = [];
+				var blocks = [];
+				for (var c of ast.cases) {
+					block.push(c);
+					if (hasTerminator(c)) {
 						blocks.push(block);
+						block = [];
 					}
+				}
+				if (block.length) {
+					blocks.push(block);
+				}
 
-					// Sort cases within block
-					blocks: for (var block of blocks) {
-						for (var i = 0; i < block.length - 1; i++) {
-							if (block[i].consequent.length) {
-								continue blocks;
-							}
+				// Sort cases within block
+				blocks: for (var block of blocks) {
+					for (var i = 0; i < block.length - 1; i++) {
+						if (block[i].consequent.length) {
+							continue blocks;
 						}
-						var consequent = last(block).consequent;
-						last(block).consequent = [];
-						block.sort(function (a, b) {
-
-							function key(x) {
-								x = x.test;
-								if (!x) {
-									return '\uffff';
-								}
-								switch (x.type) {
-								case 'Identifier':
-									return x.name;
-								case 'Literal':
-									return x.value;
-								}
-							}
-
-							return cmp(key(a), key(b));
-						});
-						last(block).consequent = consequent;
 					}
+					var consequent = last(block).consequent;
+					last(block).consequent = [];
+					block.sort(function (a, b) {
 
-					// Sort blocks
-					blocks.sort(function (a, b) {
-
-						function key(block) {
-							var x = block[0].test;
+						function key(x) {
+							x = x.test;
 							if (!x) {
 								return '\uffff';
 							}
@@ -914,18 +896,38 @@ function transform(ast, options) {
 
 						return cmp(key(a), key(b));
 					});
+					last(block).consequent = consequent;
+				}
 
-					// Put blocks of cases
-					ast.cases = [];
-					for (var block of blocks) {
-						for (var c of block) {
-							ast.cases.push(c);
+				// Sort blocks
+				blocks.sort(function (a, b) {
+
+					function key(block) {
+						var x = block[0].test;
+						if (!x) {
+							return '\uffff';
+						}
+						switch (x.type) {
+						case 'Identifier':
+							return x.name;
+						case 'Literal':
+							return x.value;
 						}
 					}
-				},
-				keys: keys,
-			});
-		}
+
+					return cmp(key(a), key(b));
+				});
+
+				// Put blocks of cases
+				ast.cases = [];
+				for (var block of blocks) {
+					for (var c of block) {
+						ast.cases.push(c);
+					}
+				}
+			},
+			keys: keys,
+		});
 	}
 }
 
