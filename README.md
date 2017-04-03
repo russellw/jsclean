@@ -36,9 +36,7 @@ git clone https://github.com/russellw/jsclean.git
         --no-extra-braces     don't add optional braces
         --no-semicolons       omit semicolons
         --no-separate-vars    don't separate variable declarations
-        --no-sort-cases       don't sort cases
-        --no-sort-functions   don't sort functions
-        --no-sort-properties  don't sort object properties
+        --no-sort             don't sort things
     -n, --no-backup           don't make .bak files
     -s, --spaces <n>          indent with spaces
 ```
@@ -93,17 +91,9 @@ Options are:
 
 	Replace a declaration of multiple variables like `var a, b` with a separate declaration for each variable like `var a; var b`. Default is true.
 
-- **sortCases**
+- **sort**
 
-	Sort cases in switch statements, by test in alphabetical order. Default is true.
-
-- **sortFunctions**
-
-	Sort functions in alphabetical order. Functions won't be moved past comments, so comments can delineate sections of a program. Default is true.
-
-- **sortProperties**
-
-	Sort properties of object literals, by key in alphabetical order. Default is true.
+	Sort things in alphabetical order (functions, cases, object properties etc).
 
 - **indent**
 

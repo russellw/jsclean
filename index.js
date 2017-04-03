@@ -782,74 +782,11 @@ function transform(ast, options) {
 			keys: keys,
 		});
 	}
-	if (options.sortFunctions) {
-		estraverse.traverse(ast, {
-			enter: function (ast, parent) {
-				if (ast.type !== 'Program') {
-					return;
-				}
-				var a = ast.body;
-				for (var i = 0; i < a.length; ) {
-					if (!(a[i].type === 'FunctionDeclaration' && a[i].id)) {
-						i++;
-						continue;
-					}
-					for (var j = i + 1; j < a.length; j++) {
-						if (!(a[j].type === 'FunctionDeclaration' && a[j].id)) {
-							break;
-						}
-						if (a[j].leadingComments) {
-							break;
-						}
-					}
-					var comment;
-					if (a[i].leadingComments) {
-						comment = a[i].leadingComments;
-						delete a[i].leadingComments;
-					}
-					a = sortSlice(a, i, j, function (a, b) {
 
-						function key(x) {
-							return x.id.name;
-						}
+	// Sort things
+	if (options.sort) {
 
-						return cmp(key(a), key(b));
-					});
-					if (comment) {
-						a[i].leadingComments = comment;
-					}
-					i = j;
-				}
-				ast.body = a;
-			},
-			keys: keys,
-		});
-	}
-	if (options.sortProperties) {
-		estraverse.traverse(ast, {
-			enter: function (ast, parent) {
-				if (ast.type !== 'ObjectExpression') {
-					return;
-				}
-				ast.properties.sort(function (a, b) {
-
-					function key(x) {
-						x = x.key;
-						switch (x.type) {
-						case 'Identifier':
-							return x.name;
-						case 'Literal':
-							return x.value;
-						}
-					}
-
-					return cmp(key(a), key(b));
-				});
-			},
-			keys: keys,
-		});
-	}
-	if (options.sortCases) {
+		// Sort cases
 		estraverse.traverse(ast, {
 			enter: function (ast, parent) {
 				if (ast.type !== 'SwitchStatement') {
@@ -925,6 +862,73 @@ function transform(ast, options) {
 						ast.cases.push(c);
 					}
 				}
+			},
+			keys: keys,
+		});
+
+		// Sort functions
+		estraverse.traverse(ast, {
+			enter: function (ast, parent) {
+				if (ast.type !== 'Program') {
+					return;
+				}
+				var a = ast.body;
+				for (var i = 0; i < a.length; ) {
+					if (!(a[i].type === 'FunctionDeclaration' && a[i].id)) {
+						i++;
+						continue;
+					}
+					for (var j = i + 1; j < a.length; j++) {
+						if (!(a[j].type === 'FunctionDeclaration' && a[j].id)) {
+							break;
+						}
+						if (a[j].leadingComments) {
+							break;
+						}
+					}
+					var comment;
+					if (a[i].leadingComments) {
+						comment = a[i].leadingComments;
+						delete a[i].leadingComments;
+					}
+					a = sortSlice(a, i, j, function (a, b) {
+
+						function key(x) {
+							return x.id.name;
+						}
+
+						return cmp(key(a), key(b));
+					});
+					if (comment) {
+						a[i].leadingComments = comment;
+					}
+					i = j;
+				}
+				ast.body = a;
+			},
+			keys: keys,
+		});
+
+		// Sort properties
+		estraverse.traverse(ast, {
+			enter: function (ast, parent) {
+				if (ast.type !== 'ObjectExpression') {
+					return;
+				}
+				ast.properties.sort(function (a, b) {
+
+					function key(x) {
+						x = x.key;
+						switch (x.type) {
+						case 'Identifier':
+							return x.name;
+						case 'Literal':
+							return x.value;
+						}
+					}
+
+					return cmp(key(a), key(b));
+				});
 			},
 			keys: keys,
 		});
