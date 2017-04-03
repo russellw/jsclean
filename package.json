@@ -8,8 +8,7 @@
     "acorn": "^5.0.3",
     "command-files": "^1.0.0",
     "commander": "^2.8.1",
-    "estraverse": "^4.1.0",
-    "get-stdin": "^5.0.1"
+    "estraverse": "^4.1.0"
   },
   "description": "Clean JavaScript code",
   "homepage": "https://github.com/russellw/jsclean#readme",
@@ -21,6 +20,7 @@
   "license": "MIT",
   "main": "index.js",
   "name": "jsclean",
+  "preferGlobal": true,
   "repository": {
     "type": "git",
     "url": "git+https://github.com/russellw/jsclean.git"

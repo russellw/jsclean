@@ -74,20 +74,6 @@ function sortSlice(a, i, j, f) {
 	return a.slice(0, i).concat(a.slice(i, j).sort(f)).concat(a.slice(j));
 }
 
-// API
-
-function defaults() {
-	return {
-		capComments: true,
-		exactEquals: true,
-		extraBraces: true,
-		indent: '\t',
-		semicolons: true,
-		separateVars: true,
-		sort: true,
-	};
-}
-
 function format(text, options) {
 	var ast = parse(text);
 	transform(ast, options);
@@ -930,7 +916,6 @@ function transform(ast, options) {
 	}
 }
 
-exports.defaults = defaults;
 exports.format = format;
 exports.gen = gen;
 exports.parse = parse;
