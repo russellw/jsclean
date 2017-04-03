@@ -161,10 +161,6 @@ function gen(ast) {
 		put(')');
 	}
 
-	function semicolon() {
-		put(';');
-	}
-
 	function stmt(ast, level) {
 		comment(ast, level);
 		blankLine(ast);
@@ -236,7 +232,7 @@ function gen(ast) {
 			if (ast.label) {
 				put(' ' + ast.label.name);
 			}
-			semicolon();
+			put(';');
 			break;
 		case 'CallExpression':
 			rec(ast.callee, level);
@@ -254,7 +250,7 @@ function gen(ast) {
 			if (ast.label) {
 				put(' ' + ast.label.name);
 			}
-			semicolon();
+			put(';');
 			break;
 		case 'DoWhileStatement':
 			put('do');
@@ -263,14 +259,14 @@ function gen(ast) {
 			put('while (');
 			rec(ast.test, level);
 			put(')');
-			semicolon();
+			put(';');
 			break;
 		case 'EmptyStatement':
 			put(';');
 			break;
 		case 'ExpressionStatement':
 			rec(ast.expression, level);
-			semicolon();
+			put(';');
 			break;
 		case 'ForInStatement':
 			put('for (');
@@ -442,7 +438,7 @@ function gen(ast) {
 				put(' ');
 				rec(ast.argument, level);
 			}
-			semicolon();
+			put(';');
 			break;
 		case 'SequenceExpression':
 			for (var i = 0; i < ast.expressions.length; i++) {
@@ -482,7 +478,7 @@ function gen(ast) {
 		case 'ThrowStatement':
 			put('throw ');
 			rec(ast.argument, level);
-			semicolon();
+			put(';');
 			break;
 		case 'TryStatement':
 			put('try');
@@ -516,7 +512,7 @@ function gen(ast) {
 			break;
 		case 'VariableDeclaration':
 			variableDeclaration(ast, level);
-			semicolon();
+			put(';');
 			break;
 		case 'VariableDeclarator':
 			put(ast.id.name);
@@ -624,49 +620,6 @@ function sortSlice(a, i, j, f) {
 
 function transform(ast) {
 
-	// Break
-	estraverse.traverse(ast, {
-		enter: function (ast, parent) {
-			if (ast.type !== 'SwitchStatement') {
-				return;
-			}
-			if (!ast.cases.length) {
-				return;
-			}
-			var c = last(ast.cases);
-			if (hasTerminator(c)) {
-				return;
-			}
-			c.consequent.push({
-				loc: ast.loc,
-				type: 'BreakStatement',
-			});
-		},
-		keys: keys,
-	});
-
-	// Capitalize comments
-	estraverse.traverse(ast, {
-		enter: function (ast, parent) {
-			if (!ast.leadingComments) {
-				return;
-			}
-			for (var c of ast.leadingComments) {
-				if (c.type !== 'Line') {
-					continue;
-				}
-				var s = c.value;
-				for (var i = 0; i < s.length; i++) {
-					if (s[i] !== ' ') {
-						c.value = s.slice(0, i) + s[i].toUpperCase() + s.slice(i + 1);
-						break;
-					}
-				}
-			}
-		},
-		keys: keys,
-	});
-
 	// ===
 	estraverse.traverse(ast, {
 		enter: function (ast, parent) {
@@ -702,6 +655,49 @@ function transform(ast) {
 				ast.consequent = brace(ast.consequent);
 				ast.alternate = brace(ast.alternate);
 				break;
+			}
+		},
+		keys: keys,
+	});
+
+	// Break
+	estraverse.traverse(ast, {
+		enter: function (ast, parent) {
+			if (ast.type !== 'SwitchStatement') {
+				return;
+			}
+			if (!ast.cases.length) {
+				return;
+			}
+			var c = last(ast.cases);
+			if (hasTerminator(c)) {
+				return;
+			}
+			c.consequent.push({
+				loc: ast.loc,
+				type: 'BreakStatement',
+			});
+		},
+		keys: keys,
+	});
+
+	// Comments
+	estraverse.traverse(ast, {
+		enter: function (ast, parent) {
+			if (!ast.leadingComments) {
+				return;
+			}
+			for (var c of ast.leadingComments) {
+				if (c.type !== 'Line') {
+					continue;
+				}
+				var s = c.value;
+				for (var i = 0; i < s.length; i++) {
+					if (s[i] !== ' ') {
+						c.value = s.slice(0, i) + s[i].toUpperCase() + s.slice(i + 1);
+						break;
+					}
+				}
 			}
 		},
 		keys: keys,
