@@ -445,6 +445,27 @@ function put(s) {
 	ss.push(s);
 }
 
+function stmt(ast, level) {
+	comment(ast, level);
+	blankLine(ast);
+	indent(level);
+	emit(ast, level);
+	put('\n');
+	blankLine(ast);
+}
+
+function variableDeclaration(ast, level) {
+	put('var ');
+	for (var i = 0; i < ast.declarations.length; i++) {
+		if (i) {
+			put(', ');
+		}
+		emit(ast.declarations[i], level);
+	}
+}
+
+// Exports
+
 function run(ast) {
 	ss = [];
 
@@ -481,7 +502,7 @@ function run(ast) {
 		},
 	});
 
-	// Syntax elements
+	// Emit
 	emit(ast, 0);
 	var text = ss.join('');
 
@@ -496,25 +517,6 @@ function run(ast) {
 
 	// End with exactly one newline
 	return text.replace(/\n*$/, '\n');
-}
-
-function stmt(ast, level) {
-	comment(ast, level);
-	blankLine(ast);
-	indent(level);
-	emit(ast, level);
-	put('\n');
-	blankLine(ast);
-}
-
-function variableDeclaration(ast, level) {
-	put('var ');
-	for (var i = 0; i < ast.declarations.length; i++) {
-		if (i) {
-			put(', ');
-		}
-		emit(ast.declarations[i], level);
-	}
 }
 
 exports.run = run;

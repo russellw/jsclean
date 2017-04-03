@@ -61,6 +61,12 @@ function last(a) {
 	return a[a.length - 1];
 }
 
+function sortSlice(a, i, j, f) {
+	return a.slice(0, i).concat(a.slice(i, j).sort(f)).concat(a.slice(j));
+}
+
+// Exports
+
 function run(ast) {
 
 	// ===
@@ -329,10 +335,6 @@ function run(ast) {
 		},
 		keys: keys,
 	});
-}
-
-function sortSlice(a, i, j, f) {
-	return a.slice(0, i).concat(a.slice(i, j).sort(f)).concat(a.slice(j));
 }
 
 exports.run = run;
