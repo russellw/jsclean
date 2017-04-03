@@ -6,7 +6,7 @@ var commandFiles = require('command-files');
 var commander = require('commander');
 var estraverse = require('estraverse');
 var fs = require('fs');
-var index = require('./index');
+var emit = require('./emit');
 var transform = require('./transform');
 
 // Options
@@ -57,7 +57,7 @@ for (var file of files) {
 	});
 	var ast = parse(input);
 	transform.run(ast);
-	var output = index.gen(ast);
+	var output = emit.run(ast);
 	if (input === output) {
 		continue;
 	}

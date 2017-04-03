@@ -8,7 +8,15 @@ var keys = {
 	],
 };
 
-function gen(ast) {
+function hex(n, size) {
+	var s = n.toString(16);
+	while (s.length < size) {
+		s = '0' + s;
+	}
+	return s;
+}
+
+function run(ast) {
 
 	// Bubble comments up to statements
 	estraverse.traverse(ast, {
@@ -511,12 +519,4 @@ function gen(ast) {
 	return text.replace(/\n*$/, '\n');
 }
 
-function hex(n, size) {
-	var s = n.toString(16);
-	while (s.length < size) {
-		s = '0' + s;
-	}
-	return s;
-}
-
-exports.gen = gen;
+exports.run = run;
