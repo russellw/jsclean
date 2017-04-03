@@ -18,7 +18,6 @@
     "code-quality"
   ],
   "license": "MIT",
-  "main": "index.js",
   "name": "jsclean",
   "preferGlobal": true,
   "repository": {

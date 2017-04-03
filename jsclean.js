@@ -7,6 +7,7 @@ var commander = require('commander');
 var estraverse = require('estraverse');
 var fs = require('fs');
 var index = require('./index');
+var transform = require('./transform');
 
 // Options
 commander.usage('<files>');
@@ -55,7 +56,7 @@ for (var file of files) {
 		encoding: 'utf8',
 	});
 	var ast = parse(input);
-	index.transform(ast);
+	transform.run(ast);
 	var output = index.gen(ast);
 	if (input === output) {
 		continue;
