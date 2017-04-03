@@ -8,6 +8,24 @@ var keys = {
 	],
 };
 
+// Gathered strings
+var ss;
+
+function blankLine(ast) {
+	if (ast.type === 'FunctionDeclaration') {
+		put('\n');
+	}
+}
+
+function blockEnd(ast, level) {
+	if (ast.type === 'BlockStatement') {
+		put(' ');
+	} else {
+		put('\n');
+		indent(level);
+	}
+}
+
 function hex(n, size) {
 	var s = n.toString(16);
 	while (s.length < size) {
@@ -16,7 +34,18 @@ function hex(n, size) {
 	return s;
 }
 
+function indent(level) {
+	while (level--) {
+		put('\t');
+	}
+}
+
+function put(s) {
+	ss.push(s);
+}
+
 function run(ast) {
+	ss = [];
 
 	// Bubble comments up to statements
 	estraverse.traverse(ast, {
@@ -51,20 +80,7 @@ function run(ast) {
 		},
 	});
 
-	// Gathered strings
-	var ss = [];
-
-	function put(s) {
-		ss.push(s);
-	}
-
 	// Syntax elements
-
-	function blankLine(ast) {
-		if (ast.type === 'FunctionDeclaration') {
-			put('\n');
-		}
-	}
 
 	function block(ast, level) {
 		if (ast.type === 'BlockStatement') {
@@ -74,15 +90,6 @@ function run(ast) {
 			put('\n');
 			indent(level + 1);
 			rec(ast, level + 1);
-		}
-	}
-
-	function blockEnd(ast, level) {
-		if (ast.type === 'BlockStatement') {
-			put(' ');
-		} else {
-			put('\n');
-			indent(level);
 		}
 	}
 
@@ -111,12 +118,6 @@ function run(ast) {
 			variableDeclaration(ast, level);
 		} else {
 			rec(ast, level);
-		}
-	}
-
-	function indent(level) {
-		while (level--) {
-			put('\t');
 		}
 	}
 
