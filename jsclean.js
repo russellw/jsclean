@@ -15,7 +15,6 @@ commander.version(require('./package.json').version);
 commander.parse(process.argv);
 
 function parse(text) {
-
 	// #!
 	var hashbang = '';
 	if (text.slice(0, 2) === '#!') {

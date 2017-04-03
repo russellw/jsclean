@@ -505,11 +505,12 @@ function run(ast) {
 	// #!
 	text = ast.hashbang + '\n\n' + text;
 
-	// Don't start with blank line
-	text = text.replace(/^\n+/, '');
-
 	// Only one consecutive blank line
 	text = text.replace(/\n\n+/g, '\n\n');
+
+	// Don't start with blank line
+	text = text.replace(/^\n+/, '');
+	text = text.replace(/{\n\n/g, '{\n');
 
 	// End with exactly one newline
 	return text.replace(/\n*$/, '\n');

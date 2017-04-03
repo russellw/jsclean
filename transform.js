@@ -68,7 +68,6 @@ function sortSlice(a, i, j, f) {
 // Exports
 
 function run(ast) {
-
 	// ===
 	estraverse.traverse(ast, {
 		enter: function (ast, parent) {
@@ -220,7 +219,6 @@ function run(ast) {
 				var consequent = last(block).consequent;
 				last(block).consequent = [];
 				block.sort(function (a, b) {
-
 					function key(x) {
 						x = x.test;
 						if (!x) {
@@ -241,7 +239,6 @@ function run(ast) {
 
 			// Sort blocks
 			blocks.sort(function (a, b) {
-
 				function key(block) {
 					var x = block[0].test;
 					if (!x) {
@@ -295,7 +292,6 @@ function run(ast) {
 					delete a[i].leadingComments;
 				}
 				a = sortSlice(a, i, j, function (a, b) {
-
 					function key(x) {
 						return x.id.name;
 					}
@@ -319,7 +315,6 @@ function run(ast) {
 				return;
 			}
 			ast.properties.sort(function (a, b) {
-
 				function key(x) {
 					x = x.key;
 					switch (x.type) {
