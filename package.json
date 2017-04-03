@@ -6,7 +6,7 @@
   },
   "dependencies": {
     "acorn": "^5.0.3",
-    "command-files": "^1.0.0",
+    "command-files": "^1.1.0",
     "commander": "^2.8.1",
     "estraverse": "^4.1.0"
   },
