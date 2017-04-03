@@ -85,11 +85,11 @@ function run(ast) {
 	function block(ast, level) {
 		if (ast.type === 'BlockStatement') {
 			put(' ');
-			rec(ast, level);
+			emit(ast, level);
 		} else {
 			put('\n');
 			indent(level + 1);
-			rec(ast, level + 1);
+			emit(ast, level + 1);
 		}
 	}
 
@@ -117,7 +117,7 @@ function run(ast) {
 		if (ast.type === 'VariableDeclaration') {
 			variableDeclaration(ast, level);
 		} else {
-			rec(ast, level);
+			emit(ast, level);
 		}
 	}
 
@@ -127,7 +127,7 @@ function run(ast) {
 			if (i) {
 				put(', ');
 			}
-			rec(a[i], level);
+			emit(a[i], level);
 		}
 		put(')');
 	}
@@ -136,7 +136,7 @@ function run(ast) {
 		comment(ast, level);
 		blankLine(ast);
 		indent(level);
-		rec(ast, level);
+		emit(ast, level);
 		put('\n');
 		blankLine(ast);
 	}
@@ -147,13 +147,13 @@ function run(ast) {
 			if (i) {
 				put(', ');
 			}
-			rec(ast.declarations[i], level);
+			emit(ast.declarations[i], level);
 		}
 	}
 
 	// Recursive descent
 
-	function rec(ast, level) {
+	function emit(ast, level) {
 		switch (ast.type) {
 		case 'ArrayExpression':
 			if (!ast.elements.length) {
@@ -164,7 +164,7 @@ function run(ast) {
 			for (var a of ast.elements) {
 				comment(a, level + 1);
 				indent(level + 1);
-				rec(a, level + 1);
+				emit(a, level + 1);
 				put(',\n');
 			}
 			indent(level);
@@ -172,7 +172,7 @@ function run(ast) {
 			break;
 		case 'ArrowFunctionExpression':
 			if (ast.params.length === 1) {
-				rec(ast.params[0], level);
+				emit(ast.params[0], level);
 			} else {
 				params(ast.params, level);
 			}
@@ -180,15 +180,15 @@ function run(ast) {
 			if (ast.body.type === 'BlockStatement') {
 				block(ast.body, level);
 			} else {
-				rec(ast.body, level);
+				emit(ast.body, level);
 			}
 			break;
 		case 'AssignmentExpression':
 		case 'BinaryExpression':
 		case 'LogicalExpression':
-			rec(ast.left, level);
+			emit(ast.left, level);
 			put(' ' + ast.operator + ' ');
-			rec(ast.right, level);
+			emit(ast.right, level);
 			break;
 		case 'BlockStatement':
 			put('{\n');
@@ -206,15 +206,15 @@ function run(ast) {
 			put(';');
 			break;
 		case 'CallExpression':
-			rec(ast.callee, level);
+			emit(ast.callee, level);
 			params(ast.arguments, level);
 			break;
 		case 'ConditionalExpression':
-			rec(ast.test, level);
+			emit(ast.test, level);
 			put(' ? ');
-			rec(ast.consequent, level);
+			emit(ast.consequent, level);
 			put(' : ');
-			rec(ast.alternate, level);
+			emit(ast.alternate, level);
 			break;
 		case 'ContinueStatement':
 			put('continue');
@@ -228,7 +228,7 @@ function run(ast) {
 			block(ast.body, level);
 			blockEnd(ast.body, level);
 			put('while (');
-			rec(ast.test, level);
+			emit(ast.test, level);
 			put(')');
 			put(';');
 			break;
@@ -236,14 +236,14 @@ function run(ast) {
 			put(';');
 			break;
 		case 'ExpressionStatement':
-			rec(ast.expression, level);
+			emit(ast.expression, level);
 			put(';');
 			break;
 		case 'ForInStatement':
 			put('for (');
 			forInit(ast.left, level);
 			put(' in ');
-			rec(ast.right, level);
+			emit(ast.right, level);
 			put(')');
 			block(ast.body, level);
 			break;
@@ -251,7 +251,7 @@ function run(ast) {
 			put('for (');
 			forInit(ast.left, level);
 			put(' of ');
-			rec(ast.right, level);
+			emit(ast.right, level);
 			put(')');
 			block(ast.body, level);
 			break;
@@ -262,11 +262,11 @@ function run(ast) {
 			}
 			put('; ');
 			if (ast.test) {
-				rec(ast.test, level);
+				emit(ast.test, level);
 			}
 			put('; ');
 			if (ast.update) {
-				rec(ast.update, level);
+				emit(ast.update, level);
 			}
 			put(')');
 			block(ast.body, level);
@@ -289,7 +289,7 @@ function run(ast) {
 			break;
 		case 'IfStatement':
 			put('if (');
-			rec(ast.test, level);
+			emit(ast.test, level);
 			put(')');
 			block(ast.consequent, level);
 			if (ast.alternate) {
@@ -300,7 +300,7 @@ function run(ast) {
 			break;
 		case 'LabeledStatement':
 			put(ast.label.name + ': ');
-			rec(ast.body, level);
+			emit(ast.body, level);
 			break;
 		case 'Literal':
 			if (typeof (ast.value) === 'string') {
@@ -358,19 +358,19 @@ function run(ast) {
 			put(ast.raw);
 			break;
 		case 'MemberExpression':
-			rec(ast.object, level);
+			emit(ast.object, level);
 			if (ast.computed) {
 				put('[');
-				rec(ast.property, level);
+				emit(ast.property, level);
 				put(']');
 			} else {
 				put('.');
-				rec(ast.property, level);
+				emit(ast.property, level);
 			}
 			break;
 		case 'NewExpression':
 			put('new ');
-			rec(ast.callee, level);
+			emit(ast.callee, level);
 			params(ast.arguments, level);
 			break;
 		case 'ObjectExpression':
@@ -382,7 +382,7 @@ function run(ast) {
 			for (var a of ast.properties) {
 				comment(a, level + 1);
 				indent(level + 1);
-				rec(a, level + 1);
+				emit(a, level + 1);
 				put(',\n');
 			}
 			indent(level);
@@ -390,7 +390,7 @@ function run(ast) {
 			break;
 		case 'ParenthesizedExpression':
 			put('(');
-			rec(ast.expression, level);
+			emit(ast.expression, level);
 			put(')');
 			break;
 		case 'Program':
@@ -399,15 +399,15 @@ function run(ast) {
 			}
 			break;
 		case 'Property':
-			rec(ast.key, level);
+			emit(ast.key, level);
 			put(': ');
-			rec(ast.value, level);
+			emit(ast.value, level);
 			break;
 		case 'ReturnStatement':
 			put('return');
 			if (ast.argument) {
 				put(' ');
-				rec(ast.argument, level);
+				emit(ast.argument, level);
 			}
 			put(';');
 			break;
@@ -416,19 +416,19 @@ function run(ast) {
 				if (i) {
 					put(', ');
 				}
-				rec(ast.expressions[i], level);
+				emit(ast.expressions[i], level);
 			}
 			break;
 		case 'SwitchStatement':
 			put('switch (');
-			rec(ast.discriminant, level);
+			emit(ast.discriminant, level);
 			put(') {\n');
 			for (var c of ast.cases) {
 				comment(c, level);
 				indent(level);
 				if (c.test) {
 					put('case ');
-					rec(c.test, level);
+					emit(c.test, level);
 				} else {
 					put('default');
 				}
@@ -436,7 +436,7 @@ function run(ast) {
 				for (var a of c.consequent) {
 					comment(a, level + 1);
 					indent(level + 1);
-					rec(a, level + 1);
+					emit(a, level + 1);
 					put('\n');
 				}
 			}
@@ -448,7 +448,7 @@ function run(ast) {
 			break;
 		case 'ThrowStatement':
 			put('throw ');
-			rec(ast.argument, level);
+			emit(ast.argument, level);
 			put(';');
 			break;
 		case 'TryStatement':
@@ -456,7 +456,7 @@ function run(ast) {
 			block(ast.block, level);
 			if (ast.handler) {
 				put(' catch (');
-				rec(ast.handler.param, level);
+				emit(ast.handler.param, level);
 				put(')');
 				block(ast.handler.body, level);
 			}
@@ -470,14 +470,14 @@ function run(ast) {
 			if (ast.operator.search(/[a-z]/) >= 0) {
 				put(' ');
 			}
-			rec(ast.argument, level);
+			emit(ast.argument, level);
 			break;
 		case 'UpdateExpression':
 			if (ast.prefix) {
 				put(ast.operator);
-				rec(ast.argument, level);
+				emit(ast.argument, level);
 			} else {
-				rec(ast.argument, level);
+				emit(ast.argument, level);
 				put(ast.operator);
 			}
 			break;
@@ -489,12 +489,12 @@ function run(ast) {
 			put(ast.id.name);
 			if (ast.init) {
 				put(' = ');
-				rec(ast.init, level);
+				emit(ast.init, level);
 			}
 			break;
 		case 'WhileStatement':
 			put('while (');
-			rec(ast.test, level);
+			emit(ast.test, level);
 			put(')');
 			block(ast.body, level);
 			break;
@@ -504,7 +504,7 @@ function run(ast) {
 		}
 	}
 
-	rec(ast, 0);
+	emit(ast, 0);
 	var text = ss.join('');
 
 	// #!
