@@ -4,4 +4,4 @@ Reduce the entropy of JavaScript code:
 
 - Apply changes (add missing semicolons, optional braces, trailing commas and break statements, replace `==` with `===`, sort functions, cases and object properties etc) that eliminate common sources of error and inconsistency.
 
-Usage: ```jsclean [options] [files]```
+Usage: ```jsclean [options] <files>```

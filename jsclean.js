@@ -7,7 +7,7 @@ var fs = require('fs');
 var index = require('./index');
 
 // Options
-commander.usage('[options] [files]');
+commander.usage('[options] <files>');
 commander.version(require('./package.json').version);
 commander.parse(process.argv);
 
