@@ -1,5 +1,4 @@
 'use strict';
-var acorn = require('acorn');
 var estraverse = require('estraverse');
 
 // Node type unknown to estraverse
@@ -38,12 +37,6 @@ function cmp(a, b) {
 		return 1;
 	}
 	return 0;
-}
-
-function format(text) {
-	var ast = parse(text);
-	transform(ast);
-	return gen(ast);
 }
 
 function gen(ast) {
@@ -579,41 +572,6 @@ function last(a) {
 	return a[a.length - 1];
 }
 
-function parse(text) {
-
-	// #!
-	var hashbang = '';
-	if (text.slice(0, 2) === '#!') {
-		var i = text.indexOf('\n');
-		if (i < 0) {
-			hashbang = text;
-			text = '';
-		} else {
-			hashbang = text.slice(0, i);
-			text = text.slice(i);
-		}
-	}
-
-	// Parse
-	var comments = [];
-	var tokens = [];
-	var ast = acorn.parse(text, {
-		allowImportExportEverywhere: true,
-		allowReturnOutsideFunction: true,
-		ecmaVersion: 6,
-		locations: true,
-		onComment: comments,
-		onToken: tokens,
-		preserveParens: true,
-		ranges: true,
-	});
-	estraverse.attachComments(ast, comments, tokens);
-
-	// #!
-	ast.hashbang = hashbang;
-	return ast;
-}
-
 function sortSlice(a, i, j, f) {
 	return a.slice(0, i).concat(a.slice(i, j).sort(f)).concat(a.slice(j));
 }
@@ -888,7 +846,5 @@ function transform(ast) {
 	});
 }
 
-exports.format = format;
 exports.gen = gen;
-exports.parse = parse;
 exports.transform = transform;
