@@ -61,9 +61,6 @@ for (var file of files) {
 		continue;
 	}
 	console.log(file);
-	try {
-		fs.renameSync(file, file + '.bak');
-	} catch (e) {
-	}
+	fs.renameSync(file, file + '.bak');
 	fs.writeFileSync(file, output);
 }
