@@ -8,42 +8,18 @@ var keys = {
 	],
 };
 
-function brace(a) {
-	if (!a) {
-		return a;
-	}
-	switch (a.type) {
-	case 'BlockStatement':
-		return a;
-	case 'EmptyStatement':
-		a.body = [];
-		a.type = 'BlockStatement';
-		return a;
-	default:
-		return {
-			body: [
-				a,
-			],
-			type: 'BlockStatement',
-		};
-	}
-}
-
 function cmp(a, b) {
-	if (a < b) {
+	if (a < b)
 		return -1;
-	}
-	if (a > b) {
+	if (a > b)
 		return 1;
-	}
 	return 0;
 }
 
 function hasTerminator(c) {
 	var a = c.consequent;
-	if (!a.length) {
+	if (!a.length)
 		return false;
-	}
 	return isTerminator(last(a));
 }
 
@@ -67,21 +43,34 @@ function sortSlices(a, isSortableStart, isSortablePart, cmp, post) {
 			i++;
 			continue
 		}
-		for (var j = i + 1; j < a.length; j++) {
-			if (!isSortablePart(a[j])) {
+		for (var j = i + 1; j < a.length; j++)
+			if (!isSortablePart(a[j]))
 				break
-			}
-		}
 		var sorted = a.slice(i, j).sort(cmp);
-		if (post) {
+		if (post)
 			post(sorted);
-		}
 		a.splice.apply(a, [
 			i,
 			j - i,
 		].concat(sorted));
 		i = j;
 	}
+}
+
+function unbrace(a) {
+	if (!a)
+		return a;
+	if (a.type !== 'BlockStatement')
+		return a;
+	switch (a.body.length) {
+	case 0:
+		return {
+			type: 'EmptyStatement',
+		};
+	case 1:
+		return a.body[0];
+	}
+	return a;
 }
 
 // Exports
@@ -91,10 +80,9 @@ function run(a) {
 	estraverse.traverse(a, {
 		enter:
 			function (a) {
-				if (a.type !== 'BinaryExpression') {
+				if (a.type !== 'BinaryExpression')
 					return;
-				}
-				if (a.left.value !== null && a.right.value !== null) {
+				if (a.left.value !== null && a.right.value !== null)
 					switch (a.operator) {
 					case '!=':
 						a.operator = '!==';
@@ -103,7 +91,6 @@ function run(a) {
 						a.operator = '===';
 						break
 					}
-				}
 			},
 		keys: keys,
 	});
@@ -118,11 +105,11 @@ function run(a) {
 				case 'ForOfStatement':
 				case 'ForStatement':
 				case 'WhileStatement':
-					a.body = brace(a.body);
+					a.body = unbrace(a.body);
 					break
 				case 'IfStatement':
-					a.consequent = brace(a.consequent);
-					a.alternate = brace(a.alternate);
+					a.consequent = unbrace(a.consequent);
+					a.alternate = unbrace(a.alternate);
 					break
 				}
 			},
@@ -133,16 +120,13 @@ function run(a) {
 	estraverse.traverse(a, {
 		enter:
 			function (a) {
-				if (a.type !== 'SwitchStatement') {
+				if (a.type !== 'SwitchStatement')
 					return;
-				}
-				if (!a.cases.length) {
+				if (!a.cases.length)
 					return;
-				}
 				var c = last(a.cases);
-				if (hasTerminator(c)) {
+				if (hasTerminator(c))
 					return;
-				}
 				c.consequent.push({
 					loc: a.loc,
 					type: 'BreakStatement',
@@ -155,20 +139,17 @@ function run(a) {
 	estraverse.traverse(a, {
 		enter:
 			function (a) {
-				if (!a.leadingComments) {
+				if (!a.leadingComments)
 					return;
-				}
 				for (var c of a.leadingComments) {
-					if (c.type !== 'Line') {
+					if (c.type !== 'Line')
 						continue
-					}
 					var s = c.value;
-					for (var i = 0; i < s.length; i++) {
+					for (var i = 0; i < s.length; i++)
 						if (s[i] !== ' ') {
 							c.value = s.slice(0, i) + s[i].toUpperCase() + s.slice(i + 1);
 							break
 						}
-					}
 				}
 			},
 		keys: keys,
@@ -178,9 +159,8 @@ function run(a) {
 	estraverse.traverse(a, {
 		enter:
 			function (a, parent) {
-				if (a.type !== 'VariableDeclaration') {
+				if (a.type !== 'VariableDeclaration')
 					return;
-				}
 				switch (parent.type) {
 				case 'BlockStatement':
 				case 'Program':
@@ -193,17 +173,15 @@ function run(a) {
 					return;
 				}
 				var vars = a.declarations;
-				if (a.leadingComments) {
+				if (a.leadingComments)
 					vars[0].leadingComments = (vars[0].leadingComments || []).concat(a.leadingComments);
-				}
-				for (var i = 0; i < vars.length; i++) {
+				for (var i = 0; i < vars.length; i++)
 					vars[i] = {
 						declarations: [
 							vars[i],
 						],
 						type: a.type,
 					};
-				}
 				body.splice.apply(body, [
 					body.indexOf(a),
 					1,
@@ -216,9 +194,8 @@ function run(a) {
 	estraverse.traverse(a, {
 		enter:
 			function (a) {
-				if (a.type !== 'SwitchStatement') {
+				if (a.type !== 'SwitchStatement')
 					return;
-				}
 
 				// Get blocks of cases
 				var block = [];
@@ -230,26 +207,22 @@ function run(a) {
 						block = [];
 					}
 				}
-				if (block.length) {
+				if (block.length)
 					blocks.push(block);
-				}
 
 				// Sort cases within block
 				blocks: for (var block of blocks) {
-					for (var i = 0; i < block.length - 1; i++) {
-						if (block[i].consequent.length) {
+					for (var i = 0; i < block.length - 1; i++)
+						if (block[i].consequent.length)
 							continue blocks
-						}
-					}
 					var consequent = last(block).consequent;
 					last(block).consequent = [];
 					block.sort(
 						function (a, b) {
 							function key(x) {
 								x = x.test;
-								if (!x) {
+								if (!x)
 									return '\uffff';
-								}
 								switch (x.type) {
 								case 'Identifier':
 									return x.name;
@@ -268,9 +241,8 @@ function run(a) {
 					function (a, b) {
 						function key(block) {
 							var x = block[0].test;
-							if (!x) {
+							if (!x)
 								return '\uffff';
-							}
 							switch (x.type) {
 							case 'Identifier':
 								return x.name;
@@ -284,11 +256,9 @@ function run(a) {
 
 				// Put blocks of cases
 				a.cases = [];
-				for (var block of blocks) {
-					for (var c of block) {
+				for (var block of blocks)
+					for (var c of block)
 						a.cases.push(c);
-					}
-				}
 			},
 		keys: keys,
 	});
@@ -297,9 +267,8 @@ function run(a) {
 	estraverse.traverse(a, {
 		enter:
 			function (a) {
-				if (!a.body) {
+				if (!a.body)
 					return;
-				}
 				sortSlices(
 					a.body,
 					function (a) {
@@ -333,9 +302,8 @@ function run(a) {
 	estraverse.traverse(a, {
 		enter:
 			function (a) {
-				if (a.type !== 'ObjectExpression') {
+				if (a.type !== 'ObjectExpression')
 					return;
-				}
 				a.properties.sort(
 					function (a, b) {
 						function key(x) {

@@ -57,9 +57,8 @@ for (var file of files) {
 	var a = parse(input);
 	transform.run(a);
 	var output = emit.run(a);
-	if (input === output) {
+	if (input === output)
 		continue
-	}
 	console.log(file);
 	fs.renameSync(file, file + '.bak');
 	fs.writeFileSync(file, output);

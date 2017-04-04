@@ -23,30 +23,27 @@ function block(a, level) {
 }
 
 function blockEnd(a, level) {
-	if (a.type === 'BlockStatement') {
+	if (a.type === 'BlockStatement')
 		ss.push(' ');
-	} else {
+	else {
 		ss.push('\n');
 		indent(level);
 	}
 }
 
 function comment(a, level) {
-	if (!a.leadingComments) {
+	if (!a.leadingComments)
 		return;
-	}
 	ss.push('\n');
 	for (var c of a.leadingComments) {
 		indent(level);
 		if (c.type === 'Line') {
 			ss.push('//');
-			if (c.value[0] !== ' ') {
+			if (c.value[0] !== ' ')
 				ss.push(' ');
-			}
 			ss.push(c.value);
-		} else {
+		} else
 			ss.push('/*' + c.value + '*/');
-		}
 		ss.push('\n');
 	}
 }
@@ -69,17 +66,15 @@ function emit(a, level) {
 		ss.push(']');
 		break
 	case 'ArrowFunctionExpression':
-		if (a.params.length === 1) {
+		if (a.params.length === 1)
 			emit(a.params[0], level);
-		} else {
+		else
 			params(a.params, level);
-		}
 		ss.push(' => ');
-		if (a.body.type === 'BlockStatement') {
+		if (a.body.type === 'BlockStatement')
 			block(a.body, level);
-		} else {
+		else
 			emit(a.body, level);
-		}
 		break
 	case 'AssignmentExpression':
 	case 'BinaryExpression':
@@ -90,17 +85,15 @@ function emit(a, level) {
 		break
 	case 'BlockStatement':
 		ss.push('{\n');
-		for (var b of a.body) {
+		for (var b of a.body)
 			stmt(b, level + 1);
-		}
 		indent(level);
 		ss.push('}');
 		break
 	case 'BreakStatement':
 		ss.push('break');
-		if (a.label) {
+		if (a.label)
 			ss.push(' ' + a.label.name);
-		}
 		break
 	case 'CallExpression':
 		emit(a.callee, level);
@@ -115,9 +108,8 @@ function emit(a, level) {
 		break
 	case 'ContinueStatement':
 		ss.push('continue');
-		if (a.label) {
+		if (a.label)
 			ss.push(' ' + a.label.name);
-		}
 		break
 	case 'DoWhileStatement':
 		ss.push('do');
@@ -153,17 +145,14 @@ function emit(a, level) {
 		break
 	case 'ForStatement':
 		ss.push('for (');
-		if (a.init) {
+		if (a.init)
 			forInit(a.init, level);
-		}
 		ss.push('; ');
-		if (a.test) {
+		if (a.test)
 			emit(a.test, level);
-		}
 		ss.push('; ');
-		if (a.update) {
+		if (a.update)
 			emit(a.update, level);
-		}
 		ss.push(')');
 		block(a.body, level);
 		break
@@ -174,9 +163,8 @@ function emit(a, level) {
 		break
 	case 'FunctionExpression':
 		ss.push('function ');
-		if (a.id) {
+		if (a.id)
 			ss.push(a.id.name);
-		}
 		params(a.params, level);
 		block(a.body, level);
 		break
@@ -201,11 +189,10 @@ function emit(a, level) {
 	case 'Literal':
 		if (typeof (a.value) === 'string') {
 			var q = "'";
-			if (a.value.indexOf(q) >= 0) {
+			if (a.value.indexOf(q) >= 0)
 				q = '"';
-			}
 			ss.push(q);
-			for (var c of a.value) {
+			for (var c of a.value)
 				switch (c) {
 				case '\b':
 					ss.push('\\b');
@@ -247,7 +234,6 @@ function emit(a, level) {
 					ss.push(hex(n, 4));
 					break
 				}
-			}
 			ss.push(q);
 			break
 		}
@@ -290,9 +276,8 @@ function emit(a, level) {
 		ss.push(')');
 		break
 	case 'Program':
-		for (var b of a.body) {
+		for (var b of a.body)
 			stmt(b, 0);
-		}
 		break
 	case 'Property':
 		emit(a.key, level);
@@ -316,9 +301,8 @@ function emit(a, level) {
 		break
 	case 'SequenceExpression':
 		for (var i = 0; i < a.expressions.length; i++) {
-			if (i) {
+			if (i)
 				ss.push(', ');
-			}
 			emit(a.expressions[i], level);
 		}
 		break
@@ -332,9 +316,8 @@ function emit(a, level) {
 			if (c.test) {
 				ss.push('case ');
 				emit(c.test, level);
-			} else {
+			} else
 				ss.push('default');
-			}
 			ss.push(':\n');
 			for (var b of c.consequent) {
 				comment(b, level + 1);
@@ -370,9 +353,8 @@ function emit(a, level) {
 		break
 	case 'UnaryExpression':
 		ss.push(a.operator);
-		if (a.operator.search(/[a-z]/) >= 0) {
+		if (a.operator.search(/[a-z]/) >= 0)
 			ss.push(' ');
-		}
 		emit(a.argument, level);
 		break
 	case 'UpdateExpression':
@@ -408,25 +390,22 @@ function emit(a, level) {
 }
 
 function forInit(a, level) {
-	if (a.type === 'VariableDeclaration') {
+	if (a.type === 'VariableDeclaration')
 		variableDeclaration(a, level);
-	} else {
+	else
 		emit(a, level);
-	}
 }
 
 function hex(n, size) {
 	var s = n.toString(16);
-	while (s.length < size) {
+	while (s.length < size)
 		s = '0' + s;
-	}
 	return s;
 }
 
 function indent(level) {
-	while (level--) {
+	while (level--)
 		ss.push('\t');
-	}
 }
 
 function params(a, level) {
@@ -434,9 +413,8 @@ function params(a, level) {
 		ss.push('(\n');
 		level++;
 		for (var i = 0; i < a.length; i++) {
-			if (i) {
+			if (i)
 				ss.push(',\n');
-			}
 			indent(level);
 			emit(a[i], level);
 		}
@@ -445,9 +423,8 @@ function params(a, level) {
 	}
 	ss.push('(');
 	for (var i = 0; i < a.length; i++) {
-		if (i) {
+		if (i)
 			ss.push(', ');
-		}
 		emit(a[i], level);
 	}
 	ss.push(')');
@@ -459,23 +436,20 @@ function separate(a) {
 
 function stmt(a, level) {
 	comment(a, level);
-	if (a.type === 'FunctionDeclaration') {
+	if (a.type === 'FunctionDeclaration')
 		ss.push('\n');
-	}
 	indent(level);
 	emit(a, level);
 	ss.push('\n');
-	if (a.type === 'FunctionDeclaration') {
+	if (a.type === 'FunctionDeclaration')
 		ss.push('\n');
-	}
 }
 
 function variableDeclaration(a, level) {
 	ss.push('var ');
 	for (var i = 0; i < a.declarations.length; i++) {
-		if (i) {
+		if (i)
 			ss.push(', ');
-		}
 		emit(a.declarations[i], level);
 	}
 }
@@ -490,23 +464,19 @@ function run(a) {
 		keys: keys,
 		leave:
 			function (a, parent) {
-				if (!a.leadingComments) {
+				if (!a.leadingComments)
 					return;
-				}
-				if (!parent) {
+				if (!parent)
 					return;
-				}
-				if (a.type.indexOf('Statement') >= 0) {
+				if (a.type.indexOf('Statement') >= 0)
 					return;
-				}
 				switch (a.type) {
 				case 'FunctionDeclaration':
 				case 'SwitchCase':
 					return;
 				case 'VariableDeclaration':
-					if (parent.type.indexOf('For') < 0) {
+					if (parent.type.indexOf('For') < 0)
 						return;
-					}
 					break
 				}
 				switch (parent.type) {
