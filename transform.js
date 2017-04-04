@@ -61,11 +61,6 @@ function last(a) {
 	return a[a.length - 1];
 }
 
-function sortSlice(a, i, j, cmp) {
-	var sorted = a.slice(i, j).sort(cmp);
-	return a.slice(0, i).concat(sorted).concat(a.slice(j));
-}
-
 function sortSlices(a, isSortableStart, isSortablePart, cmp, post) {
 	for (var i = 0; i < a.length; ) {
 		if (!isSortableStart(a[i])) {
