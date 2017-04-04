@@ -11,19 +11,19 @@ var keys = {
 // Gathered strings
 var ss;
 
-function block(ast, level) {
-	if (ast.type === 'BlockStatement') {
+function block(a, level) {
+	if (a.type === 'BlockStatement') {
 		ss.push(' ');
-		emit(ast, level);
+		emit(a, level);
 	} else {
 		ss.push('\n');
 		indent(level + 1);
-		emit(ast, level + 1);
+		emit(a, level + 1);
 	}
 }
 
-function blockEnd(ast, level) {
-	if (ast.type === 'BlockStatement') {
+function blockEnd(a, level) {
+	if (a.type === 'BlockStatement') {
 		ss.push(' ');
 	} else {
 		ss.push('\n');
@@ -31,12 +31,12 @@ function blockEnd(ast, level) {
 	}
 }
 
-function comment(ast, level) {
-	if (!ast.leadingComments) {
+function comment(a, level) {
+	if (!a.leadingComments) {
 		return;
 	}
 	ss.push('\n');
-	for (var c of ast.leadingComments) {
+	for (var c of a.leadingComments) {
 		indent(level);
 		if (c.type === 'Line') {
 			ss.push('//');
@@ -402,11 +402,11 @@ function emit(ast, level) {
 	}
 }
 
-function forInit(ast, level) {
-	if (ast.type === 'VariableDeclaration') {
-		variableDeclaration(ast, level);
+function forInit(a, level) {
+	if (a.type === 'VariableDeclaration') {
+		variableDeclaration(a, level);
 	} else {
-		emit(ast, level);
+		emit(a, level);
 	}
 }
 
@@ -448,52 +448,52 @@ function params(a, level) {
 	ss.push(')');
 }
 
-function separate(ast) {
-	return ast.type === 'FunctionExpression';
+function separate(a) {
+	return a.type === 'FunctionExpression';
 }
 
-function stmt(ast, level) {
-	comment(ast, level);
-	if (ast.type === 'FunctionDeclaration') {
+function stmt(a, level) {
+	comment(a, level);
+	if (a.type === 'FunctionDeclaration') {
 		ss.push('\n');
 	}
 	indent(level);
-	emit(ast, level);
+	emit(a, level);
 	ss.push('\n');
-	if (ast.type === 'FunctionDeclaration') {
+	if (a.type === 'FunctionDeclaration') {
 		ss.push('\n');
 	}
 }
 
-function variableDeclaration(ast, level) {
+function variableDeclaration(a, level) {
 	ss.push('var ');
-	for (var i = 0; i < ast.declarations.length; i++) {
+	for (var i = 0; i < a.declarations.length; i++) {
 		if (i) {
 			ss.push(', ');
 		}
-		emit(ast.declarations[i], level);
+		emit(a.declarations[i], level);
 	}
 }
 
 // Exports
 
-function run(ast) {
+function run(a) {
 	ss = [];
 
 	// Bubble comments up to statements
-	estraverse.traverse(ast, {
+	estraverse.traverse(a, {
 		keys: keys,
-		leave: function (ast, parent) {
-			if (!ast.leadingComments) {
+		leave: function (a, parent) {
+			if (!a.leadingComments) {
 				return;
 			}
 			if (!parent) {
 				return;
 			}
-			if (ast.type.indexOf('Statement') >= 0) {
+			if (a.type.indexOf('Statement') >= 0) {
 				return;
 			}
-			switch (ast.type) {
+			switch (a.type) {
 			case 'FunctionDeclaration':
 			case 'SwitchCase':
 				return;
@@ -508,17 +508,17 @@ function run(ast) {
 			case 'ObjectExpression':
 				return;
 			}
-			parent.leadingComments = (parent.leadingComments || []).concat(ast.leadingComments);
-			ast.leadingComments = null;
+			parent.leadingComments = (parent.leadingComments || []).concat(a.leadingComments);
+			a.leadingComments = null;
 		},
 	});
 
 	// Emit
-	emit(ast, 0);
+	emit(a, 0);
 	var text = ss.join('');
 
 	// #!
-	text = ast.hashbang + '\n\n' + text;
+	text = a.hashbang + '\n\n' + text;
 
 	// Only one consecutive blank line
 	text = text.replace(/\n\n+/g, '\n\n');
