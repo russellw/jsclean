@@ -211,30 +211,31 @@ function run(a) {
 					blocks.push(block);
 
 				// Sort cases within block
-				blocks: for (var block of blocks) {
-					for (var i = 0; i < block.length - 1; i++)
-						if (block[i].consequent.length)
-							continue blocks
-					var consequent = last(block).consequent;
-					last(block).consequent = [];
-					block.sort(
-						function (a, b) {
-							function key(x) {
-								x = x.test;
-								if (!x)
-									return '\uffff';
-								switch (x.type) {
-								case 'Identifier':
-									return x.name;
-								case 'Literal':
-									return x.value;
+				blocks:
+					for (var block of blocks) {
+						for (var i = 0; i < block.length - 1; i++)
+							if (block[i].consequent.length)
+								continue blocks
+						var consequent = last(block).consequent;
+						last(block).consequent = [];
+						block.sort(
+							function (a, b) {
+								function key(x) {
+									x = x.test;
+									if (!x)
+										return '\uffff';
+									switch (x.type) {
+									case 'Identifier':
+										return x.name;
+									case 'Literal':
+										return x.value;
+									}
 								}
-							}
 
-							return cmp(key(a), key(b));
-						});
-					last(block).consequent = consequent;
-				}
+								return cmp(key(a), key(b));
+							});
+						last(block).consequent = consequent;
+					}
 
 				// Sort blocks
 				blocks.sort(
