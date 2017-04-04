@@ -86,9 +86,9 @@ function sortSlices(a, isSortableStart, isSortablePart, cmp, post) {
 
 // Exports
 
-function run(ast) {
+function run(a) {
 	// ===
-	estraverse.traverse(ast, {
+	estraverse.traverse(a, {
 		enter: function (a) {
 			if (a.type !== 'BinaryExpression') {
 				return;
@@ -108,7 +108,7 @@ function run(ast) {
 	});
 
 	// Braces
-	estraverse.traverse(ast, {
+	estraverse.traverse(a, {
 		enter: function (a) {
 			switch (a.type) {
 			case 'DoWhileStatement':
@@ -128,7 +128,7 @@ function run(ast) {
 	});
 
 	// Break
-	estraverse.traverse(ast, {
+	estraverse.traverse(a, {
 		enter: function (a) {
 			if (a.type !== 'SwitchStatement') {
 				return;
@@ -149,7 +149,7 @@ function run(ast) {
 	});
 
 	// Comments
-	estraverse.traverse(ast, {
+	estraverse.traverse(a, {
 		enter: function (a) {
 			if (!a.leadingComments) {
 				return;
@@ -171,7 +171,7 @@ function run(ast) {
 	});
 
 	// Vars
-	estraverse.traverse(ast, {
+	estraverse.traverse(a, {
 		enter: function (a, parent) {
 			if (a.type !== 'VariableDeclaration') {
 				return;
@@ -208,7 +208,7 @@ function run(ast) {
 	});
 
 	// Sort cases
-	estraverse.traverse(ast, {
+	estraverse.traverse(a, {
 		enter: function (ast) {
 			if (ast.type !== 'SwitchStatement') {
 				return;
@@ -288,7 +288,7 @@ function run(ast) {
 	});
 
 	// Sort functions
-	estraverse.traverse(ast, {
+	estraverse.traverse(a, {
 		enter: function (a) {
 			if (!a.body) {
 				return;
@@ -323,7 +323,7 @@ function run(ast) {
 	});
 
 	// Sort properties
-	estraverse.traverse(ast, {
+	estraverse.traverse(a, {
 		enter: function (a) {
 			if (a.type !== 'ObjectExpression') {
 				return;

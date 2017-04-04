@@ -31,7 +31,7 @@ function parse(text) {
 	// Parse
 	var comments = [];
 	var tokens = [];
-	var ast = acorn.parse(text, {
+	var a = acorn.parse(text, {
 		allowImportExportEverywhere: true,
 		allowReturnOutsideFunction: true,
 		ecmaVersion: 6,
@@ -41,11 +41,11 @@ function parse(text) {
 		preserveParens: true,
 		ranges: true,
 	});
-	estraverse.attachComments(ast, comments, tokens);
+	estraverse.attachComments(a, comments, tokens);
 
 	// #!
-	ast.hashbang = hashbang;
-	return ast;
+	a.hashbang = hashbang;
+	return a;
 }
 
 // Files
@@ -54,9 +54,9 @@ for (var file of files) {
 	var input = fs.readFileSync(file, {
 		encoding: 'utf8',
 	});
-	var ast = parse(input);
-	transform.run(ast);
-	var output = emit.run(ast);
+	var a = parse(input);
+	transform.run(a);
+	var output = emit.run(a);
 	if (input === output) {
 		continue;
 	}
