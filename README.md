@@ -1,11 +1,9 @@
-Reduce the entropy of JavaScript code:
-
-- Format code in a standard layout, fixing readability of ill-formatted code and allowing a consistent style to be automatically enforced throughout a project.
-
-- Apply changes (add missing semicolons, optional braces, trailing commas and break statements, replace `==` with `===`, sort functions, cases and object properties etc) that eliminate common sources of error and inconsistency.
+Reduce the entropy of JavaScript code. Format in a standard layout and apply changes that eliminate redundant degrees of freedom in order of function definitions, cases, object properties, `==` vs `===`, trailing break statements, braces, semicolons etc.
 
 Usage:
 
 ```
 jsclean <files>
 ```
+
+Rather than provide options, jsclean has a single way of doing things, combined with code simple enough (less than a thousand lines) to make it feasible to fork if you want a version that does something else.
