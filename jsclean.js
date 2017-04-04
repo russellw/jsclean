@@ -62,10 +62,6 @@ for (var file of files) {
 	}
 	console.log(file);
 	try {
-		fs.unlinkSync(file + '.bak');
-	} catch (e) {
-	}
-	try {
 		fs.renameSync(file, file + '.bak');
 	} catch (e) {
 	}
