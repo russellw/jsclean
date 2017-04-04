@@ -62,7 +62,8 @@ function last(a) {
 }
 
 function sortSlice(a, i, j, f) {
-	return a.slice(0, i).concat(a.slice(i, j).sort(f)).concat(a.slice(j));
+	var sorted = a.slice(i, j).sort(f);
+	return a.slice(0, i).concat(sorted).concat(a.slice(j));
 }
 
 // Exports
