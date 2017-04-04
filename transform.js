@@ -209,15 +209,15 @@ function run(a) {
 
 	// Sort cases
 	estraverse.traverse(a, {
-		enter: function (ast) {
-			if (ast.type !== 'SwitchStatement') {
+		enter: function (a) {
+			if (a.type !== 'SwitchStatement') {
 				return;
 			}
 
 			// Get blocks of cases
 			var block = [];
 			var blocks = [];
-			for (var c of ast.cases) {
+			for (var c of a.cases) {
 				block.push(c);
 				if (hasTerminator(c)) {
 					blocks.push(block);
@@ -277,10 +277,10 @@ function run(a) {
 				});
 
 			// Put blocks of cases
-			ast.cases = [];
+			a.cases = [];
 			for (var block of blocks) {
 				for (var c of block) {
-					ast.cases.push(c);
+					a.cases.push(c);
 				}
 			}
 		},
