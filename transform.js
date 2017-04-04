@@ -289,12 +289,12 @@ function run(ast) {
 
 	// Sort functions
 	estraverse.traverse(ast, {
-		enter: function (ast) {
-			if (!ast.body) {
+		enter: function (a) {
+			if (!a.body) {
 				return;
 			}
 			sortSlices(
-				ast.body,
+				a.body,
 				function (a) {
 					return a.type === 'FunctionDeclaration' && a.id;
 				},
@@ -324,11 +324,11 @@ function run(ast) {
 
 	// Sort properties
 	estraverse.traverse(ast, {
-		enter: function (ast) {
-			if (ast.type !== 'ObjectExpression') {
+		enter: function (a) {
+			if (a.type !== 'ObjectExpression') {
 				return;
 			}
-			ast.properties.sort(
+			a.properties.sort(
 				function (a, b) {
 					function key(x) {
 						x = x.key;
