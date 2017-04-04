@@ -237,9 +237,31 @@ function run(ast) {
 				}
 				var consequent = last(block).consequent;
 				last(block).consequent = [];
-				block.sort(function (a, b) {
-					function key(x) {
-						x = x.test;
+				block.sort(
+					function (a, b) {
+						function key(x) {
+							x = x.test;
+							if (!x) {
+								return '\uffff';
+							}
+							switch (x.type) {
+							case 'Identifier':
+								return x.name;
+							case 'Literal':
+								return x.value;
+							}
+						}
+
+						return cmp(key(a), key(b));
+					});
+				last(block).consequent = consequent;
+			}
+
+			// Sort blocks
+			blocks.sort(
+				function (a, b) {
+					function key(block) {
+						var x = block[0].test;
 						if (!x) {
 							return '\uffff';
 						}
@@ -253,26 +275,6 @@ function run(ast) {
 
 					return cmp(key(a), key(b));
 				});
-				last(block).consequent = consequent;
-			}
-
-			// Sort blocks
-			blocks.sort(function (a, b) {
-				function key(block) {
-					var x = block[0].test;
-					if (!x) {
-						return '\uffff';
-					}
-					switch (x.type) {
-					case 'Identifier':
-						return x.name;
-					case 'Literal':
-						return x.value;
-					}
-				}
-
-				return cmp(key(a), key(b));
-			});
 
 			// Put blocks of cases
 			ast.cases = [];
@@ -291,26 +293,31 @@ function run(ast) {
 			if (!ast.body) {
 				return;
 			}
-			sortSlices(ast.body, function (a) {
-				return a.type === 'FunctionDeclaration' && a.id;
-			}, function (a) {
-				return a.type === 'FunctionDeclaration' && a.id && !a.leadingComments;
-			}, function (a, b) {
-				function key(x) {
-					return x.id.name;
-				}
-
-				return cmp(key(a), key(b));
-			}, function (a) {
-				var comment;
-				for (var i = 0; i < a.length; i++) {
-					if (a[i].leadingComments) {
-						comment = a[i].leadingComments;
-						delete a[i].leadingComments;
+			sortSlices(
+				ast.body,
+				function (a) {
+					return a.type === 'FunctionDeclaration' && a.id;
+				},
+				function (a) {
+					return a.type === 'FunctionDeclaration' && a.id && !a.leadingComments;
+				},
+				function (a, b) {
+					function key(x) {
+						return x.id.name;
 					}
-					a[0].leadingComments = comment;
-				}
-			});
+
+					return cmp(key(a), key(b));
+				},
+				function (a) {
+					var comment;
+					for (var i = 0; i < a.length; i++) {
+						if (a[i].leadingComments) {
+							comment = a[i].leadingComments;
+							delete a[i].leadingComments;
+						}
+						a[0].leadingComments = comment;
+					}
+				});
 		},
 		keys: keys,
 	});
@@ -321,19 +328,20 @@ function run(ast) {
 			if (ast.type !== 'ObjectExpression') {
 				return;
 			}
-			ast.properties.sort(function (a, b) {
-				function key(x) {
-					x = x.key;
-					switch (x.type) {
-					case 'Identifier':
-						return x.name;
-					case 'Literal':
-						return x.value;
+			ast.properties.sort(
+				function (a, b) {
+					function key(x) {
+						x = x.key;
+						switch (x.type) {
+						case 'Identifier':
+							return x.name;
+						case 'Literal':
+							return x.value;
+						}
 					}
-				}
 
-				return cmp(key(a), key(b));
-			});
+					return cmp(key(a), key(b));
+				});
 		},
 		keys: keys,
 	});
