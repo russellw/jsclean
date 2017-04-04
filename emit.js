@@ -298,6 +298,13 @@ function emit(a, level) {
 		break;
 	case 'Property':
 		emit(a.key, level);
+		if (separate(a.value)) {
+			ss.push(':\n');
+			level++;
+			indent(level);
+			emit(a.value, level);
+			break;
+		}
 		ss.push(': ');
 		emit(a.value, level);
 		break;
@@ -483,34 +490,35 @@ function run(a) {
 	// Bubble comments up to statements
 	estraverse.traverse(a, {
 		keys: keys,
-		leave: function (a, parent) {
-			if (!a.leadingComments) {
-				return;
-			}
-			if (!parent) {
-				return;
-			}
-			if (a.type.indexOf('Statement') >= 0) {
-				return;
-			}
-			switch (a.type) {
-			case 'FunctionDeclaration':
-			case 'SwitchCase':
-				return;
-			case 'VariableDeclaration':
-				if (parent.type.indexOf('For') < 0) {
+		leave:
+			function (a, parent) {
+				if (!a.leadingComments) {
 					return;
 				}
-				break;
-			}
-			switch (parent.type) {
-			case 'ArrayExpression':
-			case 'ObjectExpression':
-				return;
-			}
-			parent.leadingComments = (parent.leadingComments || []).concat(a.leadingComments);
-			a.leadingComments = null;
-		},
+				if (!parent) {
+					return;
+				}
+				if (a.type.indexOf('Statement') >= 0) {
+					return;
+				}
+				switch (a.type) {
+				case 'FunctionDeclaration':
+				case 'SwitchCase':
+					return;
+				case 'VariableDeclaration':
+					if (parent.type.indexOf('For') < 0) {
+						return;
+					}
+					break;
+				}
+				switch (parent.type) {
+				case 'ArrayExpression':
+				case 'ObjectExpression':
+					return;
+				}
+				parent.leadingComments = (parent.leadingComments || []).concat(a.leadingComments);
+				a.leadingComments = null;
+			},
 	});
 
 	// Emit
