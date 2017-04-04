@@ -89,7 +89,7 @@ function sortSlices(a, isSortableStart, isSortablePart, cmp, post) {
 function run(ast) {
 	// ===
 	estraverse.traverse(ast, {
-		enter: function (ast, parent) {
+		enter: function (ast) {
 			if (ast.type !== 'BinaryExpression') {
 				return;
 			}
@@ -109,7 +109,7 @@ function run(ast) {
 
 	// Braces
 	estraverse.traverse(ast, {
-		enter: function (ast, parent) {
+		enter: function (ast) {
 			switch (ast.type) {
 			case 'DoWhileStatement':
 			case 'ForInStatement':
@@ -129,7 +129,7 @@ function run(ast) {
 
 	// Break
 	estraverse.traverse(ast, {
-		enter: function (ast, parent) {
+		enter: function (ast) {
 			if (ast.type !== 'SwitchStatement') {
 				return;
 			}
@@ -150,7 +150,7 @@ function run(ast) {
 
 	// Comments
 	estraverse.traverse(ast, {
-		enter: function (ast, parent) {
+		enter: function (ast) {
 			if (!ast.leadingComments) {
 				return;
 			}
@@ -209,7 +209,7 @@ function run(ast) {
 
 	// Sort cases
 	estraverse.traverse(ast, {
-		enter: function (ast, parent) {
+		enter: function (ast) {
 			if (ast.type !== 'SwitchStatement') {
 				return;
 			}
@@ -289,7 +289,7 @@ function run(ast) {
 
 	// Sort functions
 	estraverse.traverse(ast, {
-		enter: function (ast, parent) {
+		enter: function (ast) {
 			if (!ast.body) {
 				return;
 			}
@@ -324,7 +324,7 @@ function run(ast) {
 
 	// Sort properties
 	estraverse.traverse(ast, {
-		enter: function (ast, parent) {
+		enter: function (ast) {
 			if (ast.type !== 'ObjectExpression') {
 				return;
 			}
