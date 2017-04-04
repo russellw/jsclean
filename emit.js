@@ -11,12 +11,6 @@ var keys = {
 // Gathered strings
 var ss;
 
-function blankLine(ast) {
-	if (ast.type === 'FunctionDeclaration') {
-		ss.push('\n');
-	}
-}
-
 function block(ast, level) {
 	if (ast.type === 'BlockStatement') {
 		ss.push(' ');
@@ -443,11 +437,15 @@ function params(a, level) {
 
 function stmt(ast, level) {
 	comment(ast, level);
-	blankLine(ast);
+	if (ast.type === 'FunctionDeclaration') {
+		ss.push('\n');
+	}
 	indent(level);
 	emit(ast, level);
 	ss.push('\n');
-	blankLine(ast);
+	if (ast.type === 'FunctionDeclaration') {
+		ss.push('\n');
+	}
 }
 
 function variableDeclaration(ast, level) {
