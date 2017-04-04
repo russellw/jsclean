@@ -8,21 +8,21 @@ var keys = {
 	],
 };
 
-function brace(ast) {
-	if (!ast) {
-		return ast;
+function brace(a) {
+	if (!a) {
+		return a;
 	}
-	switch (ast.type) {
+	switch (a.type) {
 	case 'BlockStatement':
-		return ast;
+		return a;
 	case 'EmptyStatement':
-		ast.body = [];
-		ast.type = 'BlockStatement';
-		return ast;
+		a.body = [];
+		a.type = 'BlockStatement';
+		return a;
 	default:
 		return {
 			body: [
-				ast,
+				a,
 			],
 			type: 'BlockStatement',
 		};
@@ -47,8 +47,8 @@ function hasTerminator(c) {
 	return isTerminator(last(a));
 }
 
-function isTerminator(ast) {
-	switch (ast.type) {
+function isTerminator(a) {
+	switch (a.type) {
 	case 'BreakStatement':
 	case 'ContinueStatement':
 	case 'ReturnStatement':
