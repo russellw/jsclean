@@ -73,12 +73,13 @@ function sortSlices(a, isSortableStart, isSortablePart, cmp, post) {
 			}
 		}
 		var sorted = a.slice(i, j).sort(cmp);
-		post(sorted);
-		a.splice.apply([
+		if (post) {
+			post(sorted);
+		}
+		a.splice.apply(a, [
 			i,
 			j - i,
 		].concat(sorted));
-		return a.slice(0, i).concat(sorted).concat(a.slice(j));
 		i = j;
 	}
 }
@@ -287,7 +288,7 @@ function run(ast) {
 	// Sort functions
 	estraverse.traverse(ast, {
 		enter: function (ast, parent) {
-			if (ast.type !== 'Program') {
+			if (!ast.body) {
 				return;
 			}
 			sortSlices(ast.body, function (a) {
