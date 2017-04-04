@@ -89,17 +89,17 @@ function sortSlices(a, isSortableStart, isSortablePart, cmp, post) {
 function run(ast) {
 	// ===
 	estraverse.traverse(ast, {
-		enter: function (ast) {
-			if (ast.type !== 'BinaryExpression') {
+		enter: function (a) {
+			if (a.type !== 'BinaryExpression') {
 				return;
 			}
-			if (ast.left.value !== null && ast.right.value !== null) {
-				switch (ast.operator) {
+			if (a.left.value !== null && a.right.value !== null) {
+				switch (a.operator) {
 				case '!=':
-					ast.operator = '!==';
+					a.operator = '!==';
 					break;
 				case '==':
-					ast.operator = '===';
+					a.operator = '===';
 					break;
 				}
 			}
@@ -109,18 +109,18 @@ function run(ast) {
 
 	// Braces
 	estraverse.traverse(ast, {
-		enter: function (ast) {
-			switch (ast.type) {
+		enter: function (a) {
+			switch (a.type) {
 			case 'DoWhileStatement':
 			case 'ForInStatement':
 			case 'ForOfStatement':
 			case 'ForStatement':
 			case 'WhileStatement':
-				ast.body = brace(ast.body);
+				a.body = brace(a.body);
 				break;
 			case 'IfStatement':
-				ast.consequent = brace(ast.consequent);
-				ast.alternate = brace(ast.alternate);
+				a.consequent = brace(a.consequent);
+				a.alternate = brace(a.alternate);
 				break;
 			}
 		},
@@ -129,19 +129,19 @@ function run(ast) {
 
 	// Break
 	estraverse.traverse(ast, {
-		enter: function (ast) {
-			if (ast.type !== 'SwitchStatement') {
+		enter: function (a) {
+			if (a.type !== 'SwitchStatement') {
 				return;
 			}
-			if (!ast.cases.length) {
+			if (!a.cases.length) {
 				return;
 			}
-			var c = last(ast.cases);
+			var c = last(a.cases);
 			if (hasTerminator(c)) {
 				return;
 			}
 			c.consequent.push({
-				loc: ast.loc,
+				loc: a.loc,
 				type: 'BreakStatement',
 			});
 		},
@@ -150,11 +150,11 @@ function run(ast) {
 
 	// Comments
 	estraverse.traverse(ast, {
-		enter: function (ast) {
-			if (!ast.leadingComments) {
+		enter: function (a) {
+			if (!a.leadingComments) {
 				return;
 			}
-			for (var c of ast.leadingComments) {
+			for (var c of a.leadingComments) {
 				if (c.type !== 'Line') {
 					continue;
 				}
@@ -172,8 +172,8 @@ function run(ast) {
 
 	// Vars
 	estraverse.traverse(ast, {
-		enter: function (ast, parent) {
-			if (ast.type !== 'VariableDeclaration') {
+		enter: function (a, parent) {
+			if (a.type !== 'VariableDeclaration') {
 				return;
 			}
 			switch (parent.type) {
@@ -187,20 +187,20 @@ function run(ast) {
 			default:
 				return;
 			}
-			var vars = ast.declarations;
-			if (ast.leadingComments) {
-				vars[0].leadingComments = (vars[0].leadingComments || []).concat(ast.leadingComments);
+			var vars = a.declarations;
+			if (a.leadingComments) {
+				vars[0].leadingComments = (vars[0].leadingComments || []).concat(a.leadingComments);
 			}
 			for (var i = 0; i < vars.length; i++) {
 				vars[i] = {
 					declarations: [
 						vars[i],
 					],
-					type: ast.type,
+					type: a.type,
 				};
 			}
 			body.splice.apply(body, [
-				body.indexOf(ast),
+				body.indexOf(a),
 				1,
 			].concat(vars));
 		},
