@@ -65,11 +65,11 @@ function sortSlices(a, isSortableStart, isSortablePart, cmp, post) {
 	for (var i = 0; i < a.length; ) {
 		if (!isSortableStart(a[i])) {
 			i++;
-			continue;
+			continue
 		}
 		for (var j = i + 1; j < a.length; j++) {
 			if (!isSortablePart(a[j])) {
-				break;
+				break
 			}
 		}
 		var sorted = a.slice(i, j).sort(cmp);
@@ -98,10 +98,10 @@ function run(a) {
 					switch (a.operator) {
 					case '!=':
 						a.operator = '!==';
-						break;
+						break
 					case '==':
 						a.operator = '===';
-						break;
+						break
 					}
 				}
 			},
@@ -119,11 +119,11 @@ function run(a) {
 				case 'ForStatement':
 				case 'WhileStatement':
 					a.body = brace(a.body);
-					break;
+					break
 				case 'IfStatement':
 					a.consequent = brace(a.consequent);
 					a.alternate = brace(a.alternate);
-					break;
+					break
 				}
 			},
 		keys: keys,
@@ -160,13 +160,13 @@ function run(a) {
 				}
 				for (var c of a.leadingComments) {
 					if (c.type !== 'Line') {
-						continue;
+						continue
 					}
 					var s = c.value;
 					for (var i = 0; i < s.length; i++) {
 						if (s[i] !== ' ') {
 							c.value = s.slice(0, i) + s[i].toUpperCase() + s.slice(i + 1);
-							break;
+							break
 						}
 					}
 				}
@@ -185,10 +185,10 @@ function run(a) {
 				case 'BlockStatement':
 				case 'Program':
 					var body = parent.body;
-					break;
+					break
 				case 'SwitchCase':
 					body = parent.consequent;
-					break;
+					break
 				default:
 					return;
 				}
@@ -238,7 +238,7 @@ function run(a) {
 				blocks: for (var block of blocks) {
 					for (var i = 0; i < block.length - 1; i++) {
 						if (block[i].consequent.length) {
-							continue blocks;
+							continue blocks
 						}
 					}
 					var consequent = last(block).consequent;

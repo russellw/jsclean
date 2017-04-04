@@ -58,7 +58,7 @@ for (var file of files) {
 	transform.run(a);
 	var output = emit.run(a);
 	if (input === output) {
-		continue;
+		continue
 	}
 	console.log(file);
 	fs.renameSync(file, file + '.bak');
