@@ -61,9 +61,31 @@ function last(a) {
 	return a[a.length - 1];
 }
 
-function sortSlice(a, i, j, f) {
-	var sorted = a.slice(i, j).sort(f);
+function sortSlice(a, i, j, cmp) {
+	var sorted = a.slice(i, j).sort(cmp);
 	return a.slice(0, i).concat(sorted).concat(a.slice(j));
+}
+
+function sortSlices(a, isSortableStart, isSortablePart, cmp, post) {
+	for (var i = 0; i < a.length; ) {
+		if (!isSortableStart(a[i])) {
+			i++;
+			continue;
+		}
+		for (var j = i + 1; j < a.length; j++) {
+			if (!isSortablePart(a[j])) {
+				break;
+			}
+		}
+		var sorted = a.slice(i, j).sort(cmp);
+		post(sorted);
+		a.splice.apply([
+			i,
+			j - i,
+		].concat(sorted));
+		return a.slice(0, i).concat(sorted).concat(a.slice(j));
+		i = j;
+	}
 }
 
 // Exports
@@ -273,38 +295,26 @@ function run(ast) {
 			if (ast.type !== 'Program') {
 				return;
 			}
-			var a = ast.body;
-			for (var i = 0; i < a.length; ) {
-				if (!(a[i].type === 'FunctionDeclaration' && a[i].id)) {
-					i++;
-					continue;
+			sortSlices(ast.body, function (a) {
+				return a.type === 'FunctionDeclaration' && a.id;
+			}, function (a) {
+				return a.type === 'FunctionDeclaration' && a.id && !a.leadingComments;
+			}, function (a, b) {
+				function key(x) {
+					return x.id.name;
 				}
-				for (var j = i + 1; j < a.length; j++) {
-					if (!(a[j].type === 'FunctionDeclaration' && a[j].id)) {
-						break;
-					}
-					if (a[j].leadingComments) {
-						break;
-					}
-				}
-				var comment;
-				if (a[i].leadingComments) {
-					comment = a[i].leadingComments;
-					delete a[i].leadingComments;
-				}
-				a = sortSlice(a, i, j, function (a, b) {
-					function key(x) {
-						return x.id.name;
-					}
 
-					return cmp(key(a), key(b));
-				});
-				if (comment) {
-					a[i].leadingComments = comment;
+				return cmp(key(a), key(b));
+			}, function (a) {
+				var comment;
+				for (var i = 0; i < a.length; i++) {
+					if (a[i].leadingComments) {
+						comment = a[i].leadingComments;
+						delete a[i].leadingComments;
+					}
+					a[0].leadingComments = comment;
 				}
-				i = j;
-			}
-			ast.body = a;
+			});
 		},
 		keys: keys,
 	});
