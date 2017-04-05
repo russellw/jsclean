@@ -1,50 +1,50 @@
-'use strict';
-var estraverse = require('estraverse');
+'use strict'
+var estraverse = require('estraverse')
 
 // Node type unknown to estraverse
 var keys = {
 	ParenthesizedExpression: [
 		'expression',
 	],
-};
+}
 
 // Gathered strings
-var ss;
+var ss
 
 function block(a, level) {
 	if (a.type === 'BlockStatement') {
-		ss.push(' ');
-		emit(a, level);
+		ss.push(' ')
+		emit(a, level)
 	} else {
-		ss.push('\n');
-		indent(level + 1);
-		emit(a, level + 1);
+		ss.push('\n')
+		indent(level + 1)
+		emit(a, level + 1)
 	}
 }
 
 function blockEnd(a, level) {
 	if (a.type === 'BlockStatement')
-		ss.push(' ');
+		ss.push(' ')
 	else {
-		ss.push('\n');
-		indent(level);
+		ss.push('\n')
+		indent(level)
 	}
 }
 
 function comment(a, level) {
 	if (!a.leadingComments)
-		return;
-	ss.push('\n');
+		return
+	ss.push('\n')
 	for (var c of a.leadingComments) {
-		indent(level);
+		indent(level)
 		if (c.type === 'Line') {
-			ss.push('//');
+			ss.push('//')
 			if (c.value[0] !== ' ')
-				ss.push(' ');
-			ss.push(c.value);
+				ss.push(' ')
+			ss.push(c.value)
 		} else
-			ss.push('/*' + c.value + '*/');
-		ss.push('\n');
+			ss.push('/*' + c.value + '*/')
+		ss.push('\n')
 	}
 }
 
@@ -52,414 +52,409 @@ function emit(a, level) {
 	switch (a.type) {
 	case 'ArrayExpression':
 		if (!a.elements.length) {
-			ss.push('[]');
+			ss.push('[]')
 			break
 		}
-		ss.push('[\n');
+		ss.push('[\n')
 		for (var b of a.elements) {
-			comment(b, level + 1);
-			indent(level + 1);
-			emit(b, level + 1);
-			ss.push(',\n');
+			comment(b, level + 1)
+			indent(level + 1)
+			emit(b, level + 1)
+			ss.push(',\n')
 		}
-		indent(level);
-		ss.push(']');
+		indent(level)
+		ss.push(']')
 		break
 	case 'ArrowFunctionExpression':
 		if (a.params.length === 1)
-			emit(a.params[0], level);
+			emit(a.params[0], level)
 		else
-			params(a.params, level);
-		ss.push(' => ');
+			params(a.params, level)
+		ss.push(' => ')
 		if (a.body.type === 'BlockStatement')
-			block(a.body, level);
+			block(a.body, level)
 		else
-			emit(a.body, level);
+			emit(a.body, level)
 		break
 	case 'AssignmentExpression':
 	case 'BinaryExpression':
 	case 'LogicalExpression':
-		emit(a.left, level);
-		ss.push(' ' + a.operator + ' ');
-		emit(a.right, level);
+		emit(a.left, level)
+		ss.push(' ' + a.operator + ' ')
+		emit(a.right, level)
 		break
 	case 'BlockStatement':
-		ss.push('{\n');
+		ss.push('{\n')
 		for (var b of a.body)
-			stmt(b, level + 1);
-		indent(level);
-		ss.push('}');
+			stmt(b, level + 1)
+		indent(level)
+		ss.push('}')
 		break
 	case 'BreakStatement':
-		ss.push('break');
+		ss.push('break')
 		if (a.label)
-			ss.push(' ' + a.label.name);
+			ss.push(' ' + a.label.name)
 		break
 	case 'CallExpression':
-		emit(a.callee, level);
-		params(a.arguments, level);
+		emit(a.callee, level)
+		params(a.arguments, level)
 		break
 	case 'ConditionalExpression':
-		emit(a.test, level);
-		ss.push(' ? ');
-		emit(a.consequent, level);
-		ss.push(' : ');
-		emit(a.alternate, level);
+		emit(a.test, level)
+		ss.push(' ? ')
+		emit(a.consequent, level)
+		ss.push(' : ')
+		emit(a.alternate, level)
 		break
 	case 'ContinueStatement':
-		ss.push('continue');
+		ss.push('continue')
 		if (a.label)
-			ss.push(' ' + a.label.name);
+			ss.push(' ' + a.label.name)
 		break
 	case 'DoWhileStatement':
-		ss.push('do');
-		block(a.body, level);
-		blockEnd(a.body, level);
-		ss.push('while (');
-		emit(a.test, level);
-		ss.push(')');
-		ss.push(';');
+		ss.push('do')
+		block(a.body, level)
+		blockEnd(a.body, level)
+		ss.push('while (')
+		emit(a.test, level)
+		ss.push(')')
 		break
 	case 'EmptyStatement':
-		ss.push(';');
+		ss.push(';')
 		break
 	case 'ExpressionStatement':
-		emit(a.expression, level);
-		ss.push(';');
+		emit(a.expression, level)
 		break
 	case 'ForInStatement':
-		ss.push('for (');
-		forInit(a.left, level);
-		ss.push(' in ');
-		emit(a.right, level);
-		ss.push(')');
-		block(a.body, level);
+		ss.push('for (')
+		forInit(a.left, level)
+		ss.push(' in ')
+		emit(a.right, level)
+		ss.push(')')
+		block(a.body, level)
 		break
 	case 'ForOfStatement':
-		ss.push('for (');
-		forInit(a.left, level);
-		ss.push(' of ');
-		emit(a.right, level);
-		ss.push(')');
-		block(a.body, level);
+		ss.push('for (')
+		forInit(a.left, level)
+		ss.push(' of ')
+		emit(a.right, level)
+		ss.push(')')
+		block(a.body, level)
 		break
 	case 'ForStatement':
-		ss.push('for (');
+		ss.push('for (')
 		if (a.init)
-			forInit(a.init, level);
-		ss.push('; ');
+			forInit(a.init, level)
+		ss.push('; ')
 		if (a.test)
-			emit(a.test, level);
-		ss.push('; ');
+			emit(a.test, level)
+		ss.push('; ')
 		if (a.update)
-			emit(a.update, level);
-		ss.push(')');
-		block(a.body, level);
+			emit(a.update, level)
+		ss.push(')')
+		block(a.body, level)
 		break
 	case 'FunctionDeclaration':
-		ss.push('function ' + a.id.name);
-		params(a.params, level);
-		block(a.body, level);
+		ss.push('function ' + a.id.name)
+		params(a.params, level)
+		block(a.body, level)
 		break
 	case 'FunctionExpression':
-		ss.push('function ');
+		ss.push('function ')
 		if (a.id)
-			ss.push(a.id.name);
-		params(a.params, level);
-		block(a.body, level);
+			ss.push(a.id.name)
+		params(a.params, level)
+		block(a.body, level)
 		break
 	case 'Identifier':
-		ss.push(a.name);
+		ss.push(a.name)
 		break
 	case 'IfStatement':
-		ss.push('if (');
-		emit(a.test, level);
-		ss.push(')');
-		block(a.consequent, level);
+		ss.push('if (')
+		emit(a.test, level)
+		ss.push(')')
+		block(a.consequent, level)
 		if (a.alternate) {
-			blockEnd(a.consequent, level);
-			ss.push('else');
-			block(a.alternate, level);
+			blockEnd(a.consequent, level)
+			ss.push('else')
+			block(a.alternate, level)
 		}
 		break
 	case 'LabeledStatement':
-		ss.push(a.label.name + ':\n');
-		level++;
-		indent(level);
-		emit(a.body, level);
+		ss.push(a.label.name + ':\n')
+		level++
+		indent(level)
+		emit(a.body, level)
 		break
 	case 'Literal':
 		if (typeof (a.value) === 'string') {
-			var q = "'";
+			var q = "'"
 			if (a.value.indexOf(q) >= 0)
-				q = '"';
-			ss.push(q);
+				q = '"'
+			ss.push(q)
 			for (var c of a.value)
 				switch (c) {
 				case '\b':
-					ss.push('\\b');
+					ss.push('\\b')
 					break
 				case '\t':
-					ss.push('\\t');
+					ss.push('\\t')
 					break
 				case '\n':
-					ss.push('\\n');
+					ss.push('\\n')
 					break
 				case '\v':
-					ss.push('\\v');
+					ss.push('\\v')
 					break
 				case '\f':
-					ss.push('\\f');
+					ss.push('\\f')
 					break
 				case '\r':
-					ss.push('\\r');
+					ss.push('\\r')
 					break
 				case '\\':
-					ss.push('\\\\');
+					ss.push('\\\\')
 					break
 				case q:
-					ss.push('\\');
-					ss.push(q);
+					ss.push('\\')
+					ss.push(q)
 					break
 				default:
-					var n = c.charCodeAt(0);
+					var n = c.charCodeAt(0)
 					if (32 <= n && n <= 126) {
-						ss.push(c);
+						ss.push(c)
 						break
 					}
 					if (n < 0x100) {
-						ss.push('\\x');
-						ss.push(hex(n, 2));
+						ss.push('\\x')
+						ss.push(hex(n, 2))
 						break
 					}
-					ss.push('\\u');
-					ss.push(hex(n, 4));
+					ss.push('\\u')
+					ss.push(hex(n, 4))
 					break
 				}
-			ss.push(q);
+			ss.push(q)
 			break
 		}
-		ss.push(a.raw);
+		ss.push(a.raw)
 		break
 	case 'MemberExpression':
-		emit(a.object, level);
+		emit(a.object, level)
 		if (a.computed) {
-			ss.push('[');
-			emit(a.property, level);
-			ss.push(']');
+			ss.push('[')
+			emit(a.property, level)
+			ss.push(']')
 		} else {
-			ss.push('.');
-			emit(a.property, level);
+			ss.push('.')
+			emit(a.property, level)
 		}
 		break
 	case 'NewExpression':
-		ss.push('new ');
-		emit(a.callee, level);
-		params(a.arguments, level);
+		ss.push('new ')
+		emit(a.callee, level)
+		params(a.arguments, level)
 		break
 	case 'ObjectExpression':
 		if (!a.properties.length) {
-			ss.push('{}');
+			ss.push('{}')
 			break
 		}
-		ss.push('{\n');
+		ss.push('{\n')
 		for (var b of a.properties) {
-			comment(b, level + 1);
-			indent(level + 1);
-			emit(b, level + 1);
-			ss.push(',\n');
+			comment(b, level + 1)
+			indent(level + 1)
+			emit(b, level + 1)
+			ss.push(',\n')
 		}
-		indent(level);
-		ss.push('}');
+		indent(level)
+		ss.push('}')
 		break
 	case 'ParenthesizedExpression':
-		ss.push('(');
-		emit(a.expression, level);
-		ss.push(')');
+		ss.push('(')
+		emit(a.expression, level)
+		ss.push(')')
 		break
 	case 'Program':
 		for (var b of a.body)
-			stmt(b, 0);
+			stmt(b, 0)
 		break
 	case 'Property':
-		emit(a.key, level);
+		emit(a.key, level)
 		if (separate(a.value)) {
-			ss.push(':\n');
-			level++;
-			indent(level);
-			emit(a.value, level);
+			ss.push(':\n')
+			level++
+			indent(level)
+			emit(a.value, level)
 			break
 		}
-		ss.push(': ');
-		emit(a.value, level);
+		ss.push(': ')
+		emit(a.value, level)
 		break
 	case 'ReturnStatement':
-		ss.push('return');
+		ss.push('return')
 		if (a.argument) {
-			ss.push(' ');
-			emit(a.argument, level);
+			ss.push(' ')
+			emit(a.argument, level)
 		}
-		ss.push(';');
 		break
 	case 'SequenceExpression':
 		for (var i = 0; i < a.expressions.length; i++) {
 			if (i)
-				ss.push(', ');
-			emit(a.expressions[i], level);
+				ss.push(', ')
+			emit(a.expressions[i], level)
 		}
 		break
 	case 'SwitchStatement':
-		ss.push('switch (');
-		emit(a.discriminant, level);
-		ss.push(') {\n');
+		ss.push('switch (')
+		emit(a.discriminant, level)
+		ss.push(') {\n')
 		for (var c of a.cases) {
-			comment(c, level);
-			indent(level);
+			comment(c, level)
+			indent(level)
 			if (c.test) {
-				ss.push('case ');
-				emit(c.test, level);
+				ss.push('case ')
+				emit(c.test, level)
 			} else
-				ss.push('default');
-			ss.push(':\n');
+				ss.push('default')
+			ss.push(':\n')
 			for (var b of c.consequent) {
-				comment(b, level + 1);
-				indent(level + 1);
-				emit(b, level + 1);
-				ss.push('\n');
+				comment(b, level + 1)
+				indent(level + 1)
+				emit(b, level + 1)
+				ss.push('\n')
 			}
 		}
-		indent(level);
-		ss.push('}');
+		indent(level)
+		ss.push('}')
 		break
 	case 'ThisExpression':
-		ss.push('this');
+		ss.push('this')
 		break
 	case 'ThrowStatement':
-		ss.push('throw ');
-		emit(a.argument, level);
-		ss.push(';');
+		ss.push('throw ')
+		emit(a.argument, level)
 		break
 	case 'TryStatement':
-		ss.push('try');
-		block(a.block, level);
+		ss.push('try')
+		block(a.block, level)
 		if (a.handler) {
-			ss.push(' catch (');
-			emit(a.handler.param, level);
-			ss.push(')');
-			block(a.handler.body, level);
+			ss.push(' catch (')
+			emit(a.handler.param, level)
+			ss.push(')')
+			block(a.handler.body, level)
 		}
 		if (a.finalizer) {
-			ss.push(' finally ');
-			block(a.finalizer, level);
+			ss.push(' finally ')
+			block(a.finalizer, level)
 		}
 		break
 	case 'UnaryExpression':
-		ss.push(a.operator);
+		ss.push(a.operator)
 		if (a.operator.search(/[a-z]/) >= 0)
-			ss.push(' ');
-		emit(a.argument, level);
+			ss.push(' ')
+		emit(a.argument, level)
 		break
 	case 'UpdateExpression':
 		if (a.prefix) {
-			ss.push(a.operator);
-			emit(a.argument, level);
+			ss.push(a.operator)
+			emit(a.argument, level)
 		} else {
-			emit(a.argument, level);
-			ss.push(a.operator);
+			emit(a.argument, level)
+			ss.push(a.operator)
 		}
 		break
 	case 'VariableDeclaration':
-		variableDeclaration(a, level);
-		ss.push(';');
+		variableDeclaration(a, level)
 		break
 	case 'VariableDeclarator':
-		ss.push(a.id.name);
+		ss.push(a.id.name)
 		if (a.init) {
-			ss.push(' = ');
-			emit(a.init, level);
+			ss.push(' = ')
+			emit(a.init, level)
 		}
 		break
 	case 'WhileStatement':
-		ss.push('while (');
-		emit(a.test, level);
-		ss.push(')');
-		block(a.body, level);
+		ss.push('while (')
+		emit(a.test, level)
+		ss.push(')')
+		block(a.body, level)
 		break
 	default:
-		console.assert(false, a);
+		console.assert(false, a)
 		break
 	}
 }
 
 function forInit(a, level) {
 	if (a.type === 'VariableDeclaration')
-		variableDeclaration(a, level);
+		variableDeclaration(a, level)
 	else
-		emit(a, level);
+		emit(a, level)
 }
 
 function hex(n, size) {
-	var s = n.toString(16);
+	var s = n.toString(16)
 	while (s.length < size)
-		s = '0' + s;
-	return s;
+		s = '0' + s
+	return s
 }
 
 function indent(level) {
 	while (level--)
-		ss.push('\t');
+		ss.push('\t')
 }
 
 function params(a, level) {
 	if (a.some(separate)) {
-		ss.push('(\n');
-		level++;
+		ss.push('(\n')
+		level++
 		for (var i = 0; i < a.length; i++) {
 			if (i)
-				ss.push(',\n');
-			indent(level);
-			emit(a[i], level);
+				ss.push(',\n')
+			indent(level)
+			emit(a[i], level)
 		}
-		ss.push(')');
-		return;
+		ss.push(')')
+		return
 	}
-	ss.push('(');
+	ss.push('(')
 	for (var i = 0; i < a.length; i++) {
 		if (i)
-			ss.push(', ');
-		emit(a[i], level);
+			ss.push(', ')
+		emit(a[i], level)
 	}
-	ss.push(')');
+	ss.push(')')
 }
 
 function separate(a) {
-	return a.type === 'FunctionExpression';
+	return a.type === 'FunctionExpression'
 }
 
 function stmt(a, level) {
-	comment(a, level);
+	comment(a, level)
 	if (a.type === 'FunctionDeclaration')
-		ss.push('\n');
-	indent(level);
-	emit(a, level);
-	ss.push('\n');
+		ss.push('\n')
+	indent(level)
+	emit(a, level)
+	ss.push('\n')
 	if (a.type === 'FunctionDeclaration')
-		ss.push('\n');
+		ss.push('\n')
 }
 
 function variableDeclaration(a, level) {
-	ss.push('var ');
+	ss.push('var ')
 	for (var i = 0; i < a.declarations.length; i++) {
 		if (i)
-			ss.push(', ');
-		emit(a.declarations[i], level);
+			ss.push(', ')
+		emit(a.declarations[i], level)
 	}
 }
 
 // Exports
 
 function run(a) {
-	ss = [];
+	ss = []
 
 	// Bubble comments up to statements
 	estraverse.traverse(a, {
@@ -467,46 +462,46 @@ function run(a) {
 		leave:
 			function (a, parent) {
 				if (!a.leadingComments)
-					return;
+					return
 				if (!parent)
-					return;
+					return
 				if (a.type.indexOf('Statement') >= 0)
-					return;
+					return
 				switch (a.type) {
 				case 'FunctionDeclaration':
 				case 'SwitchCase':
-					return;
+					return
 				case 'VariableDeclaration':
 					if (parent.type.indexOf('For') < 0)
-						return;
+						return
 					break
 				}
 				switch (parent.type) {
 				case 'ArrayExpression':
 				case 'ObjectExpression':
-					return;
+					return
 				}
-				parent.leadingComments = (parent.leadingComments || []).concat(a.leadingComments);
-				a.leadingComments = null;
+				parent.leadingComments = (parent.leadingComments || []).concat(a.leadingComments)
+				a.leadingComments = null
 			},
-	});
+	})
 
 	// Emit
-	emit(a, 0);
-	var text = ss.join('');
+	emit(a, 0)
+	var text = ss.join('')
 
 	// #!
-	text = a.hashbang + '\n\n' + text;
+	text = a.hashbang + '\n\n' + text
 
 	// Only one consecutive blank line
-	text = text.replace(/\n\n+/g, '\n\n');
+	text = text.replace(/\n\n+/g, '\n\n')
 
 	// Don't start with blank line
-	text = text.replace(/^\n+/, '');
-	text = text.replace(/{\n\n/g, '{\n');
+	text = text.replace(/^\n+/, '')
+	text = text.replace(/{\n\n/g, '{\n')
 
 	// End with exactly one newline
-	return text.replace(/\n*$/, '\n');
+	return text.replace(/\n*$/, '\n')
 }
 
-exports.run = run;
+exports.run = run

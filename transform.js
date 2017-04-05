@@ -1,26 +1,26 @@
-'use strict';
-var estraverse = require('estraverse');
+'use strict'
+var estraverse = require('estraverse')
 
 // Node type unknown to estraverse
 var keys = {
 	ParenthesizedExpression: [
 		'expression',
 	],
-};
+}
 
 function cmp(a, b) {
 	if (a < b)
-		return -1;
+		return -1
 	if (a > b)
-		return 1;
-	return 0;
+		return 1
+	return 0
 }
 
 function hasTerminator(c) {
-	var a = c.consequent;
+	var a = c.consequent
 	if (!a.length)
-		return false;
-	return isTerminator(last(a));
+		return false
+	return isTerminator(last(a))
 }
 
 function isTerminator(a) {
@@ -29,48 +29,48 @@ function isTerminator(a) {
 	case 'ContinueStatement':
 	case 'ReturnStatement':
 	case 'ThrowStatement':
-		return true;
+		return true
 	}
 }
 
 function last(a) {
-	return a[a.length - 1];
+	return a[a.length - 1]
 }
 
 function sortSlices(a, isSortableStart, isSortablePart, cmp, post) {
 	for (var i = 0; i < a.length; ) {
 		if (!isSortableStart(a[i])) {
-			i++;
+			i++
 			continue
 		}
 		for (var j = i + 1; j < a.length; j++)
 			if (!isSortablePart(a[j]))
 				break
-		var sorted = a.slice(i, j).sort(cmp);
+		var sorted = a.slice(i, j).sort(cmp)
 		if (post)
-			post(sorted);
+			post(sorted)
 		a.splice.apply(a, [
 			i,
 			j - i,
-		].concat(sorted));
-		i = j;
+		].concat(sorted))
+		i = j
 	}
 }
 
 function unbrace(a) {
 	if (!a)
-		return a;
+		return a
 	if (a.type !== 'BlockStatement')
-		return a;
+		return a
 	switch (a.body.length) {
 	case 0:
 		return {
 			type: 'EmptyStatement',
-		};
+		}
 	case 1:
-		return a.body[0];
+		return a.body[0]
 	}
-	return a;
+	return a
 }
 
 // Exports
@@ -81,19 +81,19 @@ function run(a) {
 		enter:
 			function (a) {
 				if (a.type !== 'BinaryExpression')
-					return;
+					return
 				if (a.left.value !== null && a.right.value !== null)
 					switch (a.operator) {
 					case '!=':
-						a.operator = '!==';
+						a.operator = '!=='
 						break
 					case '==':
-						a.operator = '===';
+						a.operator = '==='
 						break
 					}
 			},
 		keys: keys,
-	});
+	})
 
 	// Braces
 	estraverse.traverse(a, {
@@ -105,110 +105,110 @@ function run(a) {
 				case 'ForOfStatement':
 				case 'ForStatement':
 				case 'WhileStatement':
-					a.body = unbrace(a.body);
+					a.body = unbrace(a.body)
 					break
 				case 'IfStatement':
-					a.consequent = unbrace(a.consequent);
-					a.alternate = unbrace(a.alternate);
+					a.consequent = unbrace(a.consequent)
+					a.alternate = unbrace(a.alternate)
 					break
 				}
 			},
 		keys: keys,
-	});
+	})
 
 	// Break
 	estraverse.traverse(a, {
 		enter:
 			function (a) {
 				if (a.type !== 'SwitchStatement')
-					return;
+					return
 				if (!a.cases.length)
-					return;
-				var c = last(a.cases);
+					return
+				var c = last(a.cases)
 				if (hasTerminator(c))
-					return;
+					return
 				c.consequent.push({
 					loc: a.loc,
 					type: 'BreakStatement',
-				});
+				})
 			},
 		keys: keys,
-	});
+	})
 
 	// Comments
 	estraverse.traverse(a, {
 		enter:
 			function (a) {
 				if (!a.leadingComments)
-					return;
+					return
 				for (var c of a.leadingComments) {
 					if (c.type !== 'Line')
 						continue
-					var s = c.value;
+					var s = c.value
 					for (var i = 0; i < s.length; i++)
 						if (s[i] !== ' ') {
-							c.value = s.slice(0, i) + s[i].toUpperCase() + s.slice(i + 1);
+							c.value = s.slice(0, i) + s[i].toUpperCase() + s.slice(i + 1)
 							break
 						}
 				}
 			},
 		keys: keys,
-	});
+	})
 
 	// Vars
 	estraverse.traverse(a, {
 		enter:
 			function (a, parent) {
 				if (a.type !== 'VariableDeclaration')
-					return;
+					return
 				switch (parent.type) {
 				case 'BlockStatement':
 				case 'Program':
-					var body = parent.body;
+					var body = parent.body
 					break
 				case 'SwitchCase':
-					body = parent.consequent;
+					body = parent.consequent
 					break
 				default:
-					return;
+					return
 				}
-				var vars = a.declarations;
+				var vars = a.declarations
 				if (a.leadingComments)
-					vars[0].leadingComments = (vars[0].leadingComments || []).concat(a.leadingComments);
+					vars[0].leadingComments = (vars[0].leadingComments || []).concat(a.leadingComments)
 				for (var i = 0; i < vars.length; i++)
 					vars[i] = {
 						declarations: [
 							vars[i],
 						],
 						type: a.type,
-					};
+					}
 				body.splice.apply(body, [
 					body.indexOf(a),
 					1,
-				].concat(vars));
+				].concat(vars))
 			},
 		keys: keys,
-	});
+	})
 
 	// Sort cases
 	estraverse.traverse(a, {
 		enter:
 			function (a) {
 				if (a.type !== 'SwitchStatement')
-					return;
+					return
 
 				// Get blocks of cases
-				var block = [];
-				var blocks = [];
+				var block = []
+				var blocks = []
 				for (var c of a.cases) {
-					block.push(c);
+					block.push(c)
 					if (hasTerminator(c)) {
-						blocks.push(block);
-						block = [];
+						blocks.push(block)
+						block = []
 					}
 				}
 				if (block.length)
-					blocks.push(block);
+					blocks.push(block)
 
 				// Sort cases within block
 				blocks:
@@ -216,112 +216,112 @@ function run(a) {
 						for (var i = 0; i < block.length - 1; i++)
 							if (block[i].consequent.length)
 								continue blocks
-						var consequent = last(block).consequent;
-						last(block).consequent = [];
+						var consequent = last(block).consequent
+						last(block).consequent = []
 						block.sort(
 							function (a, b) {
 								function key(x) {
-									x = x.test;
+									x = x.test
 									if (!x)
-										return '\uffff';
+										return '\uffff'
 									switch (x.type) {
 									case 'Identifier':
-										return x.name;
+										return x.name
 									case 'Literal':
-										return x.value;
+										return x.value
 									}
 								}
 
-								return cmp(key(a), key(b));
-							});
-						last(block).consequent = consequent;
+								return cmp(key(a), key(b))
+							})
+						last(block).consequent = consequent
 					}
 
 				// Sort blocks
 				blocks.sort(
 					function (a, b) {
 						function key(block) {
-							var x = block[0].test;
+							var x = block[0].test
 							if (!x)
-								return '\uffff';
+								return '\uffff'
 							switch (x.type) {
 							case 'Identifier':
-								return x.name;
+								return x.name
 							case 'Literal':
-								return x.value;
+								return x.value
 							}
 						}
 
-						return cmp(key(a), key(b));
-					});
+						return cmp(key(a), key(b))
+					})
 
 				// Put blocks of cases
-				a.cases = [];
+				a.cases = []
 				for (var block of blocks)
 					for (var c of block)
-						a.cases.push(c);
+						a.cases.push(c)
 			},
 		keys: keys,
-	});
+	})
 
 	// Sort functions
 	estraverse.traverse(a, {
 		enter:
 			function (a) {
 				if (!a.body)
-					return;
+					return
 				sortSlices(
 					a.body,
 					function (a) {
-						return a.type === 'FunctionDeclaration' && a.id;
+						return a.type === 'FunctionDeclaration' && a.id
 					},
 					function (a) {
-						return a.type === 'FunctionDeclaration' && a.id && !a.leadingComments;
+						return a.type === 'FunctionDeclaration' && a.id && !a.leadingComments
 					},
 					function (a, b) {
 						function key(x) {
-							return x.id.name;
+							return x.id.name
 						}
 
-						return cmp(key(a), key(b));
+						return cmp(key(a), key(b))
 					},
 					function (a) {
-						var comment;
+						var comment
 						for (var i = 0; i < a.length; i++) {
 							if (a[i].leadingComments) {
-								comment = a[i].leadingComments;
-								delete a[i].leadingComments;
+								comment = a[i].leadingComments
+								delete a[i].leadingComments
 							}
-							a[0].leadingComments = comment;
+							a[0].leadingComments = comment
 						}
-					});
+					})
 			},
 		keys: keys,
-	});
+	})
 
 	// Sort properties
 	estraverse.traverse(a, {
 		enter:
 			function (a) {
 				if (a.type !== 'ObjectExpression')
-					return;
+					return
 				a.properties.sort(
 					function (a, b) {
 						function key(x) {
-							x = x.key;
+							x = x.key
 							switch (x.type) {
 							case 'Identifier':
-								return x.name;
+								return x.name
 							case 'Literal':
-								return x.value;
+								return x.value
 							}
 						}
 
-						return cmp(key(a), key(b));
-					});
+						return cmp(key(a), key(b))
+					})
 			},
 		keys: keys,
-	});
+	})
 }
 
-exports.run = run;
+exports.run = run
