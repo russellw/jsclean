@@ -145,12 +145,16 @@ function emit(a, level) {
 		ss.push('for (')
 		if (a.init)
 			forInit(a.init, level)
-		ss.push('; ')
-		if (a.test)
+		ss.push(';')
+		if (a.test) {
+			ss.push(' ')
 			emit(a.test, level)
-		ss.push('; ')
-		if (a.update)
+		}
+		ss.push(';')
+		if (a.update) {
+			ss.push(' ')
 			emit(a.update, level)
+		}
 		ss.push(')')
 		block(a.body, level)
 		break

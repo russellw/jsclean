@@ -38,7 +38,7 @@ function last(a) {
 }
 
 function sortSlices(a, isSortableStart, isSortablePart, cmp, post) {
-	for (var i = 0; i < a.length; ) {
+	for (var i = 0; i < a.length;) {
 		if (!isSortableStart(a[i])) {
 			i++
 			continue
