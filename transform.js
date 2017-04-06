@@ -35,14 +35,14 @@ function last(a) {
 	return a[a.length - 1]
 }
 
-function sortSlices(a, isSortableStart, isSortablePart, cmp, post) {
+function sortSlices(a, isSortableStart, isSortableEnd, cmp, post) {
 	for (var i = 0; i < a.length;) {
-		if (!isSortableStart(a[i])) {
+		if (!isSortableStart(a[i], j)) {
 			i++
 			continue
 		}
 		for (var j = i + 1; j < a.length; j++)
-			if (!isSortablePart(a[j]))
+			if (isSortableEnd(a[j], j))
 				break
 		var sorted = a.slice(i, j).sort(cmp)
 		if (post)
@@ -255,8 +255,8 @@ function run(a) {
 				return
 			sortSlices(
 				a.body,
-				b => b.type === 'FunctionDeclaration' && b.id,
-				b => b.type === 'FunctionDeclaration' && b.id && !b.leadingComments,
+				b => b.type === 'FunctionDeclaration',
+				b => b.type !== 'FunctionDeclaration' || b.leadingComments,
 				(a, b) =>  {
 					function key(x) {
 						return x.id.name
