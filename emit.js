@@ -447,6 +447,15 @@ function params(a, level) {
 	ss.push(')')
 }
 
+function print(a) {
+	console.log(require('util').inspect(a, {
+		colors: true,
+		depth: null,
+		maxArrayLength: null,
+		showHidden: false,
+	}))
+}
+
 function stmt(a, level) {
 	comment(a, level)
 	if (a.type === 'FunctionDeclaration')

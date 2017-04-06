@@ -63,9 +63,19 @@ function last(a) {
 	return a[a.length - 1]
 }
 
+function print(a) {
+	console.log(require('util').inspect(a, {
+		colors: true,
+		depth: null,
+		maxArrayLength: null,
+		showHidden: false,
+	}))
+}
+
 function sortBlocks(a, isEnd, cmp) {
 	var bs = blocks(a, isEnd)
-	return bs.sort((x, y) => cmp(x[0], y[0]))
+	bs = bs.sort((x, y) => cmp(x[0], y[0]))
+	return [].concat(...bs)
 }
 
 function sortElements(a, isSortableStart, isSortableEnd, cmp, post) {
@@ -223,7 +233,7 @@ function run(a) {
 				(c, i) => a.cases[i - 1].consequent.length,
 				cmpCases,
 				b =>  {
-					var consequent
+					var consequent = []
 					for (var c of b)
 						if (c.consequent.length) {
 							consequent = c.consequent
@@ -231,43 +241,7 @@ function run(a) {
 						}
 					last(b).consequent = consequent
 				})
-
-			// Get blocks of cases
-			var block = []
-			var blocks = []
-			for (var c of a.cases) {
-				block.push(c)
-				if (hasTerminator(c)) {
-					blocks.push(block)
-					block = []
-				}
-			}
-			if (block.length)
-				blocks.push(block)
-
-			// Sort blocks
-			blocks.sort(
-				(a, b) =>  {
-					function key(block) {
-						var x = block[0].test
-						if (!x)
-							return '\uffff'
-						switch (x.type) {
-						case 'Identifier':
-							return x.name
-						case 'Literal':
-							return x.value
-						}
-					}
-
-					return cmp(key(a), key(b))
-				})
-
-			// Put blocks of cases
-			a.cases = []
-			for (var block of blocks)
-				for (var c of block)
-					a.cases.push(c)
+			a.cases = sortBlocks(a.cases, (c, i) => a.cases[i - 1].consequent.length && hasTerminator(a.cases[i - 1]), cmpCases)
 		},
 		keys,
 	})
