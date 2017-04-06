@@ -331,7 +331,7 @@ function run(a) {
 				negate(isRequire),
 				(a, b) =>  {
 					function key(x) {
-						return x.declarations[0].init.callee.name
+						return x.declarations[0].id.name
 					}
 
 					return cmp(key(a), key(b))

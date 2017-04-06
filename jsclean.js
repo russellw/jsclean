@@ -4,9 +4,9 @@
 var acorn = require('acorn')
 var commandFiles = require('command-files')
 var commander = require('commander')
+var emit = require('./emit')
 var estraverse = require('estraverse')
 var fs = require('fs')
-var emit = require('./emit')
 var transform = require('./transform')
 
 // Options
