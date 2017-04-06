@@ -456,28 +456,6 @@ function print(a) {
 	}))
 }
 
-function stmt(a, level) {
-	comment(a, level)
-	if (a.type === 'FunctionDeclaration')
-		ss.push('\n')
-	indent(level)
-	emit(a, level)
-	ss.push('\n')
-	if (a.type === 'FunctionDeclaration')
-		ss.push('\n')
-}
-
-function variableDeclaration(a, level) {
-	ss.push('var ')
-	for (var i = 0; i < a.declarations.length; i++) {
-		if (i)
-			ss.push(', ')
-		emit(a.declarations[i], level)
-	}
-}
-
-// Exports
-
 function run(a) {
 	ss = []
 
@@ -526,6 +504,26 @@ function run(a) {
 
 	// End with exactly one newline
 	return text.replace(/\n*$/, '\n')
+}
+
+function stmt(a, level) {
+	comment(a, level)
+	if (a.type === 'FunctionDeclaration')
+		ss.push('\n')
+	indent(level)
+	emit(a, level)
+	ss.push('\n')
+	if (a.type === 'FunctionDeclaration')
+		ss.push('\n')
+}
+
+function variableDeclaration(a, level) {
+	ss.push('var ')
+	for (var i = 0; i < a.declarations.length; i++) {
+		if (i)
+			ss.push(', ')
+		emit(a.declarations[i], level)
+	}
 }
 
 exports.run = run

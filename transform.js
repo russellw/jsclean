@@ -93,51 +93,6 @@ function print(a) {
 	}))
 }
 
-function sortBlocks(a, isEnd, cmp) {
-	var bs = blocks(a, isEnd)
-	bs = bs.sort((x, y) => cmp(x[0], y[0]))
-	return [].concat(...bs)
-}
-
-function sortElements(a, isSortableStart, isSortableEnd, cmp, post) {
-	if (a.constructor !== Array)
-		return a
-	var r = []
-	for (var i = 0; i < a.length;) {
-		if (!isSortableStart(a[i], j)) {
-			r.push(a[i++])
-			continue
-		}
-		for (var j = i + 1; j < a.length; j++)
-			if (isSortableEnd(a[j], j))
-				break
-		var b = a.slice(i, j).sort(cmp)
-		if (post)
-			post(b)
-		r.push(...b)
-		i = j
-	}
-	return r
-}
-
-function unbrace(a) {
-	if (!a)
-		return a
-	if (a.type !== 'BlockStatement')
-		return a
-	switch (a.body.length) {
-	case 0:
-		return {
-			type: 'EmptyStatement',
-		}
-	case 1:
-		return a.body[0]
-	}
-	return a
-}
-
-// Exports
-
 function run(a) {
 	// ===
 	estraverse.traverse(a, {
@@ -339,6 +294,49 @@ function run(a) {
 		},
 		keys,
 	})
+}
+
+function sortBlocks(a, isEnd, cmp) {
+	var bs = blocks(a, isEnd)
+	bs = bs.sort((x, y) => cmp(x[0], y[0]))
+	return [].concat(...bs)
+}
+
+function sortElements(a, isSortableStart, isSortableEnd, cmp, post) {
+	if (a.constructor !== Array)
+		return a
+	var r = []
+	for (var i = 0; i < a.length;) {
+		if (!isSortableStart(a[i], j)) {
+			r.push(a[i++])
+			continue
+		}
+		for (var j = i + 1; j < a.length; j++)
+			if (isSortableEnd(a[j], j))
+				break
+		var b = a.slice(i, j).sort(cmp)
+		if (post)
+			post(b)
+		r.push(...b)
+		i = j
+	}
+	return r
+}
+
+function unbrace(a) {
+	if (!a)
+		return a
+	if (a.type !== 'BlockStatement')
+		return a
+	switch (a.body.length) {
+	case 0:
+		return {
+			type: 'EmptyStatement',
+		}
+	case 1:
+		return a.body[0]
+	}
+	return a
 }
 
 exports.run = run
