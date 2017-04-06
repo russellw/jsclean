@@ -265,12 +265,8 @@ function run(a) {
 				return
 			sortSlices(
 				a.body,
-				function (a) {
-					return a.type === 'FunctionDeclaration' && a.id
-				},
-				function (a) {
-					return a.type === 'FunctionDeclaration' && a.id && !a.leadingComments
-				},
+				(b => b.type === 'FunctionDeclaration' && b.id),
+				(b => b.type === 'FunctionDeclaration' && b.id && !b.leadingComments),
 				function (a, b) {
 					function key(x) {
 						return x.id.name
