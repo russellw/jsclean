@@ -3,9 +3,7 @@ var estraverse = require('estraverse')
 
 // Node type unknown to estraverse
 var keys = {
-	ParenthesizedExpression: [
-		'expression',
-	],
+	ParenthesizedExpression: ['expression'],
 }
 
 // Gathered strings
@@ -51,19 +49,27 @@ function comment(a, level) {
 function emit(a, level) {
 	switch (a.type) {
 	case 'ArrayExpression':
-		if (!a.elements.length) {
+		switch (a.elements.length) {
+		case 0:
 			ss.push('[]')
 			break
+		case 1:
+			ss.push('[')
+			emit(a.elements[0])
+			ss.push(']')
+			break
+		default:
+			ss.push('[\n')
+			for (var b of a.elements) {
+				comment(b, level + 1)
+				indent(level + 1)
+				emit(b, level + 1)
+				ss.push(',\n')
+			}
+			indent(level)
+			ss.push(']')
+			break
 		}
-		ss.push('[\n')
-		for (var b of a.elements) {
-			comment(b, level + 1)
-			indent(level + 1)
-			emit(b, level + 1)
-			ss.push(',\n')
-		}
-		indent(level)
-		ss.push(']')
 		break
 	case 'ArrowFunctionExpression':
 		if (a.params.length === 1)

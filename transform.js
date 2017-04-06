@@ -3,9 +3,7 @@ var estraverse = require('estraverse')
 
 // Node type unknown to estraverse
 var keys = {
-	ParenthesizedExpression: [
-		'expression',
-	],
+	ParenthesizedExpression: ['expression'],
 }
 
 function cmp(a, b) {
@@ -169,9 +167,7 @@ function run(a) {
 				vars[0].leadingComments = (vars[0].leadingComments || []).concat(a.leadingComments)
 			for (var i = 0; i < vars.length; i++)
 				vars[i] = {
-					declarations: [
-						vars[i],
-					],
+					declarations: [vars[i]],
 					type: a.type,
 				}
 			body.splice(body.indexOf(a), 1, ...vars)
