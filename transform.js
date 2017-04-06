@@ -26,6 +26,22 @@ function cmp(a, b) {
 	return 0
 }
 
+function cmpCases(a, b) {
+	function key(x) {
+		x = x.test
+		if (!x)
+			return '\uffff'
+		switch (x.type) {
+		case 'Identifier':
+			return x.name
+		case 'Literal':
+			return x.value
+		}
+	}
+
+	return cmp(key(a), key(b))
+}
+
 function hasTerminator(c) {
 	var a = c.consequent
 	if (!a.length)
@@ -201,6 +217,18 @@ function run(a) {
 		enter(a) {
 			if (a.type !== 'SwitchStatement')
 				return
+			a.cases = sortElements(
+				a.cases,
+				c => true,
+				(c, i) => a.cases[i - 1].consequent.length,
+				cmpCases,
+				b =>  {
+					var consequent
+					for (var c of b)
+						if (c.consequent)
+							consequent = c.consequent
+					last(b).consequent = consequent
+				})
 
 			// Get blocks of cases
 			var block = []
@@ -214,33 +242,6 @@ function run(a) {
 			}
 			if (block.length)
 				blocks.push(block)
-
-			// Sort cases within block
-			blocks:
-				for (var block of blocks) {
-					for (var i = 0; i < block.length - 1; i++)
-						if (block[i].consequent.length)
-							continue blocks
-					var consequent = last(block).consequent
-					last(block).consequent = []
-					block.sort(
-						(a, b) =>  {
-							function key(x) {
-								x = x.test
-								if (!x)
-									return '\uffff'
-								switch (x.type) {
-								case 'Identifier':
-									return x.name
-								case 'Literal':
-									return x.value
-								}
-							}
-
-							return cmp(key(a), key(b))
-						})
-					last(block).consequent = consequent
-				}
 
 			// Sort blocks
 			blocks.sort(
