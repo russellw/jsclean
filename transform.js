@@ -225,8 +225,10 @@ function run(a) {
 				b =>  {
 					var consequent
 					for (var c of b)
-						if (c.consequent)
+						if (c.consequent.length) {
 							consequent = c.consequent
+							c.consequent = []
+						}
 					last(b).consequent = consequent
 				})
 
