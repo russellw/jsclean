@@ -49,6 +49,23 @@ function hasTerminator(c) {
 	return isTerminator(last(a))
 }
 
+function isRequire(a) {
+	if (a.type !== 'VariableDeclaration')
+		return
+	if (a.declarations.length !== 1)
+		return
+	a = a.declarations[0].init
+	if (!a)
+		return
+	if (a.type !== 'CallExpression')
+		return
+	if (a.callee.type !== 'Identifier')
+		return
+	if (a.callee.name !== 'require')
+		return
+	return true
+}
+
 function isTerminator(a) {
 	switch (a.type) {
 	case 'BreakStatement':
@@ -61,6 +78,10 @@ function isTerminator(a) {
 
 function last(a) {
 	return a[a.length - 1]
+}
+
+function negate(f) {
+	return a => !f(a)
 }
 
 function print(a) {
@@ -291,6 +312,26 @@ function run(a) {
 						case 'Literal':
 							return x.value
 						}
+					}
+
+					return cmp(key(a), key(b))
+				})
+		},
+		keys,
+	})
+
+	// Sort requires
+	estraverse.traverse(a, {
+		enter(a) {
+			if (!a.body)
+				return
+			a.body = sortElements(
+				a.body,
+				isRequire,
+				negate(isRequire),
+				(a, b) =>  {
+					function key(x) {
+						return x.declarations[0].init.callee.name
 					}
 
 					return cmp(key(a), key(b))
