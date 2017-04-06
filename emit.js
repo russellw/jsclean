@@ -423,7 +423,7 @@ function indent(level) {
 
 function params(a, level) {
 	ss.push('(')
-	if (a.some(b => b.type === 'FunctionExpression')) {
+	if (a.some(b => b.type === 'ArrowFunctionExpression' && b.body.type === 'BlockStatement' || b.type === 'FunctionExpression')) {
 		ss.push('\n')
 		level++
 		for (var i = 0; i < a.length; i++) {

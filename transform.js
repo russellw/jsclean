@@ -261,14 +261,14 @@ function run(a) {
 				a.body,
 				b => b.type === 'FunctionDeclaration' && b.id,
 				b => b.type === 'FunctionDeclaration' && b.id && !b.leadingComments,
-				function (a, b) {
+				(a, b) =>  {
 					function key(x) {
 						return x.id.name
 					}
 
 					return cmp(key(a), key(b))
 				},
-				function (a) {
+				a =>  {
 					var comment
 					for (var i = 0; i < a.length; i++) {
 						if (a[i].leadingComments) {
