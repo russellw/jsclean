@@ -35,7 +35,7 @@ function last(a) {
 	return a[a.length - 1]
 }
 
-function sortSlices(a, isSortableStart, isSortableEnd, cmp, post) {
+function sortBlockElements(a, isSortableStart, isSortableEnd, cmp, post) {
 	for (var i = 0; i < a.length;) {
 		if (!isSortableStart(a[i], j)) {
 			i++
@@ -253,7 +253,7 @@ function run(a) {
 		enter(a) {
 			if (!a.body)
 				return
-			sortSlices(
+			sortBlockElements(
 				a.body,
 				b => b.type === 'FunctionDeclaration',
 				b => b.type !== 'FunctionDeclaration' || b.leadingComments,
