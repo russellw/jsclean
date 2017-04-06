@@ -207,7 +207,7 @@ function run(a) {
 					var consequent = last(block).consequent
 					last(block).consequent = []
 					block.sort(
-						function (a, b) {
+						(a, b) =>  {
 							function key(x) {
 								x = x.test
 								if (!x)
@@ -227,7 +227,7 @@ function run(a) {
 
 			// Sort blocks
 			blocks.sort(
-				function (a, b) {
+				(a, b) =>  {
 					function key(block) {
 						var x = block[0].test
 						if (!x)
@@ -288,7 +288,7 @@ function run(a) {
 			if (a.type !== 'ObjectExpression')
 				return
 			a.properties.sort(
-				function (a, b) {
+				(a, b) =>  {
 					function key(x) {
 						x = x.key
 						switch (x.type) {
