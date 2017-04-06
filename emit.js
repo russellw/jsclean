@@ -418,8 +418,12 @@ function indent(level) {
 }
 
 function params(a, level) {
-	if (a.some(separate)) {
-		ss.push('(\n')
+	ss.push('(')
+	if (a.some(
+		function (a) {
+			return a.type === 'FunctionExpression'
+		})) {
+		ss.push('\n')
 		level++
 		for (var i = 0; i < a.length; i++) {
 			if (i)
@@ -427,20 +431,13 @@ function params(a, level) {
 			indent(level)
 			emit(a[i], level)
 		}
-		ss.push(')')
-		return
-	}
-	ss.push('(')
-	for (var i = 0; i < a.length; i++) {
-		if (i)
-			ss.push(', ')
-		emit(a[i], level)
-	}
+	} else
+		for (var i = 0; i < a.length; i++) {
+			if (i)
+				ss.push(', ')
+			emit(a[i], level)
+		}
 	ss.push(')')
-}
-
-function separate(a) {
-	return a.type === 'FunctionExpression'
 }
 
 function stmt(a, level) {
