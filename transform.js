@@ -6,6 +6,18 @@ var keys = {
 	ParenthesizedExpression: ['expression'],
 }
 
+function blocks(a, isEnd) {
+	var bs = []
+	for (var i = 0; i < a.length;) {
+		for (var j = i + 1; j < a.length; j++)
+			if (isEnd(a[j], j))
+				break
+		bs.push(a.slice(i, j))
+		i = j
+	}
+	return bs
+}
+
 function cmp(a, b) {
 	if (a < b)
 		return -1
@@ -35,7 +47,12 @@ function last(a) {
 	return a[a.length - 1]
 }
 
-function sortBlockElements(a, isSortableStart, isSortableEnd, cmp, post) {
+function sortBlocks(a, isEnd, cmp) {
+	var bs = blocks(a, isEnd)
+	return bs.sort((x, y) => cmp(x[0], y[0]))
+}
+
+function sortElements(a, isSortableStart, isSortableEnd, cmp, post) {
 	for (var i = 0; i < a.length;) {
 		if (!isSortableStart(a[i], j)) {
 			i++
@@ -253,7 +270,7 @@ function run(a) {
 		enter(a) {
 			if (!a.body)
 				return
-			sortBlockElements(
+			sortElements(
 				a.body,
 				b => b.type === 'FunctionDeclaration',
 				b => b.type !== 'FunctionDeclaration' || b.leadingComments,
