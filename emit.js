@@ -289,6 +289,10 @@ function emit(a, level) {
 			stmt(b, 0)
 		break
 	case 'Property':
+		if (a.key.type === 'Identifier' && a.value.type === 'Identifier' && a.key.name === a.value.name) {
+			ss.push(a.key.name)
+			break
+		}
 		if (a.value.type === 'FunctionExpression') {
 			ss.push(a.key.name)
 			params(a.value.params, level)
@@ -466,7 +470,7 @@ function run(a) {
 
 	// Bubble comments up to statements
 	estraverse.traverse(a, {
-		keys: keys,
+		keys,
 		leave(a, parent) {
 			if (!a.leadingComments)
 				return

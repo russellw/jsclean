@@ -91,7 +91,7 @@ function run(a) {
 					break
 				}
 		},
-		keys: keys,
+		keys,
 	})
 
 	// Braces
@@ -111,7 +111,7 @@ function run(a) {
 				break
 			}
 		},
-		keys: keys,
+		keys,
 	})
 
 	// Break
@@ -129,7 +129,7 @@ function run(a) {
 				type: 'BreakStatement',
 			})
 		},
-		keys: keys,
+		keys,
 	})
 
 	// Comments
@@ -148,7 +148,7 @@ function run(a) {
 					}
 			}
 		},
-		keys: keys,
+		keys,
 	})
 
 	// Vars
@@ -182,7 +182,7 @@ function run(a) {
 				1,
 			].concat(vars))
 		},
-		keys: keys,
+		keys,
 	})
 
 	// Sort cases
@@ -255,7 +255,7 @@ function run(a) {
 				for (var c of block)
 					a.cases.push(c)
 		},
-		keys: keys,
+		keys,
 	})
 
 	// Sort functions
@@ -289,7 +289,7 @@ function run(a) {
 					}
 				})
 		},
-		keys: keys,
+		keys,
 	})
 
 	// Sort properties
@@ -312,7 +312,7 @@ function run(a) {
 					return cmp(key(a), key(b))
 				})
 		},
-		keys: keys,
+		keys,
 	})
 }
 
