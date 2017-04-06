@@ -317,6 +317,10 @@ function emit(a, level) {
 			emit(a.expressions[i], level)
 		}
 		break
+	case 'SpreadElement':
+		ss.push('...')
+		emit(a.argument, level)
+		break
 	case 'SwitchStatement':
 		ss.push('switch (')
 		emit(a.discriminant, level)
