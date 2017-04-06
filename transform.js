@@ -49,10 +49,7 @@ function sortSlices(a, isSortableStart, isSortablePart, cmp, post) {
 		var sorted = a.slice(i, j).sort(cmp)
 		if (post)
 			post(sorted)
-		a.splice(...[
-			i,
-			j - i,
-		].concat(sorted))
+		a.splice(i, j - i, ...sorted)
 		i = j
 	}
 }
@@ -177,10 +174,7 @@ function run(a) {
 					],
 					type: a.type,
 				}
-			body.splice(...[
-				body.indexOf(a),
-				1,
-			].concat(vars))
+			body.splice(body.indexOf(a), 1, ...vars)
 		},
 		keys,
 	})
