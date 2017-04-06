@@ -53,20 +53,24 @@ function sortBlocks(a, isEnd, cmp) {
 }
 
 function sortElements(a, isSortableStart, isSortableEnd, cmp, post) {
+	if (a.constructor !== Array)
+		return a
+	var r = []
 	for (var i = 0; i < a.length;) {
 		if (!isSortableStart(a[i], j)) {
-			i++
+			r.push(a[i++])
 			continue
 		}
 		for (var j = i + 1; j < a.length; j++)
 			if (isSortableEnd(a[j], j))
 				break
-		var sorted = a.slice(i, j).sort(cmp)
+		var b = a.slice(i, j).sort(cmp)
 		if (post)
-			post(sorted)
-		a.splice(i, j - i, ...sorted)
+			post(b)
+		r.push(...b)
 		i = j
 	}
+	return r
 }
 
 function unbrace(a) {
@@ -270,7 +274,7 @@ function run(a) {
 		enter(a) {
 			if (!a.body)
 				return
-			sortElements(
+			a.body = sortElements(
 				a.body,
 				b => b.type === 'FunctionDeclaration',
 				b => b.type !== 'FunctionDeclaration' || b.leadingComments,
