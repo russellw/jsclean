@@ -83,6 +83,11 @@ function emit(a, level) {
 		ss.push(' ' + a.operator + ' ')
 		emit(a.right, level)
 		break
+	case 'AssignmentPattern':
+		emit(a.left, level)
+		ss.push('=')
+		emit(a.right, level)
+		break
 	case 'BlockStatement':
 		ss.push('{\n')
 		for (var b of a.body)
