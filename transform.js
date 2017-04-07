@@ -49,6 +49,27 @@ function hasTerminator(c) {
 	return isTerminator(last(a))
 }
 
+function isConst(a) {
+	if (!a)
+		return true
+	switch (a.type) {
+	case 'ArrayExpression':
+		return !a.elements.length
+	case 'Literal':
+		return true
+	case 'ObjectExpression':
+		return !a.properties.length
+	}
+}
+
+function isConstVar(a) {
+	if (a.type !== 'VariableDeclaration')
+		return
+	if (a.declarations.length !== 1)
+		return
+	return isConst(a.declarations[0].init)
+}
+
 function isExport(a) {
 	if (a.type !== 'ExpressionStatement')
 		return
@@ -321,6 +342,26 @@ function run(a) {
 				a.body,
 				isRequire,
 				negate(isRequire),
+				(a, b) =>  {
+					function key(x) {
+						return x.declarations[0].id.name
+					}
+
+					return cmp(key(a), key(b))
+				})
+		},
+		keys,
+	})
+
+	// Sort vars
+	estraverse.traverse(a, {
+		enter(a) {
+			if (!a.body)
+				return
+			a.body = sortElements(
+				a.body,
+				isConstVar,
+				negate(isConstVar),
 				(a, b) =>  {
 					function key(x) {
 						return x.declarations[0].id.name
