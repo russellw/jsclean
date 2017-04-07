@@ -45,7 +45,7 @@ function cmpCases(a, b) {
 function hasTerminator(c) {
 	var a = c.consequent
 	if (!a.length)
-		return false
+		return
 	return isTerminator(last(a))
 }
 
