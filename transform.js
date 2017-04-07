@@ -49,6 +49,23 @@ function hasTerminator(c) {
 	return isTerminator(last(a))
 }
 
+function isExport(a) {
+	if (a.type !== 'ExpressionStatement')
+		return
+	a = a.expression
+	if (a.type !== 'AssignmentExpression')
+		return
+	if (a.left.type !== 'MemberExpression')
+		return
+	if (a.left.object.type !== 'Identifier')
+		return
+	if (a.left.object.name !== 'exports')
+		return
+	if (a.right.type !== 'Identifier')
+		return
+	return true
+}
+
 function isRequire(a) {
 	if (a.type !== 'VariableDeclaration')
 		return
@@ -218,6 +235,26 @@ function run(a) {
 					last(b).consequent = consequent
 				})
 			a.cases = sortBlocks(a.cases, (c, i) => a.cases[i - 1].consequent.length && hasTerminator(a.cases[i - 1]), cmpCases)
+		},
+		keys,
+	})
+
+	// Sort exports
+	estraverse.traverse(a, {
+		enter(a) {
+			if (!a.body)
+				return
+			a.body = sortElements(
+				a.body,
+				isExport,
+				negate(isExport),
+				(a, b) =>  {
+					function key(x) {
+						return x.expression.right.name
+					}
+
+					return cmp(key(a), key(b))
+				})
 		},
 		keys,
 	})
