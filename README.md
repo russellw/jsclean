@@ -6,4 +6,4 @@ Usage:
 jsclean <files>
 ```
 
-Rather than provide options, jsclean has a single way of doing things, combined with code simple enough (less than a thousand lines) to make it feasible to fork if you want a version that does something else.
+Rather than provide options, jsclean has a single way of doing things, combined with code simple enough (about a thousand lines) to make it feasible to fork if you want a version that does something else.
