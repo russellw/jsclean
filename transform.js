@@ -57,6 +57,10 @@ function isConst(a) {
 		return !a.elements.length
 	case 'Literal':
 		return true
+	case 'NewExpression':
+		if (a.callee.type !== 'Identifier' || a.callee.name !== 'Map')
+			return
+		return !a.arguments.length
 	case 'ObjectExpression':
 		return !a.properties.length
 	}
