@@ -1,5 +1,6 @@
 'use strict'
 var estraverse = require('estraverse')
+var util = require('util')
 
 // Node type unknown to estraverse
 var keys = {
@@ -448,7 +449,7 @@ function params(a, level) {
 }
 
 function print(a) {
-	console.log(require('util').inspect(a, {
+	console.log(util.inspect(a, {
 		colors: true,
 		depth: null,
 		maxArrayLength: null,
