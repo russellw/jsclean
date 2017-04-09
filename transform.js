@@ -292,7 +292,10 @@ function run(a) {
 		enter(a) {
 			if (a.type !== 'ObjectExpression')
 				return
-			a.properties.sort(
+			a.properties = sortElements(
+				a.properties,
+				b => true,
+				b => false,
 				(a, b) =>  {
 					function key(x) {
 						x = x.key
@@ -306,7 +309,6 @@ function run(a) {
 
 					return cmp(key(a), key(b))
 				})
-			hoistComments(a.properties)
 		},
 		keys,
 	})
