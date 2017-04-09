@@ -77,6 +77,17 @@ function isConst(a) {
 	}
 }
 
+function isConstAssign(a) {
+	if (a.type !== 'ExpressionStatement')
+		return
+	a = a.expression
+	if (a.type !== 'AssignmentExpression')
+		return
+	if (a.left.type !== 'Identifier')
+		return
+	return isConst(a.right)
+}
+
 function isConstVar(a) {
 	if (a.type !== 'VariableDeclaration')
 		return
@@ -209,6 +220,26 @@ function run(a) {
 						break
 					}
 			}
+		},
+		keys,
+	})
+
+	// Sort assignment
+	estraverse.traverse(a, {
+		enter(a) {
+			if (!a.body)
+				return
+			a.body = sortElements(
+				a.body,
+				isConstAssign,
+				negate(isConstAssign),
+				(a, b) =>  {
+					function key(x) {
+						return x.expression.left.name
+					}
+
+					return cmp(key(a), key(b))
+				})
 		},
 		keys,
 	})
