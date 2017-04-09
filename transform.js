@@ -367,9 +367,12 @@ function sortElements(a, isSortableStart, isSortableEnd, cmp, post) {
 			r.push(a[i++])
 			continue
 		}
-		for (var j = i + 1; j < a.length; j++)
+		for (var j = i + 1; j < a.length; j++) {
+			if (a[j].comments)
+				break
 			if (isSortableEnd(a[j], j))
 				break
+		}
 		var b = a.slice(i, j).sort(cmp)
 		hoistComments(b)
 		if (post)
