@@ -8,7 +8,8 @@
     "acorn": "^5.0.3",
     "command-files": "^1.1.0",
     "commander": "^2.8.1",
-    "estraverse": "^4.1.0"
+    "estraverse": "^4.1.0",
+    "iop": "^1.0.0"
   },
   "description": "Clean JavaScript code",
   "homepage": "https://github.com/russellw/jsclean#readme",

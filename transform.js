@@ -1,6 +1,5 @@
 'use strict'
 var estraverse = require('estraverse')
-var util = require('util')
 
 // Node type unknown to estraverse
 var keys = {
@@ -136,15 +135,6 @@ function last(a) {
 
 function negate(f) {
 	return a => !f(a)
-}
-
-function print(a) {
-	console.log(util.inspect(a, {
-		colors: process.stdout.isTTY,
-		depth: null,
-		maxArrayLength: null,
-		showHidden: false,
-	}))
 }
 
 function run(a) {

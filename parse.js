@@ -1,7 +1,6 @@
 'use strict'
 var acorn = require('acorn')
 var estraverse = require('estraverse')
-var util = require('util')
 
 // Node type unknown to estraverse
 var keys = {
@@ -11,15 +10,6 @@ var keys = {
 function comment(a) {
 	a.comments = a.leadingComments
 	delete a.leadingComments
-}
-
-function print(a) {
-	console.log(util.inspect(a, {
-		colors: process.stdout.isTTY,
-		depth: null,
-		maxArrayLength: null,
-		showHidden: false,
-	}))
 }
 
 function run(text) {
