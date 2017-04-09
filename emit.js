@@ -30,10 +30,10 @@ function blockEnd(a, level) {
 }
 
 function comment(a, level) {
-	if (!a.leadingComments)
+	if (!a.comments)
 		return
 	ss.push('\n')
-	for (var c of a.leadingComments) {
+	for (var c of a.comments) {
 		indent(level)
 		if (c.type === 'Line') {
 			ss.push('//')
@@ -458,35 +458,6 @@ function print(a) {
 
 function run(a) {
 	ss = []
-
-	// Bubble comments up to statements
-	estraverse.traverse(a, {
-		keys,
-		leave(a, parent) {
-			if (!a.leadingComments)
-				return
-			if (!parent)
-				return
-			if (a.type.indexOf('Statement') >= 0)
-				return
-			switch (a.type) {
-			case 'FunctionDeclaration':
-			case 'SwitchCase':
-				return
-			case 'VariableDeclaration':
-				if (parent.type.indexOf('For') < 0)
-					return
-				break
-			}
-			switch (parent.type) {
-			case 'ArrayExpression':
-			case 'ObjectExpression':
-				return
-			}
-			parent.leadingComments = (parent.leadingComments || []).concat(a.leadingComments)
-			a.leadingComments = null
-		},
-	})
 
 	// Emit
 	emit(a, 0)

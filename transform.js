@@ -49,6 +49,17 @@ function hasTerminator(c) {
 	return isTerminator(last(a))
 }
 
+function hoistComments(a) {
+	var comment
+	for (var i = 0; i < a.length; i++) {
+		if (a[i].comments) {
+			comment = a[i].comments
+			delete a[i].comments
+		}
+		a[0].comments = comment
+	}
+}
+
 function isConst(a) {
 	if (!a)
 		return true
@@ -128,7 +139,7 @@ function negate(f) {
 
 function print(a) {
 	console.log(require('util').inspect(a, {
-		colors: true,
+		colors: process.stdout.isTTY,
 		depth: null,
 		maxArrayLength: null,
 		showHidden: false,
@@ -195,9 +206,9 @@ function run(a) {
 	// Comments
 	estraverse.traverse(a, {
 		enter(a) {
-			if (!a.leadingComments)
+			if (!a.comments)
 				return
-			for (var c of a.leadingComments) {
+			for (var c of a.comments) {
 				if (c.type !== 'Line')
 					continue
 				var s = c.value
@@ -207,35 +218,6 @@ function run(a) {
 						break
 					}
 			}
-		},
-		keys,
-	})
-
-	// Vars
-	estraverse.traverse(a, {
-		enter(a, parent) {
-			if (a.type !== 'VariableDeclaration')
-				return
-			switch (parent.type) {
-			case 'BlockStatement':
-			case 'Program':
-				var body = parent.body
-				break
-			case 'SwitchCase':
-				body = parent.consequent
-				break
-			default:
-				return
-			}
-			var vars = a.declarations
-			if (a.leadingComments)
-				vars[0].leadingComments = (vars[0].leadingComments || []).concat(a.leadingComments)
-			for (var i = 0; i < vars.length; i++)
-				vars[i] = {
-					declarations: [vars[i]],
-					type: a.type,
-				}
-			body.splice(body.indexOf(a), 1, ...vars)
 		},
 		keys,
 	})
@@ -251,6 +233,7 @@ function run(a) {
 				(c, i) => a.cases[i - 1].consequent.length,
 				cmpCases,
 				b =>  {
+					hoistComments(b)
 					var consequent = []
 					for (var c of b)
 						if (c.consequent.length) {
@@ -279,7 +262,8 @@ function run(a) {
 					}
 
 					return cmp(key(a), key(b))
-				})
+				},
+				hoistComments)
 		},
 		keys,
 	})
@@ -292,7 +276,7 @@ function run(a) {
 			a.body = sortElements(
 				a.body,
 				b => b.type === 'FunctionDeclaration',
-				b => b.type !== 'FunctionDeclaration' || b.leadingComments,
+				b => b.type !== 'FunctionDeclaration' || b.comments,
 				(a, b) =>  {
 					function key(x) {
 						return x.id.name
@@ -300,16 +284,7 @@ function run(a) {
 
 					return cmp(key(a), key(b))
 				},
-				a =>  {
-					var comment
-					for (var i = 0; i < a.length; i++) {
-						if (a[i].leadingComments) {
-							comment = a[i].leadingComments
-							delete a[i].leadingComments
-						}
-						a[0].leadingComments = comment
-					}
-				})
+				hoistComments)
 		},
 		keys,
 	})
@@ -333,6 +308,7 @@ function run(a) {
 
 					return cmp(key(a), key(b))
 				})
+			hoistComments(a.properties)
 		},
 		keys,
 	})
@@ -352,7 +328,8 @@ function run(a) {
 					}
 
 					return cmp(key(a), key(b))
-				})
+				},
+				hoistComments)
 		},
 		keys,
 	})
@@ -372,7 +349,8 @@ function run(a) {
 					}
 
 					return cmp(key(a), key(b))
-				})
+				},
+				hoistComments)
 		},
 		keys,
 	})
