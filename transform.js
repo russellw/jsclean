@@ -275,7 +275,7 @@ function run(a) {
 			a.body = sortElements(
 				a.body,
 				b => b.type === 'FunctionDeclaration',
-				b => b.type !== 'FunctionDeclaration' || b.comments,
+				b => b.type !== 'FunctionDeclaration',
 				(a, b) =>  {
 					function key(x) {
 						return x.id.name
