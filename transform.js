@@ -234,7 +234,6 @@ function run(a) {
 				(c, i) => a.cases[i - 1].consequent.length,
 				cmpCases,
 				b =>  {
-					hoistComments(b)
 					var consequent = []
 					for (var c of b)
 						if (c.consequent.length) {
@@ -263,8 +262,7 @@ function run(a) {
 					}
 
 					return cmp(key(a), key(b))
-				},
-				hoistComments)
+				})
 		},
 		keys,
 	})
@@ -284,8 +282,7 @@ function run(a) {
 					}
 
 					return cmp(key(a), key(b))
-				},
-				hoistComments)
+				})
 		},
 		keys,
 	})
@@ -329,8 +326,7 @@ function run(a) {
 					}
 
 					return cmp(key(a), key(b))
-				},
-				hoistComments)
+				})
 		},
 		keys,
 	})
@@ -350,8 +346,7 @@ function run(a) {
 					}
 
 					return cmp(key(a), key(b))
-				},
-				hoistComments)
+				})
 		},
 		keys,
 	})
@@ -376,6 +371,7 @@ function sortElements(a, isSortableStart, isSortableEnd, cmp, post) {
 			if (isSortableEnd(a[j], j))
 				break
 		var b = a.slice(i, j).sort(cmp)
+		hoistComments(b)
 		if (post)
 			post(b)
 		r.push(...b)

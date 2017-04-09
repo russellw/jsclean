@@ -68,6 +68,10 @@ function run(text) {
 				for (var b of a.body)
 					comment(b)
 				break
+			case 'ObjectExpression':
+				for (var b of a.properties)
+					comment(b)
+				break
 			case 'SwitchStatement':
 				for (var c of a.cases) {
 					comment(c)
