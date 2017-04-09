@@ -41,7 +41,6 @@ function run(text) {
 	var tokens = []
 	var a = acorn.parse(text, {
 		allowReturnOutsideFunction: true,
-		ecmaVersion: 6,
 		onComment: comments,
 		onToken: tokens,
 		preserveParens: true,
