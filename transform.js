@@ -395,6 +395,8 @@ function unbrace(a) {
 			type: 'EmptyStatement',
 		}
 	case 1:
+		if (a.body[0].comments)
+			break
 		return a.body[0]
 	}
 	return a
