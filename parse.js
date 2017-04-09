@@ -40,7 +40,6 @@ function run(text) {
 	var comments = []
 	var tokens = []
 	var a = acorn.parse(text, {
-		allowImportExportEverywhere: true,
 		allowReturnOutsideFunction: true,
 		ecmaVersion: 6,
 		onComment: comments,
