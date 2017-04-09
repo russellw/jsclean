@@ -97,8 +97,10 @@ function emit(a, level) {
 		break
 	case 'BlockStatement':
 		ss.push('{\n')
-		for (var b of a.body)
+		for (var b of a.body) {
+			comment(b, level + 1)
 			stmt(b, level + 1)
+		}
 		indent(level)
 		ss.push('}')
 		break
@@ -292,8 +294,10 @@ function emit(a, level) {
 		ss.push(')')
 		break
 	case 'Program':
-		for (var b of a.body)
+		for (var b of a.body) {
+			comment(b, 0)
 			stmt(b, 0)
+		}
 		break
 	case 'Property':
 		if (a.key.type === 'Identifier' && a.value.type === 'Identifier' && a.key.name === a.value.name) {
@@ -479,7 +483,6 @@ function run(a) {
 }
 
 function stmt(a, level) {
-	comment(a, level)
 	if (a.type === 'FunctionDeclaration')
 		ss.push('\n')
 	indent(level)
