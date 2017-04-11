@@ -78,17 +78,6 @@ function isConst(a) {
 	}
 }
 
-function isConstAssign(a) {
-	if (a.type !== 'ExpressionStatement')
-		return
-	a = a.expression
-	if (a.type !== 'AssignmentExpression')
-		return
-	if (a.left.type !== 'Identifier')
-		return
-	return isConst(a.right)
-}
-
 function isConstVar(a) {
 	if (a.type !== 'VariableDeclaration')
 		return
@@ -129,6 +118,17 @@ function isRequire(a) {
 	if (a.callee.name !== 'require')
 		return
 	return true
+}
+
+function isSimpleAssign(a) {
+	if (a.type !== 'ExpressionStatement')
+		return
+	a = a.expression
+	if (a.type !== 'AssignmentExpression')
+		return
+	if (a.left.type !== 'Identifier')
+		return
+	return isConst(a.right) || a.right.type === 'Identifier'
 }
 
 function isTerminator(a) {
@@ -231,18 +231,7 @@ function run(a) {
 		enter(a) {
 			if (!a.body)
 				return
-			a.body = sortElements(
-				a.body,
-				isConstAssign,
-				negate(isConstAssign),
-				(a, b) =>  {
-
-					function key(x) {
-						return x.expression.left.name
-					}
-
-					return cmp(key(a), key(b))
-				})
+			a.body = sortAssigns(a.body)
 		},
 		keys,
 	})
@@ -383,6 +372,45 @@ function run(a) {
 	})
 }
 
+function sortAssigns(a) {
+	if (a.constructor !== Array)
+		return a
+	var r = []
+	loop:
+		for (var i = 0; i < a.length;) {
+			if (!isSimpleAssign(a[i], j)) {
+				r.push(a[i++])
+				continue
+			}
+			for (var j = i + 1; j < a.length; j++) {
+				if (a[j].comments)
+					break
+				if (!isSimpleAssign(a[j], j))
+					break
+			}
+			var b = a.slice(i, j)
+			i = j
+			for (var x of b)
+				for (var y of b)
+					if (x.expression.left.name === y.expression.right.name) {
+						r.push(...b)
+						continue loop
+					}
+			b = b.sort(
+				(a, b) =>  {
+
+					function key(x) {
+						return x.expression.left.name
+					}
+
+					return cmp(key(a), key(b))
+				})
+			hoistComments(b)
+			r.push(...b)
+		}
+	return r
+}
+
 function sortBlocks(a, isEnd, cmp) {
 	var bs = blocks(a, isEnd)
 	bs = bs.sort((x, y) => cmp(x[0], y[0]))
@@ -405,11 +433,11 @@ function sortElements(a, isSortableStart, isSortableEnd, cmp, post) {
 				break
 		}
 		var b = a.slice(i, j).sort(cmp)
+		i = j
 		hoistComments(b)
 		if (post)
 			post(b)
 		r.push(...b)
-		i = j
 	}
 	return r
 }
