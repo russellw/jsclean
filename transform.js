@@ -78,14 +78,6 @@ function isConst(a) {
 	}
 }
 
-function isConstVar(a) {
-	if (a.type !== 'VariableDeclaration')
-		return
-	if (a.declarations.length !== 1)
-		return
-	return isConst(a.declarations[0].init)
-}
-
 function isExport(a) {
 	if (a.type !== 'ExpressionStatement')
 		return
@@ -129,6 +121,15 @@ function isSimpleAssign(a) {
 	if (a.left.type !== 'Identifier')
 		return
 	return isConst(a.right) || a.right.type === 'Identifier'
+}
+
+function isSimpleVar(a) {
+	if (a.type !== 'VariableDeclaration')
+		return
+	if (a.declarations.length !== 1)
+		return
+	a = a.declarations[0].init
+	return isConst(a) || a.type === 'Identifier'
 }
 
 function isTerminator(a) {
@@ -355,18 +356,7 @@ function run(a) {
 		enter(a) {
 			if (!a.body)
 				return
-			a.body = sortElements(
-				a.body,
-				isConstVar,
-				negate(isConstVar),
-				(a, b) =>  {
-
-					function key(x) {
-						return x.declarations[0].id.name
-					}
-
-					return cmp(key(a), key(b))
-				})
+			a.body = sortVars(a.body)
 		},
 		keys,
 	})
@@ -439,6 +429,45 @@ function sortElements(a, isSortableStart, isSortableEnd, cmp, post) {
 			post(b)
 		r.push(...b)
 	}
+	return r
+}
+
+function sortVars(a) {
+	if (a.constructor !== Array)
+		return a
+	var r = []
+	loop:
+		for (var i = 0; i < a.length;) {
+			if (!isSimpleVar(a[i], j)) {
+				r.push(a[i++])
+				continue
+			}
+			for (var j = i + 1; j < a.length; j++) {
+				if (a[j].comments)
+					break
+				if (!isSimpleVar(a[j], j))
+					break
+			}
+			var b = a.slice(i, j)
+			i = j
+			for (var x of b)
+				for (var y of b)
+					if (y.declarations[0].init && x.declarations[0].id.name === y.declarations[0].init.name) {
+						r.push(...b)
+						continue loop
+					}
+			b = b.sort(
+				(a, b) =>  {
+
+					function key(x) {
+						return x.declarations[0].id.name
+					}
+
+					return cmp(key(a), key(b))
+				})
+			hoistComments(b)
+			r.push(...b)
+		}
 	return r
 }
 
