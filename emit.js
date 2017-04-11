@@ -466,7 +466,6 @@ function run(a) {
 
 	// Don't start with blank line
 	text = text.replace(/^\n+/, '')
-	text = text.replace(/{\n\n/g, '{\n')
 
 	// End with exactly one newline
 	return text.replace(/\n*$/, '\n')

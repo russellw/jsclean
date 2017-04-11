@@ -27,6 +27,7 @@ function cmp(a, b) {
 }
 
 function cmpCases(a, b) {
+
 	function key(x) {
 		x = x.test
 		if (!x)
@@ -149,6 +150,7 @@ function negate(f) {
 }
 
 function run(a) {
+
 	// ===
 	estraverse.traverse(a, {
 		enter(a) {
@@ -234,6 +236,7 @@ function run(a) {
 				isConstAssign,
 				negate(isConstAssign),
 				(a, b) =>  {
+
 					function key(x) {
 						return x.expression.left.name
 					}
@@ -278,6 +281,7 @@ function run(a) {
 				isExport,
 				negate(isExport),
 				(a, b) =>  {
+
 					function key(x) {
 						return x.expression.right.name
 					}
@@ -298,6 +302,7 @@ function run(a) {
 				b => b.type === 'FunctionDeclaration',
 				b => b.type !== 'FunctionDeclaration',
 				(a, b) =>  {
+
 					function key(x) {
 						return x.id.name
 					}
@@ -318,6 +323,7 @@ function run(a) {
 				b => true,
 				b => false,
 				(a, b) =>  {
+
 					function key(x) {
 						x = x.key
 						switch (x.type) {
@@ -344,6 +350,7 @@ function run(a) {
 				isRequire,
 				negate(isRequire),
 				(a, b) =>  {
+
 					function key(x) {
 						return x.declarations[0].id.name
 					}
@@ -364,6 +371,7 @@ function run(a) {
 				isConstVar,
 				negate(isConstVar),
 				(a, b) =>  {
+
 					function key(x) {
 						return x.declarations[0].id.name
 					}
