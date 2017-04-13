@@ -49,7 +49,7 @@ function comment(a, level) {
 function emit(a, level) {
 	switch (a.type) {
 	case 'ArrayExpression':
-		if (a.elements.every(isAtom)) {
+		if (a.elements.length <= 1 || a.elements.every(isAtom)) {
 			ss.push('[')
 			for (var i = 0; i < a.elements.length; i++) {
 				if (i)
