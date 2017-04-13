@@ -103,10 +103,7 @@ function emit(a, level) {
 		break
 	case 'BlockStatement':
 		ss.push('{\n')
-		for (var b of a.body) {
-			comment(b, level + 1)
-			stmt(b, level + 1)
-		}
+		stmts(a.body, level + 1)
 		indent(level)
 		ss.push('}')
 		break
@@ -300,10 +297,7 @@ function emit(a, level) {
 		ss.push(')')
 		break
 	case 'Program':
-		for (var b of a.body) {
-			comment(b, 0)
-			stmt(b, 0)
-		}
+		stmts(a.body, 0)
 		break
 	case 'Property':
 		if (a.key.type === 'Identifier' && a.value.type === 'Identifier' && a.key.name === a.value.name) {
@@ -438,6 +432,23 @@ function indent(level) {
 		ss.push('\t')
 }
 
+function isRequire(a) {
+	if (a.type !== 'VariableDeclaration')
+		return
+	if (a.declarations.length !== 1)
+		return
+	a = a.declarations[0].init
+	if (!a)
+		return
+	if (a.type !== 'CallExpression')
+		return
+	if (a.callee.type !== 'Identifier')
+		return
+	if (a.callee.name !== 'require')
+		return
+	return true
+}
+
 function params(a, level) {
 	ss.push('(')
 	if (a.some(b => b.type === 'ArrowFunctionExpression' && b.body.type === 'BlockStatement' || b.type === 'FunctionExpression')) {
@@ -486,6 +497,15 @@ function stmt(a, level) {
 	ss.push('\n')
 	if (a.type === 'FunctionDeclaration')
 		ss.push('\n')
+}
+
+function stmts(a, level) {
+	for (var i = 0; i < a.length; i++) {
+		if (i && isRequire(a[i - 1]) && !isRequire(a[i]))
+			ss.push('\n')
+		comment(a[i], level)
+		stmt(a[i], level)
+	}
 }
 
 function variableDeclaration(a, level) {
