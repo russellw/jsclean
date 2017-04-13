@@ -49,27 +49,25 @@ function comment(a, level) {
 function emit(a, level) {
 	switch (a.type) {
 	case 'ArrayExpression':
-		switch (a.elements.length) {
-		case 0:
-			ss.push('[]')
-			break
-		case 1:
+		if (a.elements.every(isAtom)) {
 			ss.push('[')
-			emit(a.elements[0])
-			ss.push(']')
-			break
-		default:
-			ss.push('[\n')
-			for (var b of a.elements) {
-				comment(b, level + 1)
-				indent(level + 1)
-				emit(b, level + 1)
-				ss.push(',\n')
+			for (var i = 0; i < a.elements.length; i++) {
+				if (i)
+					ss.push(', ')
+				emit(a.elements[i])
 			}
-			indent(level)
 			ss.push(']')
 			break
 		}
+		ss.push('[\n')
+		for (var b of a.elements) {
+			comment(b, level + 1)
+			indent(level + 1)
+			emit(b, level + 1)
+			ss.push(',\n')
+		}
+		indent(level)
+		ss.push(']')
 		break
 	case 'ArrowFunctionExpression':
 		if (a.params.length === 1)
@@ -429,6 +427,15 @@ function hex(n, size) {
 function indent(level) {
 	while (level--)
 		ss.push('\t')
+}
+
+function isAtom(a) {
+	switch (a.type) {
+	case 'Identifier':
+	case 'Literal':
+	case 'This':
+		return true
+	}
 }
 
 function params(a, level) {
