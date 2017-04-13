@@ -1,5 +1,6 @@
 'use strict'
 var estraverse = require('estraverse')
+var etc = require('./etc')
 
 // Node type unknown to estraverse
 var keys = {
@@ -91,23 +92,6 @@ function isExport(a) {
 	if (a.left.object.name !== 'exports')
 		return
 	if (a.right.type !== 'Identifier')
-		return
-	return true
-}
-
-function isRequire(a) {
-	if (a.type !== 'VariableDeclaration')
-		return
-	if (a.declarations.length !== 1)
-		return
-	a = a.declarations[0].init
-	if (!a)
-		return
-	if (a.type !== 'CallExpression')
-		return
-	if (a.callee.type !== 'Identifier')
-		return
-	if (a.callee.name !== 'require')
 		return
 	return true
 }
@@ -337,8 +321,8 @@ function run(a) {
 				return
 			a.body = sortElements(
 				a.body,
-				isRequire,
-				negate(isRequire),
+				etc.isRequire,
+				negate(etc.isRequire),
 				(a, b) =>  {
 
 					function key(x) {

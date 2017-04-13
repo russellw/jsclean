@@ -1,5 +1,6 @@
 'use strict'
 var estraverse = require('estraverse')
+var etc = require('./etc')
 
 // Node type unknown to estraverse
 var keys = {
@@ -432,23 +433,6 @@ function indent(level) {
 		ss.push('\t')
 }
 
-function isRequire(a) {
-	if (a.type !== 'VariableDeclaration')
-		return
-	if (a.declarations.length !== 1)
-		return
-	a = a.declarations[0].init
-	if (!a)
-		return
-	if (a.type !== 'CallExpression')
-		return
-	if (a.callee.type !== 'Identifier')
-		return
-	if (a.callee.name !== 'require')
-		return
-	return true
-}
-
 function params(a, level) {
 	ss.push('(')
 	if (a.some(b => b.type === 'ArrowFunctionExpression' && b.body.type === 'BlockStatement' || b.type === 'FunctionExpression')) {
@@ -501,7 +485,7 @@ function stmt(a, level) {
 
 function stmts(a, level) {
 	for (var i = 0; i < a.length; i++) {
-		if (i && isRequire(a[i - 1]) && !isRequire(a[i]))
+		if (i && etc.isRequire(a[i - 1]) && !etc.isRequire(a[i]))
 			ss.push('\n')
 		comment(a[i], level)
 		stmt(a[i], level)
