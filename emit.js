@@ -9,6 +9,15 @@ var keys = {
 // Gathered strings
 var ss
 
+function atomic(a) {
+	switch (a.type) {
+	case 'Identifier':
+	case 'Literal':
+	case 'This':
+		return true
+	}
+}
+
 function block(a, level) {
 	if (a.type === 'BlockStatement') {
 		ss.push(' ')
@@ -49,7 +58,7 @@ function comment(a, level) {
 function emit(a, level) {
 	switch (a.type) {
 	case 'ArrayExpression':
-		if (a.elements.length <= 1 || a.elements.every(isAtom)) {
+		if (a.elements.length <= 1 || a.elements.every(atomic)) {
 			ss.push('[')
 			for (var i = 0; i < a.elements.length; i++) {
 				if (i)
@@ -427,15 +436,6 @@ function hex(n, size) {
 function indent(level) {
 	while (level--)
 		ss.push('\t')
-}
-
-function isAtom(a) {
-	switch (a.type) {
-	case 'Identifier':
-	case 'Literal':
-	case 'This':
-		return true
-	}
 }
 
 function params(a, level) {
