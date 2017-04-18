@@ -1,4 +1,5 @@
 'use strict'
+var _ = require('lodash')
 var estraverse = require('estraverse')
 var etc = require('./etc')
 
@@ -48,7 +49,7 @@ function hasTerminator(c) {
 	var a = c.consequent
 	if (!a.length)
 		return
-	return isTerminator(last(a))
+	return isTerminator(_.last(a))
 }
 
 function hoistComments(a) {
@@ -126,14 +127,6 @@ function isTerminator(a) {
 	}
 }
 
-function last(a) {
-	return a[a.length - 1]
-}
-
-function negate(f) {
-	return a => !f(a)
-}
-
 function run(a) {
 
 	// ===
@@ -181,7 +174,7 @@ function run(a) {
 				return
 			if (!a.cases.length)
 				return
-			var c = last(a.cases)
+			var c = _.last(a.cases)
 			if (hasTerminator(c))
 				return
 			c.consequent.push({
@@ -234,7 +227,7 @@ function run(a) {
 							consequent = c.consequent
 							c.consequent = []
 						}
-					last(b).consequent = consequent
+					_.last(b).consequent = consequent
 				})
 			a.cases = sortBlocks(a.cases, (c, i) => a.cases[i - 1].consequent.length && hasTerminator(a.cases[i - 1]), cmpCases)
 		},
@@ -246,7 +239,7 @@ function run(a) {
 		enter(a) {
 			if (!a.body)
 				return
-			a.body = sortElements(a.body, isExport, negate(isExport),
+			a.body = sortElements(a.body, isExport, _.negate(isExport),
 				(a, b) =>  {
 
 					function key(x) {
@@ -306,7 +299,7 @@ function run(a) {
 		enter(a) {
 			if (!a.body)
 				return
-			a.body = sortElements(a.body, etc.isRequire, negate(etc.isRequire),
+			a.body = sortElements(a.body, etc.isRequire, _.negate(etc.isRequire),
 				(a, b) =>  {
 
 					function key(x) {
