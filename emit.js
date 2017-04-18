@@ -450,29 +450,19 @@ function inline(a) {
 
 function params(a, level) {
 	ss.push('(')
-	if (a.every(inline))
-		for (var i = 0; i < a.length; i++) {
-			if (i)
-				ss.push(', ')
-			emit(a[i], level)
-		}
-	else if (inline(a[0])) {
-		emit(a[0], level)
-		level++
-		for (var i = 1; i < a.length; i++) {
-			ss.push(',\n')
-			indent(level)
-			emit(a[i], level)
-		}
-	} else {
+	for (var i = 0; i < a.length && inline(a[i]); i++) {
+		if (i)
+			ss.push(', ')
+		emit(a[i], level)
+	}
+	if (!i && a.length)
 		ss.push('\n')
-		level++
-		for (var i = 0; i < a.length; i++) {
-			if (i)
-				ss.push(',\n')
-			indent(level)
-			emit(a[i], level)
-		}
+	level++
+	for (; i < a.length; i++) {
+		if (i)
+			ss.push(',\n')
+		indent(level)
+		emit(a[i], level)
 	}
 	ss.push(')')
 }

@@ -226,10 +226,7 @@ function run(a) {
 		enter(a) {
 			if (a.type !== 'SwitchStatement')
 				return
-			a.cases = sortElements(a.cases,
-				c => true,
-				(c, i) => a.cases[i - 1].consequent.length,
-				cmpCases,
+			a.cases = sortElements(a.cases, c => true, (c, i) => a.cases[i - 1].consequent.length, cmpCases,
 				b =>  {
 					var consequent = []
 					for (var c of b)
@@ -249,9 +246,7 @@ function run(a) {
 		enter(a) {
 			if (!a.body)
 				return
-			a.body = sortElements(a.body,
-				isExport,
-				negate(isExport),
+			a.body = sortElements(a.body, isExport, negate(isExport),
 				(a, b) =>  {
 
 					function key(x) {
@@ -269,9 +264,7 @@ function run(a) {
 		enter(a) {
 			if (!a.body)
 				return
-			a.body = sortElements(a.body,
-				b => b.type === 'FunctionDeclaration',
-				b => b.type !== 'FunctionDeclaration',
+			a.body = sortElements(a.body, b => b.type === 'FunctionDeclaration', b => b.type !== 'FunctionDeclaration',
 				(a, b) =>  {
 
 					function key(x) {
@@ -289,9 +282,7 @@ function run(a) {
 		enter(a) {
 			if (a.type !== 'ObjectExpression')
 				return
-			a.properties = sortElements(a.properties,
-				b => true,
-				b => false,
+			a.properties = sortElements(a.properties, b => true, b => false,
 				(a, b) =>  {
 
 					function key(x) {
@@ -315,9 +306,7 @@ function run(a) {
 		enter(a) {
 			if (!a.body)
 				return
-			a.body = sortElements(a.body,
-				etc.isRequire,
-				negate(etc.isRequire),
+			a.body = sortElements(a.body, etc.isRequire, negate(etc.isRequire),
 				(a, b) =>  {
 
 					function key(x) {
