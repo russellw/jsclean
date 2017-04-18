@@ -219,17 +219,16 @@ function run(a) {
 		enter(a) {
 			if (a.type !== 'SwitchStatement')
 				return
-			a.cases = sortElements(a.cases, c => true, (c, i) => a.cases[i - 1].consequent.length, cmpCases,
-				b =>  {
-					var consequent = []
-					for (var c of b)
-						if (c.consequent.length) {
-							consequent = c.consequent
-							c.consequent = []
-						}
-					_.last(b).consequent = consequent
-				})
-			a.cases = sortBlocks(a.cases, (c, i) => a.cases[i - 1].consequent.length && hasTerminator(a.cases[i - 1]), cmpCases)
+			a.cases = sortElements(a.cases, c =>true, (c, i) =>a.cases[i - 1].consequent.length, cmpCases, b => {
+				var consequent = []
+				for (var c of b)
+					if (c.consequent.length) {
+						consequent = c.consequent
+						c.consequent = []
+					}
+				_.last(b).consequent = consequent
+			})
+			a.cases = sortBlocks(a.cases, (c, i) =>a.cases[i - 1].consequent.length && hasTerminator(a.cases[i - 1]), cmpCases)
 		},
 		keys,
 	})
@@ -239,15 +238,14 @@ function run(a) {
 		enter(a) {
 			if (!a.body)
 				return
-			a.body = sortElements(a.body, isExport, _.negate(isExport),
-				(a, b) =>  {
+			a.body = sortElements(a.body, isExport, _.negate(isExport), (a, b) => {
 
-					function key(x) {
-						return x.expression.right.name
-					}
+				function key(x) {
+					return x.expression.right.name
+				}
 
-					return cmp(key(a), key(b))
-				})
+				return cmp(key(a), key(b))
+			})
 		},
 		keys,
 	})
@@ -257,15 +255,14 @@ function run(a) {
 		enter(a) {
 			if (!a.body)
 				return
-			a.body = sortElements(a.body, b => b.type === 'FunctionDeclaration', b => b.type !== 'FunctionDeclaration',
-				(a, b) =>  {
+			a.body = sortElements(a.body, b =>b.type === 'FunctionDeclaration', b =>b.type !== 'FunctionDeclaration', (a, b) => {
 
-					function key(x) {
-						return x.id.name
-					}
+				function key(x) {
+					return x.id.name
+				}
 
-					return cmp(key(a), key(b))
-				})
+				return cmp(key(a), key(b))
+			})
 		},
 		keys,
 	})
@@ -275,21 +272,20 @@ function run(a) {
 		enter(a) {
 			if (a.type !== 'ObjectExpression')
 				return
-			a.properties = sortElements(a.properties, b => true, b => false,
-				(a, b) =>  {
+			a.properties = sortElements(a.properties, b =>true, b =>false, (a, b) => {
 
-					function key(x) {
-						x = x.key
-						switch (x.type) {
-						case 'Identifier':
-							return x.name
-						case 'Literal':
-							return x.value
-						}
+				function key(x) {
+					x = x.key
+					switch (x.type) {
+					case 'Identifier':
+						return x.name
+					case 'Literal':
+						return x.value
 					}
+				}
 
-					return cmp(key(a), key(b))
-				})
+				return cmp(key(a), key(b))
+			})
 		},
 		keys,
 	})
@@ -299,15 +295,14 @@ function run(a) {
 		enter(a) {
 			if (!a.body)
 				return
-			a.body = sortElements(a.body, etc.isRequire, _.negate(etc.isRequire),
-				(a, b) =>  {
+			a.body = sortElements(a.body, etc.isRequire, _.negate(etc.isRequire), (a, b) => {
 
-					function key(x) {
-						return x.declarations[0].id.name
-					}
+				function key(x) {
+					return x.declarations[0].id.name
+				}
 
-					return cmp(key(a), key(b))
-				})
+				return cmp(key(a), key(b))
+			})
 		},
 		keys,
 	})
@@ -347,15 +342,14 @@ function sortAssigns(a) {
 						r.push(...b)
 						continue loop
 					}
-			b = b.sort(
-				(a, b) =>  {
+			b = b.sort((a, b) => {
 
-					function key(x) {
-						return x.expression.left.name
-					}
+				function key(x) {
+					return x.expression.left.name
+				}
 
-					return cmp(key(a), key(b))
-				})
+				return cmp(key(a), key(b))
+			})
 			hoistComments(b)
 			r.push(...b)
 		}
@@ -364,7 +358,7 @@ function sortAssigns(a) {
 
 function sortBlocks(a, isEnd, cmp) {
 	var bs = blocks(a, isEnd)
-	bs = bs.sort((x, y) => cmp(x[0], y[0]))
+	bs = bs.sort((x, y) =>cmp(x[0], y[0]))
 	return [].concat(...bs)
 }
 
@@ -417,15 +411,14 @@ function sortVars(a) {
 						r.push(...b)
 						continue loop
 					}
-			b = b.sort(
-				(a, b) =>  {
+			b = b.sort((a, b) => {
 
-					function key(x) {
-						return x.declarations[0].id.name
-					}
+				function key(x) {
+					return x.declarations[0].id.name
+				}
 
-					return cmp(key(a), key(b))
-				})
+				return cmp(key(a), key(b))
+			})
 			hoistComments(b)
 			r.push(...b)
 		}

@@ -84,7 +84,7 @@ function emit(a, level) {
 			emit(a.params[0], level)
 		else
 			params(a.params, level)
-		ss.push(' => ')
+		ss.push(' =>')
 		if (a.body.type === 'BlockStatement')
 			block(a.body, level)
 		else
@@ -455,14 +455,26 @@ function params(a, level) {
 			ss.push(', ')
 		emit(a[i], level)
 	}
-	if (!i && a.length)
-		ss.push('\n')
-	level++
-	for (; i < a.length; i++) {
+	if (i + 1 === a.length && a[i].type === 'ArrowFunctionExpression') {
 		if (i)
-			ss.push(',\n')
-		indent(level)
-		emit(a[i], level)
+			ss.push(', ')
+		a = a[i]
+		if (a.params.length === 1)
+			emit(a.params[0], level)
+		else
+			params(a.params, level)
+		ss.push(' =>')
+		block(a.body, level)
+	} else {
+		if (!i && a.length)
+			ss.push('\n')
+		level++
+		for (; i < a.length; i++) {
+			if (i)
+				ss.push(',\n')
+			indent(level)
+			emit(a[i], level)
+		}
 	}
 	ss.push(')')
 }
