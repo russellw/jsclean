@@ -84,11 +84,8 @@ function emit(a, level) {
 			emit(a.params[0], level)
 		else
 			params(a.params, level)
-		ss.push(' =>')
-		if (a.body.type === 'BlockStatement')
-			block(a.body, level)
-		else
-			emit(a.body, level)
+		ss.push(' => ')
+		emit(a.body, level)
 		break
 	case 'AssignmentExpression':
 	case 'BinaryExpression':
@@ -463,8 +460,8 @@ function params(a, level) {
 			emit(a.params[0], level)
 		else
 			params(a.params, level)
-		ss.push(' =>')
-		block(a.body, level)
+		ss.push(' => ')
+		emit(a.body, level)
 	} else {
 		if (!i && a.length)
 			ss.push('\n')

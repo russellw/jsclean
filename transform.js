@@ -219,7 +219,7 @@ function run(a) {
 		enter(a) {
 			if (a.type !== 'SwitchStatement')
 				return
-			a.cases = sortElements(a.cases, c =>true, (c, i) =>a.cases[i - 1].consequent.length, cmpCases, b => {
+			a.cases = sortElements(a.cases, c => true, (c, i) => a.cases[i - 1].consequent.length, cmpCases, b => {
 				var consequent = []
 				for (var c of b)
 					if (c.consequent.length) {
@@ -228,7 +228,7 @@ function run(a) {
 					}
 				_.last(b).consequent = consequent
 			})
-			a.cases = sortBlocks(a.cases, (c, i) =>a.cases[i - 1].consequent.length && hasTerminator(a.cases[i - 1]), cmpCases)
+			a.cases = sortBlocks(a.cases, (c, i) => a.cases[i - 1].consequent.length && hasTerminator(a.cases[i - 1]), cmpCases)
 		},
 		keys,
 	})
@@ -255,7 +255,7 @@ function run(a) {
 		enter(a) {
 			if (!a.body)
 				return
-			a.body = sortElements(a.body, b =>b.type === 'FunctionDeclaration', b =>b.type !== 'FunctionDeclaration', (a, b) => {
+			a.body = sortElements(a.body, b => b.type === 'FunctionDeclaration', b => b.type !== 'FunctionDeclaration', (a, b) => {
 
 				function key(x) {
 					return x.id.name
@@ -272,7 +272,7 @@ function run(a) {
 		enter(a) {
 			if (a.type !== 'ObjectExpression')
 				return
-			a.properties = sortElements(a.properties, b =>true, b =>false, (a, b) => {
+			a.properties = sortElements(a.properties, b => true, b => false, (a, b) => {
 
 				function key(x) {
 					x = x.key
@@ -358,7 +358,7 @@ function sortAssigns(a) {
 
 function sortBlocks(a, isEnd, cmp) {
 	var bs = blocks(a, isEnd)
-	bs = bs.sort((x, y) =>cmp(x[0], y[0]))
+	bs = bs.sort((x, y) => cmp(x[0], y[0]))
 	return [].concat(...bs)
 }
 
