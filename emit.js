@@ -433,9 +433,25 @@ function indent(level) {
 		ss.push('\t')
 }
 
+function inline(a) {
+	switch (a.type) {
+	case 'ArrowFunctionExpression':
+		return a.body.type !== 'BlockStatement'
+	case 'FunctionExpression':
+		return
+	}
+	return true
+}
+
 function params(a, level) {
 	ss.push('(')
-	if (a.some(b => b.type === 'ArrowFunctionExpression' && b.body.type === 'BlockStatement' || b.type === 'FunctionExpression')) {
+	if (a.every(inline))
+		for (var i = 0; i < a.length; i++) {
+			if (i)
+				ss.push(', ')
+			emit(a[i], level)
+		}
+	else {
 		ss.push('\n')
 		level++
 		for (var i = 0; i < a.length; i++) {
@@ -444,12 +460,7 @@ function params(a, level) {
 			indent(level)
 			emit(a[i], level)
 		}
-	} else
-		for (var i = 0; i < a.length; i++) {
-			if (i)
-				ss.push(', ')
-			emit(a[i], level)
-		}
+	}
 	ss.push(')')
 }
 
