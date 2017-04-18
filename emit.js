@@ -199,6 +199,11 @@ function emit(a, level) {
 		if (a.alternate) {
 			blockEnd(a.consequent, level)
 			ss.push('else')
+			if (a.alternate.type === 'IfStatement') {
+				ss.push(' ')
+				emit(a.alternate, level)
+				break
+			}
 			block(a.alternate, level)
 		}
 		break
@@ -451,25 +456,24 @@ function params(a, level) {
 				ss.push(', ')
 			emit(a[i], level)
 		}
-	else
-		if (inline(a[0])) {
-			emit(a[0], level)
-			level++
-			for (var i = 1; i < a.length; i++) {
-				ss.push(',\n')
-				indent(level)
-				emit(a[i], level)
-			}
-		} else {
-			ss.push('\n')
-			level++
-			for (var i = 0; i < a.length; i++) {
-				if (i)
-					ss.push(',\n')
-				indent(level)
-				emit(a[i], level)
-			}
+	else if (inline(a[0])) {
+		emit(a[0], level)
+		level++
+		for (var i = 1; i < a.length; i++) {
+			ss.push(',\n')
+			indent(level)
+			emit(a[i], level)
 		}
+	} else {
+		ss.push('\n')
+		level++
+		for (var i = 0; i < a.length; i++) {
+			if (i)
+				ss.push(',\n')
+			indent(level)
+			emit(a[i], level)
+		}
+	}
 	ss.push(')')
 }
 
