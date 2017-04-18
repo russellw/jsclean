@@ -226,8 +226,7 @@ function run(a) {
 		enter(a) {
 			if (a.type !== 'SwitchStatement')
 				return
-			a.cases = sortElements(
-				a.cases,
+			a.cases = sortElements(a.cases,
 				c => true,
 				(c, i) => a.cases[i - 1].consequent.length,
 				cmpCases,
@@ -250,8 +249,7 @@ function run(a) {
 		enter(a) {
 			if (!a.body)
 				return
-			a.body = sortElements(
-				a.body,
+			a.body = sortElements(a.body,
 				isExport,
 				negate(isExport),
 				(a, b) =>  {
@@ -271,8 +269,7 @@ function run(a) {
 		enter(a) {
 			if (!a.body)
 				return
-			a.body = sortElements(
-				a.body,
+			a.body = sortElements(a.body,
 				b => b.type === 'FunctionDeclaration',
 				b => b.type !== 'FunctionDeclaration',
 				(a, b) =>  {
@@ -292,8 +289,7 @@ function run(a) {
 		enter(a) {
 			if (a.type !== 'ObjectExpression')
 				return
-			a.properties = sortElements(
-				a.properties,
+			a.properties = sortElements(a.properties,
 				b => true,
 				b => false,
 				(a, b) =>  {
@@ -319,8 +315,7 @@ function run(a) {
 		enter(a) {
 			if (!a.body)
 				return
-			a.body = sortElements(
-				a.body,
+			a.body = sortElements(a.body,
 				etc.isRequire,
 				negate(etc.isRequire),
 				(a, b) =>  {
