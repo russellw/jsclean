@@ -473,6 +473,18 @@ function params(a, level) {
 		ss.push(')')
 		return
 	}
+	if (i + 1 === a.length && a[i].type === 'FunctionExpression') {
+		if (i)
+			ss.push(', ')
+		a = a[i]
+		ss.push('function ')
+		if (a.id)
+			ss.push(a.id.name)
+		params(a.params, level)
+		block(a.body, level)
+		ss.push(')')
+		return
+	}
 	if (!i)
 		ss.push('\n')
 	level++
