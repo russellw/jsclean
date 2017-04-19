@@ -451,6 +451,10 @@ function inline(a) {
 
 function params(a, level) {
 	ss.push('(')
+	if (!a.length) {
+		ss.push(')')
+		return
+	}
 	for (var i = 0; i < a.length && inline(a[i]); i++) {
 		if (i)
 			ss.push(', ')
@@ -467,7 +471,7 @@ function params(a, level) {
 		ss.push(' => ')
 		emit(a.body, level)
 	} else {
-		if (!i && a.length)
+		if (!i)
 			ss.push('\n')
 		level++
 		for (; i < a.length; i++) {
