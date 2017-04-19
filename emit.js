@@ -317,6 +317,10 @@ function emit(a, level) {
 		ss.push(': ')
 		emit(a.value, level)
 		break
+	case 'RestElement':
+		ss.push('...')
+		emit(a.argument, level)
+		break
 	case 'ReturnStatement':
 		ss.push('return')
 		if (a.argument) {
