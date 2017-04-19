@@ -470,16 +470,17 @@ function params(a, level) {
 			params(a.params, level)
 		ss.push(' => ')
 		emit(a.body, level)
-	} else {
-		if (!i)
-			ss.push('\n')
-		level++
-		for (; i < a.length; i++) {
-			if (i)
-				ss.push(',\n')
-			indent(level)
-			emit(a[i], level)
-		}
+		ss.push(')')
+		return
+	}
+	if (!i)
+		ss.push('\n')
+	level++
+	for (; i < a.length; i++) {
+		if (i)
+			ss.push(',\n')
+		indent(level)
+		emit(a[i], level)
 	}
 	ss.push(')')
 }
