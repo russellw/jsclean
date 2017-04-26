@@ -1,6 +1,6 @@
 {
   "author": "Russell Wallace <russell.wallace@gmail.com>",
-  "bin": "./jsclean.js",
+  "bin": "jsclean.js",
   "bugs": {
     "url": "https://github.com/russellw/jsclean/issues"
   },
