@@ -530,6 +530,9 @@ function run(a) {
 	// Don't start with blank line
 	text = text.replace(/^\n+/, '')
 
+	// No blank lines between closing braces
+	text = text.replace(/}\n\n}/g, '}\n}')
+
 	// End with exactly one newline
 	return text.replace(/\n*$/, '\n')
 }
@@ -538,6 +541,7 @@ function spaced(a) {
 	switch (a.type) {
 	case 'ClassDeclaration':
 	case 'FunctionDeclaration':
+	case 'MethodDefinition':
 		return true
 	}
 }
