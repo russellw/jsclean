@@ -534,13 +534,21 @@ function run(a) {
 	return text.replace(/\n*$/, '\n')
 }
 
+function spaced(a) {
+	switch (a.type) {
+	case 'ClassDeclaration':
+	case 'FunctionDeclaration':
+		return true
+	}
+}
+
 function stmt(a, level) {
-	if (a.type === 'FunctionDeclaration')
+	if (spaced(a))
 		ss.push('\n')
 	indent(level)
 	emit(a, level)
 	ss.push('\n')
-	if (a.type === 'FunctionDeclaration')
+	if (spaced(a))
 		ss.push('\n')
 }
 
