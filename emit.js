@@ -538,6 +538,7 @@ function run(a) {
 	text = text.replace(/{\n\n/g, '{\n')
 
 	// No blank lines between closing braces
+	text = text.replace(/},\n\n}/g, '},\n}')
 	text = text.replace(/}\n\n}/g, '}\n}')
 
 	// End with exactly one newline
