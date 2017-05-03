@@ -1,4 +1,5 @@
 'use strict'
+var assert = require('assert')
 var estraverse = require('estraverse')
 var etc = require('./etc')
 
@@ -113,6 +114,17 @@ function emit(a, level) {
 	case 'CallExpression':
 		emit(a.callee, level)
 		params(a.arguments, level)
+		break
+	case 'ClassBody':
+		ss.push('{\n')
+		stmts(a.body, level + 1)
+		indent(level)
+		ss.push('}')
+		break
+	case 'ClassDeclaration':
+		ss.push('class ' + a.id.name + ' ')
+		assert(!a.superclass)
+		emit(a.body, level)
 		break
 	case 'ConditionalExpression':
 		emit(a.test, level)
@@ -273,6 +285,11 @@ function emit(a, level) {
 			ss.push('.')
 			emit(a.property, level)
 		}
+		break
+	case 'MethodDefinition':
+		emit(a.key)
+		params(a.value.params, level)
+		block(a.value.body, level)
 		break
 	case 'NewExpression':
 		ss.push('new ')
