@@ -263,6 +263,24 @@ function run(a) {
 		keys,
 	})
 
+	// Sort methods
+	estraverse.traverse(a, {
+		enter(a) {
+			if (!a.body)
+				return
+			a.body = sortElements(a.body, b => b.type === 'MethodDefinition', b => b.type !== 'MethodDefinition', (a, b) => {
+				function key(x) {
+					if (x.key.name === 'constructor')
+						return ''
+					return x.key.name
+				}
+
+				return cmp(key(a), key(b))
+			})
+		},
+		keys,
+	})
+
 	// Sort properties
 	estraverse.traverse(a, {
 		enter(a) {
