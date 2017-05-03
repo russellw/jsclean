@@ -303,10 +303,14 @@ function emit(a, level) {
 		}
 		ss.push('{\n')
 		for (var b of a.properties) {
+			if (b.value.type === 'FunctionExpression')
+				ss.push('\n')
 			comment(b, level + 1)
 			indent(level + 1)
 			emit(b, level + 1)
 			ss.push(',\n')
+			if (b.value.type === 'FunctionExpression')
+				ss.push('\n')
 		}
 		indent(level)
 		ss.push('}')

@@ -142,6 +142,7 @@ function run(a) {
 					break
 				}
 		},
+
 		keys,
 	})
 
@@ -162,6 +163,7 @@ function run(a) {
 				break
 			}
 		},
+
 		keys,
 	})
 
@@ -180,6 +182,7 @@ function run(a) {
 				type: 'BreakStatement',
 			})
 		},
+
 		keys,
 	})
 
@@ -199,6 +202,7 @@ function run(a) {
 					}
 			}
 		},
+
 		keys,
 	})
 
@@ -209,6 +213,7 @@ function run(a) {
 				return
 			a.body = sortAssigns(a.body)
 		},
+
 		keys,
 	})
 
@@ -228,6 +233,7 @@ function run(a) {
 			})
 			a.cases = sortBlocks(a.cases, (c, i) => a.cases[i - 1].consequent.length && hasTerminator(a.cases[i - 1]), cmpCases)
 		},
+
 		keys,
 	})
 
@@ -244,6 +250,7 @@ function run(a) {
 				return cmp(key(a), key(b))
 			})
 		},
+
 		keys,
 	})
 
@@ -260,6 +267,7 @@ function run(a) {
 				return cmp(key(a), key(b))
 			})
 		},
+
 		keys,
 	})
 
@@ -278,6 +286,7 @@ function run(a) {
 				return cmp(key(a), key(b))
 			})
 		},
+
 		keys,
 	})
 
@@ -300,6 +309,7 @@ function run(a) {
 				return cmp(key(a), key(b))
 			})
 		},
+
 		keys,
 	})
 
@@ -316,6 +326,7 @@ function run(a) {
 				return cmp(key(a), key(b))
 			})
 		},
+
 		keys,
 	})
 
@@ -326,6 +337,7 @@ function run(a) {
 				return
 			a.body = sortVars(a.body)
 		},
+
 		keys,
 	})
 }

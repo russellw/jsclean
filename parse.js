@@ -71,6 +71,7 @@ function run(text) {
 				break
 			}
 		},
+
 		keys,
 	})
 	estraverse.traverse(a, {
@@ -78,6 +79,7 @@ function run(text) {
 			if (a.leadingComments)
 				throw new Error(a)
 		},
+
 		keys,
 	})
 
