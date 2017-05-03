@@ -13,7 +13,6 @@ function comment(a) {
 }
 
 function run(text) {
-
 	// #!
 	var hashbang = ''
 	if (text.slice(0, 2) === '#!') {

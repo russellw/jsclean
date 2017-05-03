@@ -530,6 +530,9 @@ function run(a) {
 	// Don't start with blank line
 	text = text.replace(/^\n+/, '')
 
+	// No blank lines after opening braces
+	text = text.replace(/{\n\n/g, '{\n')
+
 	// No blank lines between closing braces
 	text = text.replace(/}\n\n}/g, '}\n}')
 

@@ -29,7 +29,6 @@ function cmp(a, b) {
 }
 
 function cmpCases(a, b) {
-
 	function key(x) {
 		x = x.test
 		if (!x)
@@ -128,7 +127,6 @@ function isTerminator(a) {
 }
 
 function run(a) {
-
 	// ===
 	estraverse.traverse(a, {
 		enter(a) {
@@ -239,7 +237,6 @@ function run(a) {
 			if (!a.body)
 				return
 			a.body = sortElements(a.body, isExport, _.negate(isExport), (a, b) => {
-
 				function key(x) {
 					return x.expression.right.name
 				}
@@ -256,7 +253,6 @@ function run(a) {
 			if (!a.body)
 				return
 			a.body = sortElements(a.body, b => b.type === 'FunctionDeclaration', b => b.type !== 'FunctionDeclaration', (a, b) => {
-
 				function key(x) {
 					return x.id.name
 				}
@@ -273,7 +269,6 @@ function run(a) {
 			if (a.type !== 'ObjectExpression')
 				return
 			a.properties = sortElements(a.properties, b => true, b => false, (a, b) => {
-
 				function key(x) {
 					x = x.key
 					switch (x.type) {
@@ -296,7 +291,6 @@ function run(a) {
 			if (!a.body)
 				return
 			a.body = sortElements(a.body, etc.isRequire, _.negate(etc.isRequire), (a, b) => {
-
 				function key(x) {
 					return x.declarations[0].id.name
 				}
@@ -343,7 +337,6 @@ function sortAssigns(a) {
 						continue loop
 					}
 			b = b.sort((a, b) => {
-
 				function key(x) {
 					return x.expression.left.name
 				}
@@ -412,7 +405,6 @@ function sortVars(a) {
 						continue loop
 					}
 			b = b.sort((a, b) => {
-
 				function key(x) {
 					return x.declarations[0].id.name
 				}
