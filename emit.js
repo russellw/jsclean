@@ -287,6 +287,11 @@ function emit(a, level) {
 		}
 		break
 	case 'MethodDefinition':
+		switch (a.kind) {
+		case 'get':
+			ss.push(a.kind + ' ')
+			break
+		}
 		emit(a.key)
 		params(a.value.params, level)
 		block(a.value.body, level)
