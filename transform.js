@@ -151,7 +151,6 @@ function run(a) {
 		enter(a) {
 			switch (a.type) {
 			case 'DoWhileStatement':
-			case 'ForInStatement':
 			case 'ForOfStatement':
 			case 'ForStatement':
 			case 'WhileStatement':

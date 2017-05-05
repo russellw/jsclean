@@ -153,13 +153,7 @@ function emit(a, level) {
 		emit(a.expression, level)
 		break
 	case 'ForInStatement':
-		ss.push('for (')
-		forInit(a.left, level)
-		ss.push(' in ')
-		emit(a.right, level)
-		ss.push(')')
-		block(a.body, level)
-		break
+		throw new Error(a)
 	case 'ForOfStatement':
 		ss.push('for (')
 		forInit(a.left, level)
