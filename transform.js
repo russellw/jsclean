@@ -190,9 +190,8 @@ function run(a) {
 		enter(a) {
 			if (!a.comments)
 				return
-			for (var c of a.comments) {
-				if (c.type !== 'Line')
-					continue
+			var c = a.comments[0]
+			if (c.type === 'Line') {
 				var s = c.value
 				for (var i = 0; i < s.length; i++)
 					if (s[i] !== ' ') {
