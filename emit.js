@@ -57,6 +57,18 @@ function comment(a, level) {
 	}
 }
 
+function declarator(a) {
+	if (a.name)
+		return a.name
+	var s = '['
+	for (var b of a.elements) {
+		if (s.length > 1)
+			s += ', '
+		s += declarator(b)
+	}
+	return s + ']'
+}
+
 function emit(a, level) {
 	switch (a.type) {
 	case 'ArrayExpression':
@@ -422,7 +434,7 @@ function emit(a, level) {
 		variableDeclaration(a, level)
 		break
 	case 'VariableDeclarator':
-		ss.push(a.id.name)
+		ss.push(declarator(a.id))
 		if (a.init) {
 			ss.push(' = ')
 			emit(a.init, level)
