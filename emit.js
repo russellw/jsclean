@@ -136,7 +136,8 @@ function emit(a, level) {
 		break
 	case 'ClassDeclaration':
 		ss.push('class ' + a.id.name + ' ')
-		assert(!a.superclass)
+		if (a.superClass)
+			ss.push('extends ' + a.superClass.name + ' ')
 		emit(a.body, level)
 		break
 	case 'ConditionalExpression':
