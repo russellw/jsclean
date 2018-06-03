@@ -15,6 +15,7 @@ function atomic(a) {
 	switch (a.type) {
 	case 'Identifier':
 	case 'Literal':
+	case 'Super':
 	case 'This':
 		return true
 	}
@@ -370,6 +371,9 @@ function emit(a, level) {
 	case 'SpreadElement':
 		ss.push('...')
 		emit(a.argument, level)
+		break
+	case 'Super':
+		ss.push('super')
 		break
 	case 'SwitchStatement':
 		ss.push('switch (')
