@@ -345,35 +345,35 @@ function sortAssigns(a) {
 		return a
 	var r = []
 	loop:
-		for (var i = 0; i < a.length;) {
-			if (!isSimpleAssign(a[i], j)) {
-				r.push(a[i++])
-				continue
-			}
-			for (var j = i + 1; j < a.length; j++) {
-				if (a[j].comments)
-					break
-				if (!isSimpleAssign(a[j], j))
-					break
-			}
-			var b = a.slice(i, j)
-			i = j
-			for (var x of b)
-				for (var y of b)
-					if (x.expression.left.name === y.expression.right.name) {
-						r.push(...b)
-						continue loop
-					}
-			b = b.sort((a, b) => {
-				function key(x) {
-					return x.expression.left.name
-				}
-
-				return cmp(key(a), key(b))
-			})
-			hoistComments(b)
-			r.push(...b)
+	for (var i = 0; i < a.length;) {
+		if (!isSimpleAssign(a[i], j)) {
+			r.push(a[i++])
+			continue
 		}
+		for (var j = i + 1; j < a.length; j++) {
+			if (a[j].comments)
+				break
+			if (!isSimpleAssign(a[j], j))
+				break
+		}
+		var b = a.slice(i, j)
+		i = j
+		for (var x of b)
+			for (var y of b)
+				if (x.expression.left.name === y.expression.right.name) {
+					r.push(...b)
+					continue loop
+				}
+		b = b.sort((a, b) => {
+			function key(x) {
+				return x.expression.left.name
+			}
+
+			return cmp(key(a), key(b))
+		})
+		hoistComments(b)
+		r.push(...b)
+	}
 	return r
 }
 
@@ -413,35 +413,35 @@ function sortVars(a) {
 		return a
 	var r = []
 	loop:
-		for (var i = 0; i < a.length;) {
-			if (!isSimpleVar(a[i], j)) {
-				r.push(a[i++])
-				continue
-			}
-			for (var j = i + 1; j < a.length; j++) {
-				if (a[j].comments)
-					break
-				if (!isSimpleVar(a[j], j))
-					break
-			}
-			var b = a.slice(i, j)
-			i = j
-			for (var x of b)
-				for (var y of b)
-					if (y.declarations[0].init && x.declarations[0].id.name === y.declarations[0].init.name) {
-						r.push(...b)
-						continue loop
-					}
-			b = b.sort((a, b) => {
-				function key(x) {
-					return x.declarations[0].id.name
-				}
-
-				return cmp(key(a), key(b))
-			})
-			hoistComments(b)
-			r.push(...b)
+	for (var i = 0; i < a.length;) {
+		if (!isSimpleVar(a[i], j)) {
+			r.push(a[i++])
+			continue
 		}
+		for (var j = i + 1; j < a.length; j++) {
+			if (a[j].comments)
+				break
+			if (!isSimpleVar(a[j], j))
+				break
+		}
+		var b = a.slice(i, j)
+		i = j
+		for (var x of b)
+			for (var y of b)
+				if (y.declarations[0].init && x.declarations[0].id.name === y.declarations[0].init.name) {
+					r.push(...b)
+					continue loop
+				}
+		b = b.sort((a, b) => {
+			function key(x) {
+				return x.declarations[0].id.name
+			}
+
+			return cmp(key(a), key(b))
+		})
+		hoistComments(b)
+		r.push(...b)
+	}
 	return r
 }
 
