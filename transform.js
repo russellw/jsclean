@@ -204,6 +204,22 @@ function run(a) {
 		keys,
 	})
 
+	// Properties
+	estraverse.traverse(a, {
+		enter(a) {
+			if (a.type !== 'Property')
+				return
+			if (a.key.type !== 'Literal')
+				return
+			if (typeof (a.key.value) !== 'string')
+				return
+			a.key.type = 'Identifier'
+			a.key.name = a.key.value
+		},
+
+		keys,
+	})
+
 	// Sort assignment
 	estraverse.traverse(a, {
 		enter(a) {
