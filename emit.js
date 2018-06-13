@@ -226,7 +226,6 @@ function emit(a, level) {
 		break
 	case 'LabeledStatement':
 		ss.push(a.label.name + ':\n')
-		level++
 		indent(level)
 		emit(a.body, level)
 		break
