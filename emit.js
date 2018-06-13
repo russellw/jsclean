@@ -340,6 +340,10 @@ function emit(a, level) {
 			ss.push(a.key.name)
 			break
 		}
+		if (a.key.type === 'Literal' && a.value.type === 'Identifier' && a.key.value === a.value.name) {
+			ss.push(a.key.value)
+			break
+		}
 		if (a.value.type === 'FunctionExpression') {
 			ss.push(a.key.name)
 			params(a.value.params, level)

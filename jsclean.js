@@ -18,7 +18,7 @@ commander.parse(process.argv)
 var files = commandFiles.expand(commander.args)
 var debug = 0
 if (debug && !files.length)
-	files = ['/t/a.js']
+	files = ['/tmp/a.js']
 for (var file of files) {
 	var input = fs.readFileSync(file, {
 		encoding: 'utf8',
